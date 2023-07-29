@@ -1,0 +1,30 @@
+@media screen and (max-width:768px) {
+    div#panel-container {
+        grid-template-rows: auto auto auto 1fr auto;
+        grid-template-columns: auto;
+    }
+
+    div.flat-panel#history {
+        grid-area: -1 / 1;
+    }
+
+    div.flat-panel#console {
+        grid-area: 4 / 1 / 4 / -2;
+    }
+
+    div.flat-panel#monitor {
+        grid-area: 3 / 1;
+    }
+
+    div#details-container {
+        padding: 0 20px;
+    }
+
+    svg#maximize-svg{
+        display: none;
+    }
+
+    div.console-container {
+        height: 80vh;
+    }
+}

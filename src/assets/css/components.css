@@ -1,0 +1,13 @@
+.shadow {
+    box-shadow: var(--box-shadow-lighter);
+}
+
+.shadow:hover {
+    box-shadow: var(--box-shadow-light);
+}
+
+.no-select {
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}

@@ -1,0 +1,63 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--text-color-primary);
+  line-height: 1.6;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 15px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-color-page);
+  margin: 0;
+  height: 100vh;
+}
+
+img[src$="logo.png"] {
+  image-rendering: pixelated;
+}
+
+a,
+.url {
+  color: var(--color-primary);
+  padding: 2px 4px;
+  border-radius: 4px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+a:hover,
+.url:hover {
+  color: var(--color-primary-dark-2);
+}
+
+::selection {
+  background: var(--fill-color-darker);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.title {
+  color: black;
+}
+
+body.dark h1,
+body.dark h2,
+body.dark h3,
+body.dark h4,
+body.dark h5,
+body.dark h6,
+body.dark .title {
+  color: white;
+}

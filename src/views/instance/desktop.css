@@ -1,0 +1,9 @@
+@media screen and (min-width:768px) {
+    div.flat-panel#console div#console-wrapper {
+        position: relative;
+    }
+
+    div.console-container {
+        position: absolute;
+    }
+}

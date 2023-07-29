@@ -1,0 +1,23 @@
+name: build Pages
+
+on:
+  push:
+  workflow_dispatch:
+    
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - shell: cmd
+        run: npm i
+
+      - shell: cmd
+        run: npm run build
+      
+      - uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: dist/

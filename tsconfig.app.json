@@ -1,0 +1,20 @@
+{
+  "include": [
+    "src/**/*",
+    "src/**/*.ts",
+    "src/**/*.vue",
+    "volar.config.js"
+  ],
+  "exclude": [
+    "src/**/__tests__/*"
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
+  }
+}

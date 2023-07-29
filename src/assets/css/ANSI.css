@@ -1,0 +1,130 @@
+/* 
+  ref: https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit
+*/
+body:not(.dark) .ANSI-30 {
+    color: #0c0c0c
+}
+
+body.dark .ANSI-40 {
+    background: #0c0c0c
+}
+
+.ANSI-31 {
+    color: #C50F1F
+}
+
+.ANSI-41 {
+    background: #C50F1F
+}
+
+.ANSI-32 {
+    color: #13A10E
+}
+
+.ANSI-42 {
+    background: #13A10E
+}
+
+.ANSI-33 {
+    color: #C19C00
+}
+
+.ANSI-43 {
+    background: #C19C00
+}
+
+.ANSI-34 {
+    color: #0037DA
+}
+
+.ANSI-44 {
+    background: #0037DA
+}
+
+.ANSI-35 {
+    color: #881798
+}
+
+.ANSI-45 {
+    background: #881798
+}
+
+.ANSI-36 {
+    color: #3A96DD
+}
+
+.ANSI-46 {
+    background: #3A96DD
+}
+
+body.dark .ANSI-37 {
+    color: #CCCCCC
+}
+
+body:not(.dark) .ANSI-47 {
+    background: #CCCCCC
+}
+
+.ANSI-90 {
+    color: #767676
+}
+
+.ANSI-100 {
+    background: #767676
+}
+
+.ANSI-91 {
+    color: #FC391F
+}
+
+.ANSI-101 {
+    background: #FC391F
+}
+
+.ANSI-92 {
+    color: #16C60C
+}
+
+.ANSI-102 {
+    background: #16C60C
+}
+
+.ANSI-93 {
+    color: #F9F1A5
+}
+
+.ANSI-103 {
+    background: #F9F1A5
+}
+
+.ANSI-94 {
+    color: #3B78FF
+}
+
+.ANSI-104 {
+    background: #3B78FF
+}
+
+.ANSI-95 {
+    color: #B4009E
+}
+
+.ANSI-105 {
+    background: #B4009E
+}
+
+.ANSI-96 {
+    color: #61D6D6
+}
+
+.ANSI-106 {
+    background: #61D6D6
+}
+
+.ANSI-97 {
+    color: #F2F2F2
+}
+
+.ANSI-107 {
+    background: #F2F2F2
+}

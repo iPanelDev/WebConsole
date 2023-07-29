@@ -1,0 +1,23 @@
+.flat {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    outline: none;
+    background: none;
+    margin: 10px 0;
+}
+
+.flat[disabled],
+.flat[disabled=true] {
+    color: var(--text-color-disabled);
+    cursor: not-allowed;
+}
+
+div.flat:hover:not([disabled]):not(:has(*[disabled])) {
+    border: 1px solid var(--border-color-hover);
+}
+
+.flat[disabled],
+.flat[disabled] *,
+.flat *[disabled] {
+    cursor: not-allowed;
+}

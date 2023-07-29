@@ -1,0 +1,151 @@
+div#details-container {
+    width: 100%;
+    padding: 10px 40px;
+}
+
+.details-title svg {
+    margin-right: 5px;
+    transform: scale(0.8);
+}
+
+.details-title {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+div#panel-container {
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    grid-template-columns: auto 1fr;
+    column-gap: 20px;
+}
+
+h1.details-title {
+    margin: 15px 0 10px;
+}
+
+div.flat-panel#control {
+    grid-area: 2 / 1;
+}
+
+div.flat-panel#console {
+    grid-area: 1 / 2 / 4 / 2;
+    display: flex;
+    flex-direction: column;
+}
+
+div.flat-panel#console div#console-wrapper {
+    display: flex;
+    height: 100%;
+    margin-bottom: 20px;
+}
+
+div.flat-panel#console div#console-input-wrapper {
+    display: flex;
+}
+
+div.flat-panel#console div#console-input-wrapper input,
+div.history-item {
+    font-family: Consolas, 'Courier New', Courier, 微软雅黑;
+}
+
+div.flat-panel#console div#console-input-wrapper .flat-input {
+    width: 100%;
+    margin-right: 15px;
+}
+
+div.flat-panel#monitor {
+    grid-area: 3 / 1;
+}
+
+div.flat-panel#history {
+    grid-area: 4 / 1 / 4 / -1;
+}
+
+div.flat-panel div.void {
+    width: 100%;
+}
+
+div.flat-panel svg.hover-effect-svg:hover {
+    color: var(--text-color-secondary);
+    cursor: pointer;
+}
+
+div.flat-panel#info>table {
+    width: 100%;
+    margin: 10px 0;
+}
+
+div.flat-panel#info>table td div {
+    display: flex;
+    align-items: center;
+}
+
+td.info-item {
+    text-align: right;
+}
+
+div.flat-panel#info>table svg {
+    transform: scale(0.6);
+}
+
+div.flat-panel#control>div {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 20px;
+    justify-items: stretch;
+}
+
+div.flat-panel#monitor>div {
+    display: grid;
+    grid-template-columns: 1fr 30px;
+    align-items: center;
+    column-gap: 10px;
+}
+
+div.monitor-name {
+    grid-area: auto / 1 / auto / -1;
+    margin-top: 5px;
+}
+
+div.monitor-value {
+    text-align: right;
+    font-size: small;
+}
+
+div.monitor-name#monitor-ram,
+div.monitor-name#monitor-cpu {
+    display: flex;
+    overflow-x: hidden;
+}
+
+div.monitor-name#monitor-ram div,
+div.monitor-name#monitor-cpu div {
+    margin-right: 10px;
+    white-space: nowrap;
+    font-size: small;
+}
+
+div.monitor-value#monitor-os {
+    text-align: inherit;
+}
+
+div.history-item {
+    display: inline-block;
+    margin: 5px;
+    padding: 3px 5px;
+    border-radius: 3px;
+    background: var(--fill-color);
+    cursor: pointer;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: break-all;
+    max-width: 100%;
+}
+
+div.history-item:hover {
+    background: var(--fill-color-dark);
+}

@@ -1,0 +1,16 @@
+@import './css/base.css';
+@import './css/font.css';
+@import './css/color.css';
+@import './css/components.css';
+@import './css/flat.css';
+@import './css/ANSI.css';
+
+#app {
+  margin: 0 auto;
+  font-weight: normal;
+  height: 100%;
+}
+
+* {
+  transition: all 0.2s;
+}
