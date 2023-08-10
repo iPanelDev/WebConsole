@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
-import NotificationContainer from '@/notification/NotificationContainer.vue'
+import NotificationContainer from '@/notification/NotificationContainer.vue';
+import { RouterView } from 'vue-router';
 </script>
 
 <template>

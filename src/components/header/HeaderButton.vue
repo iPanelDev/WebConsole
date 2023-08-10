@@ -1,18 +1,17 @@
 <template>
-    <div class="light-button">
+    <div class="header-button">
         <slot></slot>
     </div>
 </template>
 
 
 <style>
-header .light-button {
+header .header-button {
     --size: 29px;
     height: var(--size);
 }
 
-.light-button {
-    border: 1px solid var(--border-color);
+.header-button {
     padding: 3px 10px;
     border-radius: 10px;
     background: none;
@@ -21,20 +20,19 @@ header .light-button {
     display: flex;
 }
 
-.light-button:hover {
-    border: 1px solid var(--border-color-darker);
+.header-button:hover {
     background: var(--fill-color-light);
 }
 
-div.header-svg-container.light-button {
+div.header-svg-container.header-button {
     width: var(--size);
+    padding: 0 !important;
 }
 
 @media screen and (max-width: 768px) {
-    header .light-button {
+    header .header-button {
         padding: 2px 7px;
         --size: 27px
     }
-
 }
 </style>

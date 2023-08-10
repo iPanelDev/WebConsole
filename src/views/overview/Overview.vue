@@ -1,25 +1,15 @@
 <script setup lang="ts">
-import Header from '@/components/header/Header.vue'
-import FlatInput from '@/components/flat/FlatInput.vue'
-import Frown from '@/components/svg/Frown.vue'
-import InstanceInfo from '@/components/InstanceInfo.vue';
+import FlatInput from '@/components/flat/FlatInput.vue';
+import Header from '@/components/header/Header.vue';
+import InstanceInfo from './InstanceInfo.vue';
 
 import { onMounted, ref } from 'vue';
-import { createNotify } from '@/notification'
 
-import info from '@/service/info'
-import { isConnected } from '@/service/ws'
-import { isVerified } from '@/service/packetHandler'
+import info from '@/service/info';
 import { Instance } from '@/service/types';
+import { checkConnectionStatus } from '@/service/ws';
 
-onMounted(() => {
-    if (!isVerified || !isConnected())
-        createNotify({
-            title: '你貌似还未' + (isConnected() && !isVerified ? '验证' : '连接'),
-            message: '请点击右上角的状态栏进行连接',
-            type: 'error'
-        });
-});
+onMounted(checkConnectionStatus);
 
 const filter = ref('');
 
@@ -32,26 +22,24 @@ const filterFunc = (i: Instance) => {
     <Header />
     <div id="overview-container">
         <h1>总览</h1>
-        <FlatInput placeholder="搜索实例名称或地址" type="text" inputmode="none" v-model="filter" autocomplete="off" />
+        <FlatInput placeholder="搜索实例名称或地址" type="text" inputmode="none" v-model="filter" autocomplete="off">
+            <vue-feather type="search" size="16" />
+        </FlatInput>
 
         <div id="panel-container">
             <InstanceInfo v-for="(value, key) in Array.from(info.instances.values()).filter(filterFunc)" :key="key"
                 :instance="value" />
         </div>
-        <div class="void no-select" v-if="info.instances.size === 0">
-            <Frown />
-            <h2>
+        <div class="void no-select" v-if="Array.from(info.instances.values()).filter(filterFunc).length === 0">
+            <vue-feather type="frown" />
+            <h2 v-if="info.instances.size === 0">
                 空空如也。
             </h2>
-        </div>
-        <div class="void no-select"
-            v-if="info.instances.size != 0 && Array.from(info.instances.values()).filter(filterFunc).length === 0">
-            <Frown />
-            <h2>
+            <h2 v-else-if="info.instances.size != 0 && Array.from(info.instances.values()).filter(filterFunc).length === 0">
                 啥都没找到。
             </h2>
         </div>
-        <div id="update-time" :title="info.updateTime.toLocaleString()">
+        <div id=" update-time" :title="info.updateTime.toLocaleString()">
             更新于 {{ info.updateTime.value.toLocaleTimeString() }}
         </div>
     </div>

@@ -1,19 +1,14 @@
 <script setup lang="ts">
-import { Instance } from '@/service/types'
-import router from '@/router'
-
-import Box from '@/components/svg/Box.vue'
-import Server from '@/components/svg/Server.vue'
-import Clock from '@/components/svg/Clock.vue'
-import File from '@/components/svg/File.vue'
-import FlatPanel from '@/components/flat/FlatPanel.vue'
+import FlatPanel from '@/components/flat/FlatPanel.vue';
+import router from '@/router';
+import { Instance } from '@/service/types';
 
 const props = defineProps(['instance']);
 
 </script>
 
 <template>
-    <FlatPanel class="instance-panel" @click="router.push('/instance/' + props.instance.guid)"
+    <FlatPanel class="instance-panel" @click="router.push(`/instance/${props.instance.guid}/panel`)"
         :title="props.instance.address">
         <div class="row">
             <div class="instance-panel-name" v-if="props.instance.custom_name">
@@ -28,20 +23,20 @@ const props = defineProps(['instance']);
                 ({{ (props.instance as Instance).address ?? '-' }})
             </div>
         </div>
-        <div class="row">
-            <Server class="instance-panel-svg" />
+        <div class="row instance-info">
+            <vue-feather type="server" size="16" />
             服务器状态 : {{ (props.instance as Instance).short_info?.server_status ? '运行中 ' : '未启动' }}
         </div>
-        <div class="row">
-            <File class="instance-panel-svg" />
+        <div class="row instance-info">
+            <vue-feather type="file" size="16" />
             启动文件 : {{ (props.instance as Instance).short_info?.server_filename || '-' }}
         </div>
-        <div class="row">
-            <Clock class="instance-panel-svg" />
+        <div class="row instance-info">
+            <vue-feather type="clock" size="16" />
             运行时长 : {{ (props.instance as Instance).short_info?.server_time || '-' }}
         </div>
-        <div class="row">
-            <Box class="instance-panel-svg" />
+        <div class="row instance-info">
+            <vue-feather type="box" size="16" />
             系统 : {{ (props.instance as Instance).short_info?.os }}
         </div>
     </FlatPanel>
@@ -58,8 +53,8 @@ const props = defineProps(['instance']);
     margin: 3px;
 }
 
-.instance-panel-svg {
-    transform: scale(0.6);
+.instance-info {
+    color: var(--text-color-regular);
 }
 
 .instance-panel.flat {

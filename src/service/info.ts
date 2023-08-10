@@ -1,5 +1,6 @@
-import { ref } from "vue";
-import { Instance } from './types'
+import { ref } from 'vue';
+
+import { Instance } from './types';
 
 /**
  * 断开原因

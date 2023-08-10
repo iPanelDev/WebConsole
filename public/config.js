@@ -3,21 +3,13 @@
 // iPanel配置项
 window.iPanelConfig ||= {
     /**
-     * WebSocket地h址
-     * - 连接界面将默认填入此值
-     * @type {string}
-     */
-    webSocketAddress: '',
-
-    /**
-     * 隐藏WS地址
-     * - 为`true`后，连接界面的WebSocket地址输入框将不显示
-     * - 推荐和`webSocketAddress`一起使用
+     * 锁定WebSocket地址
+     * - 锁定后，将使用该host的ws服务器
      * 
-     * ❗ 此项只能保证不在界面中出现该地址，但是按F12即可看到
+     * `http://example.com:1111` -> `ws://example.com:1111/ws`
      * @type {boolean}
      */
-    hiddenWebSocketAddress: false,
+    lockWebSocket: false,
 
     /**
      * 填写密码使用的储存位置

@@ -1,32 +1,19 @@
 <script setup lang="ts">
+import { createNotify } from '@/notification';
+import router from '@/router';
+import info from '@/service/info';
+import { isVerified } from '@/service/packetHandler';
+import { subscribe } from '@/service/packetSender';
+import { clearInputHistory, clearOutputsMap, input, inputHistory, kill, start, stop } from '@/service/serverControler';
+import { checkConnectionStatus } from '@/service/ws';
 import { nextTick, onMounted, ref, watch } from 'vue';
-import { isConnected } from '@/service/ws'
-import { isVerified } from '@/service/packetHandler'
-import { subscribe } from '@/service/packetSender'
-import { createNotify } from '@/notification'
-import router from '@/router'
-import info from '@/service/info'
-import { input, kill, start, stop, inputHistory, clearInputHistory, clearOutputsMap } from '@/service/serverControler'
 
-import Header from '@/components/header/Header.vue'
-import HeaderButton from '@/components/header/HeaderButton.vue'
-import Info from '@/components/svg/Info.vue'
-import Tool from '@/components/svg/Tool.vue'
-import Terminal from '@/components/svg/Terminal.vue'
-import Server from '@/components/svg/Server.vue'
-import Clock from '@/components/svg/Clock.vue'
-import File from '@/components/svg/File.vue'
-import Trash from '@/components/svg/Trash.vue'
-import Pie from '@/components/svg/Pie.vue'
-import Archive from '@/components/svg/Archive.vue'
-import Maximize from '@/components/svg/Maximize.vue'
-import Minimize from '@/components/svg/Minimize.vue'
-import FlatButton from '@/components/flat/FlatButton.vue'
-import FlatInput from '@/components/flat/FlatInput.vue'
-import FlatPanel from '@/components/flat/FlatPanel.vue'
-import FlatProgressBar from '@/components/flat/FlatProgressBar.vue'
-import Console from './Console.vue';
-
+import FlatButton from '@/components/flat/FlatButton.vue';
+import FlatInput from '@/components/flat/FlatInput.vue';
+import FlatPanel from '@/components/flat/FlatPanel.vue';
+import FlatProgressBar from '@/components/flat/FlatProgressBar.vue';
+import Header from '@/components/header/Header.vue';
+import Console from '@/views/instancePanel/Console.vue';
 
 const
     inputText = ref(''),
@@ -57,28 +44,7 @@ watch(info.updateTime, () => {
     }
 });
 
-onMounted(() => {
-    if (!isConnected())
-        createNotify({
-            title: '你貌似还未连接',
-            message: '请点击右上角的状态栏进行连接',
-            type: 'error'
-        });
-    else if (!isVerified)
-        createNotify({
-            title: '你貌似还未通过验证',
-            message: '请点击右上角的状态栏进行连接',
-            type: 'error'
-        });
-    else if (!isExist) {
-        createNotify({
-            type: 'warn',
-            title: '没有找到此实例',
-            message: '请返回上一页或重新连接'
-        });
-        console.log(info.instances)
-    }
-});
+onMounted(() => checkConnectionStatus(guid));
 
 if (guid && isVerified)
     subscribe(guid);
@@ -103,9 +69,6 @@ document.onfullscreenchange = () => isFullscreen.value = document.fullscreenElem
 
 <template>
     <Header>
-        <HeaderButton v-if="isExist" @click="$router.push('/instance/' + guid)" :title="guid || ''">
-            {{ guid.substring(0, 6) }}
-        </HeaderButton>
     </Header>
     <div id="details-container">
         <h1 class="details-title no-select">
@@ -115,19 +78,23 @@ document.onfullscreenchange = () => isFullscreen.value = document.fullscreenElem
                 </span>
                 <span v-else><i>未知名称</i></span>
             </div>
-
+            <div class="instance-panel-actions">
+                <FlatButton @click="router.push(`/instance/${guid}/files`)">
+                    文件管理
+                </FlatButton>
+            </div>
         </h1>
         <div id="panel-container">
             <FlatPanel id="info">
                 <h3 class="details-title no-select">
-                    <Info />基础信息
+                    <vue-feather type="info" size="16" />
+                    基础信息
                 </h3>
                 <table>
                     <tr>
                         <td class="info-text no-select">
-                            <div>
-                                <Server />状态
-                            </div>
+                            <vue-feather type="server" size="14" />
+                            状态
                         </td>
                         <td class="info-item">
                             {{ instance?.short_info?.server_status ? '运行中' : '未启动' }}
@@ -135,9 +102,8 @@ document.onfullscreenchange = () => isFullscreen.value = document.fullscreenElem
                     </tr>
                     <tr>
                         <td class="info-text no-select">
-                            <div>
-                                <File />启动文件
-                            </div>
+                            <vue-feather type="file" size="14" />
+                            启动文件
                         </td>
                         <td class="info-item">
                             {{ instance?.short_info?.server_filename ?? '-' }}
@@ -145,9 +111,8 @@ document.onfullscreenchange = () => isFullscreen.value = document.fullscreenElem
                     </tr>
                     <tr>
                         <td class="info-text no-select">
-                            <div>
-                                <Clock />运行时间
-                            </div>
+                            <vue-feather type="clock" size="14" />
+                            运行时间
                         </td>
                         <td class="info-item">
                             {{ instance?.short_info?.server_time ?? '-' }}
@@ -159,7 +124,8 @@ document.onfullscreenchange = () => isFullscreen.value = document.fullscreenElem
 
             <FlatPanel id="control">
                 <h3 class="details-title no-select">
-                    <Tool />控制
+                    <vue-feather type="tool" size="16" />
+                    控制
                 </h3>
                 <div>
                     <FlatButton :disabled="hasBeenLost || !isExist || instance?.short_info?.server_status" @click="start">
@@ -168,7 +134,7 @@ document.onfullscreenchange = () => isFullscreen.value = document.fullscreenElem
                     <FlatButton :disabled="hasBeenLost || !isExist || !instance?.short_info?.server_status" @click="stop">
                         关闭
                     </FlatButton>
-                    <FlatButton :disabled="hasBeenLost || !isExist || !instance?.short_info?.server_status" @click="kill">
+                    <FlatButton :disabled="hasBeenLost || !isExist || !instance?.short_info?.server_status" @click="kill" class="danger">
                         强制结束
                     </FlatButton>
                 </div>
@@ -176,7 +142,8 @@ document.onfullscreenchange = () => isFullscreen.value = document.fullscreenElem
 
             <FlatPanel id="monitor">
                 <h3 class="details-title no-select">
-                    <Pie />性能监控
+                    <vue-feather type="pie-chart" size="16" />
+                    性能监控
                 </h3>
                 <div>
                     <div class="monitor-name">
@@ -223,12 +190,14 @@ document.onfullscreenchange = () => isFullscreen.value = document.fullscreenElem
 
             <FlatPanel id="console" ref="consoleRef">
                 <h3 class="details-title no-select">
-                    <Terminal />控制台
+                    <vue-feather type="terminal" size="16" />
+                    控制台
                     <div class="void"></div>
-                    <Trash class="hover-effect-svg" title="清屏" @click="clearOutputsMap(guid)" />
-                    <Maximize class="hover-effect-svg" title="全屏" @click="requestFullscreen"
+                    <vue-feather type="trash" size="16" class="hover-effect-svg" title="清屏"
+                        @click="clearOutputsMap(guid)" />
+                    <vue-feather type="maximize-2" size="16" class="hover-effect-svg" title="全屏" @click="requestFullscreen"
                         v-show="!isFullscreen && supportFullscreen" />
-                    <Minimize class="hover-effect-svg" title="退出全屏" @click="exitFullscreen"
+                    <vue-feather type="minimize-2" size="16" class="hover-effect-svg" title="退出全屏" @click="exitFullscreen"
                         v-show="isFullscreen && supportFullscreen" />
                 </h3>
                 <div id="console-wrapper">
@@ -247,9 +216,10 @@ document.onfullscreenchange = () => isFullscreen.value = document.fullscreenElem
 
             <FlatPanel id="history">
                 <h3 class="details-title no-select">
-                    <Archive />输入历史
+                    <vue-feather type="archive" size="16" />
+                    输入历史
                     <div class="void"></div>
-                    <Trash class="hover-effect-svg" title="清除所有" @click="clearInputHistory" />
+                    <vue-feather type="trash" size="16" class="hover-effect-svg" title="清除所有" @click="clearInputHistory" />
                 </h3>
                 <div v-for="(v) in inputHistory" class="history-item" @click="() => recoverInputHistory(v)">
                     {{ v.replace(/\s/g, '&nbsp;') }}

@@ -39,6 +39,9 @@ export function createNotify(option: NotificationOption | string) {
     id += 1;
 }
 
+/**
+ * 关闭所有
+ */
 export function dismissAll() {
     id = 0;
     notificationMap.value.clear();

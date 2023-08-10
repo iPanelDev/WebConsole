@@ -1,35 +1,33 @@
 <script setup lang="ts">
-import Sun from '@/components/svg/Sun.vue'
-import Moon from '@/components/svg/Moon.vue'
-import HeaderButton from './HeaderButton.vue'
+import HeaderButton from './HeaderButton.vue';
 
-import { ref, shallowRef } from 'vue';
-
-const svg = shallowRef(Sun);
+import { onMounted, ref } from 'vue';
 
 const isDark = ref(localStorage.getItem('ipanel.theme') === 'dark');
 
 const onClick = () => {
     isDark.value = !isDark.value;
     localStorage.setItem('ipanel.theme', isDark.value ? 'dark' : 'light');
-    svg.value = isDark.value ? Moon : Sun;
-    toggle();
+    apply();
 };
 
-const toggle = () => {
+const apply = () => {
     if (isDark.value)
         document.body.classList.add('dark');
     else
         document.body.classList.remove('dark');
 };
 
-toggle();
+onMounted(apply);
 </script>
 
 <template>
     <HeaderButton class="header-svg-container" @click="onClick">
         <Transition name="theme" mode="out-in">
-            <component :is="svg" />
+            <vue-feather type="moon" size="16" v-if="isDark" />
+        </Transition>
+        <Transition name="theme" mode="out-in">
+            <vue-feather type="sun" size="16" v-if="!isDark" />
         </Transition>
     </HeaderButton>
 </template>

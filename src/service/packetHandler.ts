@@ -1,16 +1,18 @@
-import md5 from 'blueimp-md5'
+import md5 from 'blueimp-md5';
 import { ref } from 'vue';
 
-import { createNotify } from '@/notification'
-import router from '@/router'
-import info from './info';
-import { send } from './ws'
-import { addToMap, clearOutputsMap, updateStatus, clearInvalidOutputHistory } from '@/service/serverControler'
-import { Packet, Instance, FullInfo } from './types'
-import { listInstance, verify } from './packetSender';
+import { createNotify } from '@/notification';
+import router from '@/router';
+import info from '@/service/info';
+import { listInstance, verify } from '@/service/packetSender';
+import { addToMap, clearInvalidOutputHistory, clearOutputsMap } from '@/service/serverControler';
+import { FullInfo, Instance, Packet } from '@/service/types';
 
 export const isVerified = ref(false);
 
+/**
+ * 处理数据包
+ */
 export function handle(msg: string): Packet | void {
     const packet = JSON.parse(msg) as Packet;
     console.debug('接收消息', packet);
@@ -21,28 +23,49 @@ export function handle(msg: string): Packet | void {
             actions(packet);
             break;
 
+        case 'return':
+            returns(packet);
+            break;
+
+        case 'broadcast':
+            broadcasts(packet);
+            break;
+
         case 'event':
             events(packet);
             break;
 
         default:
-            console.error('数据包类型未知：'+type);
+            console.error('数据包类型未知：' + type);
             break;
     }
-
 }
 
+/**
+ * 处理未知子类型的数据包
+ */
+function logUnknownSubType(sub_type: string) {
+    console.error('数据包子类型未知：' + sub_type);
+}
+
+/**
+ * 处理`action`数据包
+ */
 function actions({ sub_type, data }: Packet) {
     switch (sub_type) {
         case 'verify_request':
-            verify(md5(data.random_key + info.password));
+            verify(md5(data.salt + info.account + info.password));
             break;
 
         default:
+            logUnknownSubType(sub_type);
             break;
     }
 }
 
+/**
+ * 处理`event`数据包
+ */
 function events({ sub_type, data }: Packet): Packet | void {
     switch (sub_type) {
         case 'verify_result':
@@ -68,21 +91,23 @@ function events({ sub_type, data }: Packet): Packet | void {
             info.disconnectReason = data?.reason ?? String(data);
             break;
 
-        case 'list':
-            updateList(data);
+        default:
+            logUnknownSubType(sub_type);
             break;
+    }
+}
 
-        case 'target_info':
-            processTargetInfo(data);
-            break;
-
+/**
+ * 处理`broadcast`数据包
+ */
+function broadcasts({ sub_type, data }: Packet) {
+    switch (sub_type) {
         case 'server_start':
             clearOutputsMap(info.subscribeTarget);
             createNotify({
                 type: 'info',
                 title: '服务器已启动'
             });
-            updateStatus(info.subscribeTarget, true);
             break;
 
         case 'server_stop':
@@ -91,7 +116,6 @@ function events({ sub_type, data }: Packet): Packet | void {
                 title: '服务器已关闭',
                 message: `退出代码：${data}`
             });
-            updateStatus(info.subscribeTarget, false);
             break;
 
         case 'server_input':
@@ -101,9 +125,37 @@ function events({ sub_type, data }: Packet): Packet | void {
         case 'server_output':
             addToMap(info.subscribeTarget, data);
             break;
+
+        default:
+            logUnknownSubType(sub_type);
+            break;
     }
 }
 
+/**
+ * 处理`return`数据包
+ */
+function returns({ sub_type, data }: Packet) {
+    switch (sub_type) {
+        case 'list':
+            updateList(data);
+            break;
+
+        case 'target_info':
+            processTargetInfo(data);
+            break;
+
+        default:
+            logUnknownSubType(sub_type);
+            break;
+
+
+    }
+}
+
+/**
+ * 处理目标实例的信息
+ */
 function processTargetInfo(data?: FullInfo) {
     if (!info.subscribeTarget || !data)
         return;
@@ -117,7 +169,10 @@ function processTargetInfo(data?: FullInfo) {
     info.instances.set(info.subscribeTarget, targetInstance);
 }
 
-function updateList(data?: { type: string, list: Instance[] }) {
+/**
+ * 更新实例列表
+ */
+function updateList(data?: { type: 'instance', list: Instance[] }) {
     if (data.type === 'instance') {
         const newGuids = data.list.map((i) => i.guid);
         const oldGuids = Array.from(info.instances.keys());

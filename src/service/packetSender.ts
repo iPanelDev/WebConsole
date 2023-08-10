@@ -1,5 +1,5 @@
-import { send } from './ws'
 import info from './info';
+import { send } from './ws';
 
 export function subscribe(guid: string) {
     send({
@@ -16,7 +16,7 @@ export function verify(token: string) {
         sub_type: 'verify',
         data: {
             token: token,
-            custom_name: info.account,
+            account: info.account,
             client_type: 'console'
         },
     });

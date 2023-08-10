@@ -1,5 +1,5 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import { isConnected } from '@/service/ws'
+import { isConnected } from '@/service/ws';
+import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -19,7 +19,7 @@ const router = createRouter({
 
     {
       path: '/overview',
-      component: () => import('@/views/Overview.vue'),
+      component: () => import('@/views/overview/Overview.vue'),
       meta: {
         title: '总览'
       }
@@ -27,17 +27,29 @@ const router = createRouter({
 
     {
       path: '/instance',
-      component: () => import('@/views/instance/Instance.vue'),
-      meta: {
-        title: '实例'
-      }
+      redirect: '/overview',
     },
 
     {
       path: '/instance/:guid',
-      component: () => import('@/views/instance/Instance.vue'),
+      redirect(to) {
+        return to.fullPath + '/panel';
+      }
+    },
+
+    {
+      path: '/instance/:guid/panel',
+      component: () => import('@/views/instancePanel/Panel.vue'),
       meta: {
-        title: '实例'
+        title: '面板'
+      }
+    },
+
+    {
+      path: '/instance/:guid/files',
+      component: () => import('@/views/fileManager/FileManager.vue'),
+      meta: {
+        title: '文件管理'
       }
     },
 
@@ -52,7 +64,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, _from, next) => {
-  window.document.title = to.meta.title ? to.meta.title + ' | iPanel WebConsole' : 'iPanel WebConsole';
+  window.document.title = to.meta.title ? to.meta.title + ' · iPanel WebConsole' : 'iPanel WebConsole';
   next();
 })
 

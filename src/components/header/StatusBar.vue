@@ -1,17 +1,9 @@
 <script setup lang="ts">
-import router from '@/router'
-import { getReadyState, disconnect, isConnected } from '@/service/ws'
-import { isVerified } from '@/service/packetHandler'
+import router from '@/router';
+import { isVerified } from '@/service/packetHandler';
+import { disconnect, isConnected } from '@/service/ws';
 
-import HeaderButton from './HeaderButton.vue'
-import LogOut from '@/components/svg/LogOut.vue'
-
-const onClick = () => {
-    if (isVerified.value && isConnected())
-        router.push('/overview');
-    else
-        router.push('/connect');
-};
+import HeaderButton from './HeaderButton.vue';
 
 const exit = () => {
     disconnect();
@@ -21,14 +13,9 @@ const exit = () => {
 </script>
 
 <template>
-    <HeaderButton id="status-container" class="no-select" @click="onClick" title="连接状态"
-        v-if="!($route.path.startsWith('/instance') && isVerified && isConnected())">
-        <div id="dot" :class="'state' + getReadyState()"></div>
-        <span>{{ ['连接中', '已连接', '断开中', '未连接'][getReadyState()] }}</span>
-    </HeaderButton>
     <TransitionGroup name="svg-transition">
         <HeaderButton class="header-svg-container" title="退出" v-if="isVerified && isConnected()" @click="exit">
-            <LogOut />
+            <vue-feather type="log-out" size="16" />
         </HeaderButton>
     </TransitionGroup>
 </template>

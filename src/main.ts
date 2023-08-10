@@ -1,18 +1,21 @@
-import './assets/main.css'
+import './assets/main.css';
 
-import { ComponentPublicInstance, createApp } from 'vue'
+import { ComponentPublicInstance, createApp } from 'vue';
 
 // @ts-ignore
-import App from './App.vue'
-import router from './router'
-import { FULLVERSION } from '@/meta'
-import { createNotify } from './notification'
+import App from './App.vue';
+
+import { VERSION } from '@/meta';
+import { createNotify } from '@/notification';
+import router from '@/router';
+import VueFeather from 'vue-feather';
 
 const app = createApp(App);
 
 app.use(router);
 app.mount('#app');
-app.config.errorHandler = (err: any, instance: ComponentPublicInstance | null, info: string) => {
+app.component(VueFeather.name, VueFeather);
+app.config.errorHandler = (err: any, _: ComponentPublicInstance | null, info: string) => {
     createNotify({
         type: 'error',
         title: '唔..发生了一点错误',
@@ -20,4 +23,4 @@ app.config.errorHandler = (err: any, instance: ComponentPublicInstance | null, i
         duration: -1
     });
 };
-console.log(`iPanel WebConsole@${FULLVERSION} is loaded. For more infomation, please see https://github.com/Zaitonn/iPanel or https://ipanel.serein.cc/ . Copyright © 2022 Zaitonn. All Rights Reserved.`);
+console.log(`iPanel WebConsole@${VERSION} is loaded. For more infomation, please see https://github.com/Zaitonn/iPanel or https://ipanel.serein.cc/ . Copyright © 2022 Zaitonn. All Rights Reserved.`);

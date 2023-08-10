@@ -3,7 +3,8 @@
     "src/**/*",
     "src/**/*.ts",
     "src/**/*.vue",
-    "volar.config.js"
+    "volar.config.js",
+    "src/svg/builder.ts"
   ],
   "exclude": [
     "src/**/__tests__/*"

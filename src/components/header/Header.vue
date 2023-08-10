@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import ToggleTheme from './ToggleTheme.vue'
-import StatusBar from './StatusBar.vue'
+import Breadcrumbs from './Breadcrumbs.vue';
+import StatusBar from './StatusBar.vue';
+import ToggleTheme from './ToggleTheme.vue';
 </script>
 
 <template>
@@ -9,10 +10,11 @@ import StatusBar from './StatusBar.vue'
             <img src="@/assets/logo.png" alt="logo">
             <div class="title">iPanel</div>
         </div>
+        <Breadcrumbs />
         <div id="header-rest">
             <slot></slot>
-            <StatusBar />
             <ToggleTheme />
+            <StatusBar />
         </div>
     </header>
 </template>
@@ -33,11 +35,12 @@ div#header-logo {
     padding: 10px;
     display: flex;
     align-items: center;
+    margin-right: 7px;
 }
 
 div#header-logo:hover {
     cursor: pointer;
-    background-color: var(--bg-color-page);
+    background: var(--fill-color-light);
 }
 
 div#header-logo img {
@@ -61,19 +64,9 @@ div#header-rest>:deep(*) {
     margin: 0 5px;
 }
 
-:deep(div.header-svg-container) * {
-    stroke: var(--text-color-primary);
-    padding: 5px;
-    /* 缩放 */
-}
-
 :deep(div.header-svg-container) {
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     border-radius: 50%;
-    padding: 0;
 }
 
 @media screen and (max-width: 768px) {

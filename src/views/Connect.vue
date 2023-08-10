@@ -1,28 +1,26 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 
-import { connectTo, getReadyState, isConnected } from '@/service/ws'
 import { isVerified } from '@/service/packetHandler'
+import { connectTo, isConnected, readyState } from '@/service/ws'
+import { getConfig } from '@/utils/config'
 
-import Header from '@/components/header/Header.vue'
 import FlatButton from '@/components/flat/FlatButton.vue'
 import FlatInput from '@/components/flat/FlatInput.vue'
+import Header from '@/components/header/Header.vue'
 
 const
-    // @ts-ignore
-    addr = ref(window.iPanelConfig?.webSocketAddress || localStorage.getItem('ipanel.connect.addr') || ''),
+    addr = ref(localStorage.getItem('ipanel.connect.addr') || ''),
     account = ref(localStorage.getItem('ipanel.connect.account') || ''),
     password = ref(sessionStorage.getItem('ipanel.connect.password') || localStorage.getItem('ipanel.connect.password') || ''),
     addrEl = ref(),
     accountEl = ref(),
-    passwordEl = ref(),
-    // @ts-ignore
-    hiddenWebSocketAddress = Boolean(window.iPanelConfig?.hiddenWebSocketAddress);
+    passwordEl = ref();
 
 const connect = () => {
     connectTo(
         // @ts-ignore
-        hiddenWebSocketAddress ? window?.iPanelConfig?.webSocketAddress : addr.value,
+        getConfig().lockWebSocket ? undefined : addr.value,
         account.value,
         password.value
     );
@@ -30,8 +28,7 @@ const connect = () => {
     localStorage.setItem('ipanel.connect.addr', addr.value);
     localStorage.setItem('ipanel.connect.account', account.value);
 
-    // @ts-ignore
-    switch (window?.iPanelConfig?.passwordSaver) {
+    switch (getConfig().passwordSaver) {
         case 'localStorage':
             localStorage.setItem('ipanel.connect.password', addr.value);
             break;
@@ -70,7 +67,7 @@ const removeClass = ({ target }: InputEvent) => target?.classList?.remove('error
             <div id="connect-input-layout" class="no-select">
                 <h1>Connect.</h1>
                 <FlatInput type="text" placeholder="ws://" inputmode="url" v-model="addr" @input="removeClass"
-                    autocomplete="off" ref="addrEl" @keyup.enter="accountEl.el.focus()" v-if="!hiddenWebSocketAddress">
+                    autocomplete="off" ref="addrEl" @keyup.enter="accountEl.el.focus()" v-if="!getConfig().lockWebSocket">
                     地址
                 </FlatInput>
                 <FlatInput type="text" inputmode="text" v-model="account" @input="removeClass" autocomplete="username"
@@ -82,7 +79,7 @@ const removeClass = ({ target }: InputEvent) => target?.classList?.remove('error
                     密码
                 </FlatInput>
                 <FlatButton type="button" @click="connect" :disabled="isConnected()">
-                    {{ getReadyState() < 2 ? isVerified ? '已连接' : '连接中' : '连接' }} </FlatButton>
+                    {{ readyState < 2 ? isVerified ? '已连接' : '连接中' : '连接' }} </FlatButton>
             </div>
         </div>
     </div>

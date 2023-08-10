@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { notificationMap, dismissAll } from '@/notification'
-import Notification from '@/notification/Notification.vue'
+import { dismissAll, notificationMap } from '@/notification';
+import Notification from '@/notification/Notification.vue';
 </script>
 
 <template>

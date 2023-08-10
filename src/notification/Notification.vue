@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import { notificationMap } from '@/notification'
-import { ref } from 'vue';
-
-import AlertCircle from '@/components/svg/AlertCircle.vue';
-import AlertTriangle from '@/components/svg/AlertTriangle.vue';
-import XCirle from '@/components/svg/XCirle.vue';
+import { notificationMap } from '@/notification';
 
 const props = defineProps(
     {
@@ -30,9 +25,9 @@ if (props.duration > 0) {
     <div :id="`notification-${id ?? -1}`" :class="['notification', 'notification-' + type]">
         <div class="notification-child-container no-select">
             <div class="notification-title-container">
-                <AlertCircle class="notification-svg" v-if="type === 'info'" />
-                <AlertTriangle class="notification-svg" v-if="type === 'warn'" />
-                <XCirle class="notification-svg" v-if="type === 'error'" />
+                <vue-feather type="alert-circle" size="16" v-if="type === 'info'" />
+                <vue-feather type="alert-triangle" size="16" v-if="type === 'warn'" />
+                <vue-feather type="x-circle" size="16" v-if="type === 'error'" />
                 <div class="notification-title">
                     {{ title || '未知' }}
                 </div>
@@ -45,7 +40,7 @@ if (props.duration > 0) {
     </div>
 </template>
 
-<style scoped>
+<style>
 div.notification {
     display: flex;
     flex-direction: column;
@@ -67,8 +62,6 @@ div.notification-title-container {
     align-items: center;
     justify-content: space-between;
 }
-
-
 
 div.notification-title {
     font-weight: bolder;
@@ -115,9 +108,11 @@ div.notification-error:hover {
     --background: var(--color-error-light-8);
 }
 
-.notification-svg {
-    transform: scale(0.7);
+div.notification-title-container i {
+    margin-right: 3px;
+}
+
+div.notification-title-container i>svg {
     stroke: var(--color);
-    display: inline;
 }
 </style>

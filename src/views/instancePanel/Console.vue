@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import OutputLine from './OutputLine.vue'
-import { watch, ref, nextTick } from 'vue';
-import { outputsMap, outputsMapTracker } from '@/service/serverControler'
+import { outputsMap, outputsMapTracker } from '@/service/serverControler';
+import { nextTick, ref, watch } from 'vue';
+import OutputLine from './OutputLine.vue';
 
 const props = defineProps({
     guid: String

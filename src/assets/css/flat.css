@@ -12,7 +12,7 @@
     cursor: not-allowed;
 }
 
-div.flat:hover:not([disabled]):not(:has(*[disabled])) {
+.flat:hover:not([disabled]):not(:has(*[disabled])) {
     border: 1px solid var(--border-color-hover);
 }
 

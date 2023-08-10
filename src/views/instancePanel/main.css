@@ -3,11 +3,6 @@ div#details-container {
     padding: 10px 40px;
 }
 
-.details-title svg {
-    margin-right: 5px;
-    transform: scale(0.8);
-}
-
 .details-title {
     display: flex;
     align-items: center;
@@ -25,6 +20,14 @@ div#panel-container {
 
 h1.details-title {
     margin: 15px 0 10px;
+}
+
+div.instance-panel-name {
+    width: 100%;
+}
+
+div.instance-panel-actions {
+    display: flex;
 }
 
 div.flat-panel#control {
@@ -69,9 +72,14 @@ div.flat-panel div.void {
     width: 100%;
 }
 
-div.flat-panel svg.hover-effect-svg:hover {
-    color: var(--text-color-secondary);
+div.flat-panel .hover-effect-svg {
+    border-radius: 50%;
+    padding: 5px;
+}
+
+div.flat-panel .hover-effect-svg:hover {
     cursor: pointer;
+    background: var(--fill-color-light);
 }
 
 div.flat-panel#info>table {
@@ -79,17 +87,18 @@ div.flat-panel#info>table {
     margin: 10px 0;
 }
 
-div.flat-panel#info>table td div {
+div.flat-panel#info>table td.info-text {
     display: flex;
     align-items: center;
 }
 
-td.info-item {
-    text-align: right;
+div.flat-panel#info>table,
+div.flat-panel#monitor>div {
+    color: var(--text-color-regular);
 }
 
-div.flat-panel#info>table svg {
-    transform: scale(0.6);
+td.info-item {
+    text-align: right;
 }
 
 div.flat-panel#control>div {

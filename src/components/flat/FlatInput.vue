@@ -28,9 +28,12 @@ defineExpose({ el });
     justify-content: center;
     align-items: center;
     padding: 0 10px;
+    background: var(--bg-color);
 }
 
 .flat-input-slot-container {
+    display: flex;
+    justify-content: center;
     margin-right: 10px;
     white-space: nowrap;
     font-size: small;
@@ -47,9 +50,10 @@ defineExpose({ el });
     padding: 0;
 }
 
-.flat-input:focus {
-    border: 1px solid var(--border-color-darker);
-    box-shadow: var(--box-shadow-light);
+.flat-input:has(input:focus) {
+    border: 1px solid var(--color-primary-light-3) !important;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem var(--color-primary-light-7);
 }
 
 .flat-input input:disabled {

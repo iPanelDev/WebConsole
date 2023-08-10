@@ -1,7 +1,10 @@
-import { createNotify } from '@/notification'
-import { Packet } from './types'
-import { handle } from './packetHandler'
-import info from './info'
+import { ref } from 'vue';
+
+import { createNotify } from '@/notification';
+import info from '@/service/info';
+import { handle, isVerified } from '@/service/packetHandler';
+import { Packet } from '@/service/types';
+import { getConfig } from '@/utils/config';
 
 /**
  * 状态枚举值
@@ -28,14 +31,19 @@ const codeMap = new Map<number, string>([
     [1013, 'Try Again Later.请稍后重试']
 ]);
 
+let ws: WebSocket | null = null;
+
 /**
  * 准备状态
  */
-export const getReadyState = () => ws?.readyState ?? State.CLOSED;
+export const readyState = ref(ws?.readyState ?? State.CLOSED);
 
 export const isConnected = () => ws?.readyState === 1;
 
-let ws: WebSocket | null = null;
+function updateReadyState() {
+    readyState.value = ws?.readyState ?? State.CLOSED;
+}
+
 
 /**
  * 连接
@@ -45,7 +53,10 @@ let ws: WebSocket | null = null;
  * @returns 错误信息
  */
 export function connectTo(addr: string, account: string, password: string) {
-    if (getReadyState() <= 1 || !check(addr, account, password))
+    if (getConfig().lockWebSocket)
+        addr = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws'
+
+    if (readyState.value <= 1 || !checkValues(addr, account, password))
         return;
 
     info.address = addr;
@@ -56,6 +67,8 @@ export function connectTo(addr: string, account: string, password: string) {
         ws = new WebSocket(addr);
         ws.onclose = onClose;
         ws.onmessage = onMsg;
+        ws.onopen = updateReadyState;
+        ws.onerror = updateReadyState;
         info.disconnectReason = '';
     }
     catch (e) {
@@ -68,7 +81,7 @@ export function connectTo(addr: string, account: string, password: string) {
     }
 }
 
-function check(addr: string, account: string, password: string) {
+function checkValues(addr: string, account: string, password: string) {
     if (typeof (addr) != 'string' || !addr)
         createNotify({
             title: '填写信息有误',
@@ -97,6 +110,7 @@ function check(addr: string, account: string, password: string) {
 }
 
 function onClose(e: CloseEvent) {
+    updateReadyState();
     clearInterval(info.heartbeatTimer);
     console.warn('断开连接', e);
     info.disconnectReason ||= codeMap.get(e.code);
@@ -105,7 +119,7 @@ function onClose(e: CloseEvent) {
         title: '连接断开了',
         message: `${info.disconnectReason ? info.disconnectReason + '\n' : ''}Code: ${e.code}`,
         type: 'warn',
-        duration: !info.disconnectReason && e.code === 1000 ? 7500 : -1
+        duration: !info.disconnectReason && e.code === 1000 ? 5000 : -1
     });
 }
 
@@ -115,6 +129,7 @@ export function send(packet: Packet) {
 }
 
 function onMsg(e: MessageEvent) {
+    updateReadyState();
     const { data } = e;
 
     if (typeof (data) === 'string') {
@@ -127,6 +142,22 @@ function onMsg(e: MessageEvent) {
 }
 
 export function disconnect() {
-    ws?.close();
+    ws?.close(1000);
     ws = null;
+}
+
+export function checkConnectionStatus(guid?: string) {
+    if (!isVerified || !isConnected())
+        createNotify({
+            title: '你貌似还未' + (isConnected() && !isVerified ? '验证' : '连接'),
+            message: '请点击左上角的Logo进行连接',
+            type: 'error'
+        });
+    else if (guid && !info.instances.has(guid)) {
+        createNotify({
+            type: 'warn',
+            title: '没有找到此实例',
+            message: '请返回上一页或重新连接'
+        });
+    }
 }

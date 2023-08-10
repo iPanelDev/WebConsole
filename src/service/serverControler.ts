@@ -1,6 +1,7 @@
-import { send } from "./ws";
 import { ref } from 'vue';
-import info from "./info";
+
+import info from './info';
+import { send } from './ws';
 
 export const outputsMapTracker = ref(0);
 
@@ -90,15 +91,4 @@ export function clearInvalidOutputHistory() {
 function updateAndSave() {
     outputsMapTracker.value = Math.random();
     localStorage.setItem('ipanel.outputHistory', JSON.stringify(Array.from(outputsMap.entries())));
-}
-
-export function updateStatus(guid: string, status: boolean) {
-    const tem = info.instances.get(guid);
-    if (tem) {
-        if (tem.full_info)
-            tem.full_info.server.status = status;
-
-        if (tem.short_info)
-            tem.short_info.server_status = status;
-    }
 }
