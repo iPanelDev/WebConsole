@@ -1,0 +1,26 @@
+{
+  "include": [
+    "src/*.ts",
+    "src/**/*",
+    "src/**/*.ts",
+    "src/**/*.vue",
+    "volar.config.js"
+  ],
+  "exclude": [
+    "src/**/__tests__/*"
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    "lib": [
+      "ES6",
+      "ES2020",
+      "DOM"
+    ]
+  }
+}

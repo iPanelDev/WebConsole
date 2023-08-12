@@ -1,0 +1,28 @@
+name: build Pages
+
+on:
+  push:
+    paths:
+      - "**.vue"
+      - "**.html"
+      - "**.ts"
+      - "**.js"
+      - "**.json"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - shell: bash
+        run: |
+          npm i
+          npm run build
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: dist/
