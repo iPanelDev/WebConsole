@@ -1,30 +1,32 @@
-import info from './info';
-import { send } from './webSocket';
+import { useServiceStore } from "@/service/store";
+import { send } from "@/service/webSocket";
+import md5 from "blueimp-md5";
 
 export function subscribe(guid: string) {
     send({
-        type: 'action',
-        sub_type: 'subscribe',
-        data: guid
+        type: "action",
+        sub_type: "subscribe",
+        data: guid,
     });
-    info.subscribeTarget = guid;
+    useServiceStore().subscribeTarget = guid;
 }
 
-export function verify(token: string) {
+export function verify(salt: string) {
+    const serviceStore = useServiceStore();
     send({
-        type: 'action',
-        sub_type: 'verify',
+        type: "action",
+        sub_type: "verify",
         data: {
-            token: token,
-            account: info.account,
-            client_type: 'console'
+            token: md5(salt + serviceStore.account + serviceStore.password),
+            account: useServiceStore().account,
+            client_type: "console",
         },
     });
 }
 
 export function listInstance() {
     send({
-        type: 'action',
-        sub_type: 'list_instance'
+        type: "action",
+        sub_type: "list_instance",
     });
 }

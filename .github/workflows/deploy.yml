@@ -3,6 +3,15 @@ name: deploy
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -10,11 +19,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+
       - shell: bash
-        run: | 
+        run: |
           npm i
           npm run build
-      
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:

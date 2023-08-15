@@ -1,7 +1,7 @@
 import { encode } from "html-entities";
 
 /**
- * @description 颜色数码
+ * 颜色数码
  */
 const color_nums = [
     "30",
@@ -39,12 +39,12 @@ const color_nums = [
 ];
 
 /**
- * @description 正则表达式
+ * 正则表达式
  */
 const patten = /\[(.+?)m(.*)/;
 
 /**
- * @description 颜色代码转义
+ * 颜色代码转义
  * @param line
  * @returns html文本
  */

@@ -1,19 +1,24 @@
 <script setup lang="ts">
-import { reactive } from "vue";
-import { useRouter } from "vue-router";
-import { mdiAccount, mdiAsterisk } from "@mdi/js";
-import SectionFullScreen from "@/components/SectionFullScreen.vue";
-import CardBox from "@/components/CardBox.vue";
-import FormCheckRadio from "@/components/FormCheckRadio.vue";
-import FormField from "@/components/FormField.vue";
-import FormControl from "@/components/FormControl.vue";
 import BaseButton from "@/components/BaseButton.vue";
 import BaseButtons from "@/components/BaseButtons.vue";
+import CardBox from "@/components/CardBox.vue";
+import FormCheckRadio from "@/components/FormCheckRadio.vue";
+import FormControl from "@/components/FormControl.vue";
+import FormField from "@/components/FormField.vue";
+import SectionFullScreen from "@/components/SectionFullScreen.vue";
 import LayoutGuest from "@/layouts/LayoutGuest.vue";
 import { useServiceStore } from "@/service/store";
+import { mdiAccount, mdiAsterisk } from "@mdi/js";
+import { reactive } from "vue";
+import { disconnect, readyState } from "@/service/webSocket";
 
 const serviceStore = useServiceStore();
-serviceStore.restore();
+
+if (readyState.value != 1) {
+    serviceStore.$reset();
+    serviceStore.restore();
+    disconnect();
+}
 
 const form = reactive({
     address: serviceStore.address,
@@ -73,8 +78,29 @@ const submit = () => {
 
                 <template #footer>
                     <BaseButtons>
-                        <BaseButton type="submit" color="info" label="登录" />
+                        <BaseButton
+                            type="submit"
+                            color="info"
+                            label="登录"
+                            :disabled="readyState === 1"
+                        />
+                        <span
+                            v-if="readyState === 1"
+                            class="text-sm text-gray-700 dark:text-gray-300"
+                        >
+                            你已经登录了
+                        </span>
                     </BaseButtons>
+
+                    <div class="text-sm mt-4">
+                        <a
+                            href="https://ipanel.serein.cc/docs/guide/webConsole/intro"
+                            target="_blank"
+                            class="hover:text-sky-800 hover:dark:text-sky-600"
+                        >
+                            登录时出现问题？
+                        </a>
+                    </div>
                 </template>
             </CardBox>
         </SectionFullScreen>

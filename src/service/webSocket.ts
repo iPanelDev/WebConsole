@@ -1,10 +1,10 @@
 import { ref } from "vue";
 
 import { createNotify } from "@/notification";
-import info from "@/service/info";
 import { handle, isVerified } from "@/service/packetHandler";
 import { Packet } from "@/service/types";
 import { getConfig } from "@/utils/configManager";
+import { useServiceStore } from "./store";
 
 /**
  * 状态枚举值
@@ -42,6 +42,8 @@ export const isConnected = () => ws?.readyState === 1;
 
 function updateReadyState() {
     readyState.value = ws?.readyState ?? State.CLOSED;
+    console.log(ws?.readyState);
+    
 }
 
 /**
@@ -51,26 +53,28 @@ function updateReadyState() {
  * @param password 密码
  * @returns 错误信息
  */
-export function connectTo(addr: string, account: string, password: string) {
+export function connectTo() {
+    const serviceStore = useServiceStore();
+    let address = serviceStore.address;
     if (getConfig().lockWebSocket)
-        addr =
+        address =
             (window.location.protocol === "https:" ? "wss://" : "ws://") +
             window.location.host +
             "/ws";
 
-    if (readyState.value <= 1 || !checkValues(addr, account, password)) return;
-
-    info.address = addr;
-    info.account = account;
-    info.password = password;
+    if (
+        readyState.value <= 1 ||
+        !checkValues(address, serviceStore.account, serviceStore.password)
+    )
+        return;
 
     try {
-        ws = new WebSocket(addr);
+        ws = new WebSocket(address);
         ws.onclose = onClose;
         ws.onmessage = onMsg;
         ws.onopen = updateReadyState;
         ws.onerror = updateReadyState;
-        info.disconnectReason = "";
+        serviceStore.disconnectReason = null;
     } catch (e) {
         console.error(e);
         createNotify({
@@ -106,18 +110,21 @@ function checkValues(addr: string, account: string, password: string) {
 }
 
 function onClose(e: CloseEvent) {
+    const serviceStore = useServiceStore();
     updateReadyState();
-    clearInterval(info.heartbeatTimer);
+    clearInterval(serviceStore.heartbeatTimer);
     console.warn("断开连接", e);
-    info.disconnectReason ||= codeMap.get(e.code);
+    serviceStore.disconnectReason ||= codeMap.get(e.code);
 
     createNotify({
         title: "连接断开了",
         message: `${
-            info.disconnectReason ? info.disconnectReason + "\n" : ""
+            serviceStore.disconnectReason
+                ? serviceStore.disconnectReason + "\n"
+                : ""
         }Code: ${e.code}`,
         type: "warn",
-        duration: !info.disconnectReason && e.code === 1000 ? 5000 : -1,
+        duration: !serviceStore.disconnectReason && e.code === 1000 ? 5000 : -1,
     });
 }
 
@@ -152,7 +159,7 @@ export function checkConnectionStatus(guid?: string) {
             message: "请点击左上角的Logo进行连接",
             type: "error",
         });
-    else if (guid && !info.instances.has(guid)) {
+    else if (guid && !useServiceStore().instances.has(guid)) {
         createNotify({
             type: "warn",
             title: "没有找到此实例",

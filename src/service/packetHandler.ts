@@ -1,17 +1,11 @@
-import md5 from "blueimp-md5";
 import { ref } from "vue";
 
 import { createNotify } from "@/notification";
 import router from "@/router";
-import info from "@/service/info";
 import { listInstance, verify } from "@/service/packetSender";
-import {
-    addToMap,
-    clearInvalidOutputHistory,
-    clearOutputsMap,
-} from "@/service/serverControler";
+import { addToMap, clearOutputsMap } from "@/service/serverControler";
+import { useServiceStore } from "@/service/store";
 import { FullInfo, Instance, Packet } from "@/service/types";
-import { useServiceStore } from "./store";
 
 export const isVerified = ref(false);
 
@@ -59,7 +53,7 @@ function logUnknownSubType(sub_type: string) {
 function actions({ sub_type, data }: Packet) {
     switch (sub_type) {
         case "verify_request":
-            verify(md5(data.salt + info.account + info.password));
+            verify(data.salt);
             break;
 
         default:
@@ -72,6 +66,8 @@ function actions({ sub_type, data }: Packet) {
  * 处理`event`数据包
  */
 function events({ sub_type, data }: Packet): Packet | void {
+    const serviceStore = useServiceStore();
+
     switch (sub_type) {
         case "verify_result":
             isVerified.value = data.success;
@@ -86,14 +82,18 @@ function events({ sub_type, data }: Packet): Packet | void {
                     title: "验证成功",
                     type: "info",
                 });
-                router.push("/overview");
-                info.heartbeatTimer = setInterval(listInstance, 2500);
+                router.push(
+                    (router.currentRoute.value.query["redirect"] as string) ||
+                        "/overview"
+                );
+                serviceStore.lastLogin = new Date();
+                serviceStore.heartbeatTimer = setInterval(listInstance, 2500);
                 listInstance();
             }
             break;
 
         case "disconnection":
-            info.disconnectReason = data?.reason ?? String(data);
+            serviceStore.disconnectReason = data?.reason ?? String(data);
             break;
 
         default:
@@ -106,9 +106,11 @@ function events({ sub_type, data }: Packet): Packet | void {
  * 处理`broadcast`数据包
  */
 function broadcasts({ sub_type, data }: Packet) {
+    const serviceStore = useServiceStore();
+
     switch (sub_type) {
         case "server_start":
-            clearOutputsMap(info.subscribeTarget);
+            clearOutputsMap(serviceStore.subscribeTarget);
             createNotify({
                 type: "info",
                 title: "服务器已启动",
@@ -125,13 +127,13 @@ function broadcasts({ sub_type, data }: Packet) {
 
         case "server_input":
             addToMap(
-                info.subscribeTarget,
+                serviceStore.subscribeTarget,
                 data.map((line: string) => `>${line}`)
             );
             break;
 
         case "server_output":
-            addToMap(info.subscribeTarget, data);
+            addToMap(serviceStore.subscribeTarget, data);
             break;
 
         default:
@@ -163,14 +165,19 @@ function returns({ sub_type, data }: Packet) {
  * 处理目标实例的信息
  */
 function processTargetInfo(data?: FullInfo) {
-    if (!info.subscribeTarget || !data) return;
+    const serviceStore = useServiceStore();
 
-    const targetInstance = info.instances.get(info.subscribeTarget);
+    if (!serviceStore.subscribeTarget || !data) return;
+
+    const targetInstance = serviceStore.instances.get(
+        serviceStore.subscribeTarget
+    );
 
     if (!targetInstance) return;
 
     targetInstance.full_info = data;
-    info.instances.set(info.subscribeTarget, targetInstance);
+    serviceStore.instances.set(serviceStore.subscribeTarget, targetInstance);
+    serviceStore.updateInfo(data);
 }
 
 /**
@@ -180,11 +187,11 @@ function updateList(data?: { type: "instance"; list: Instance[] }) {
     const serviceStore = useServiceStore();
     if (data.type === "instance") {
         const newGuids = data.list.map((i) => i.guid);
-        const oldGuids = Array.from(info.instances.keys());
+        const oldGuids = Array.from(serviceStore.instances.keys());
 
         // 清除无效的ID
         const invalidGuids = oldGuids.filter((g) => !newGuids.includes(g));
-        invalidGuids.forEach((v) => info.instances.delete(v));
+        invalidGuids.forEach((v) => serviceStore.instances.delete(v));
 
         for (const instance of data.list) {
             if (
@@ -198,7 +205,5 @@ function updateList(data?: { type: "instance"; list: Instance[] }) {
             }
             serviceStore.instances.set(instance.guid, instance);
         }
-        info.updateTime.value = new Date();
-        clearInvalidOutputHistory();
     }
 }

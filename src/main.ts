@@ -12,16 +12,15 @@ import "./css/main.css";
 /* Init Pinia */
 const pinia = createPinia();
 
-/* Create Vue app */
+/* Init Pinia stores */
+useServiceStore(pinia);
+const styleStore = useStyleStore(pinia);
 
+/* Create Vue app */
 const app = createApp(App);
 app.use(router);
 app.use(pinia);
 app.mount("#app");
-
-/* Init Pinia stores */
-useServiceStore(pinia);
-const styleStore = useStyleStore(pinia);
 
 if (
     (!localStorage["darkMode"] &&

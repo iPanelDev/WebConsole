@@ -39,7 +39,7 @@ onMounted(() => {
             maintainAspectRatio: false,
             scales: {
                 y: {
-                    display: false,
+                    display: true,
                 },
                 x: {
                     display: true,
@@ -56,14 +56,20 @@ onMounted(() => {
 
 const chartData = computed(() => props.data);
 
-watch(chartData, (data) => {
-    if (chart) {
-        chart.data = data as any;
-        chart.update('none');
-    }
-});
+watch(
+    chartData,
+    (data) => {
+        if (chart) {
+            chart.data = data as any;
+            chart.update("none");
+        }
+    },
+    { deep: true }
+);
 </script>
 
 <template>
-    <canvas ref="root" />
+    <div>
+        <canvas ref="root" />
+    </div>
 </template>

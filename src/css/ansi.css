@@ -1,0 +1,130 @@
+/* 
+  ref: https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit
+*/
+body:not(.dark) .ansi-30 {
+    color: #0c0c0c
+}
+
+body.dark .ansi-40 {
+    background: #0c0c0c
+}
+
+.ansi-31 {
+    color: #C50F1F
+}
+
+.ansi-41 {
+    background: #C50F1F
+}
+
+.ansi-32 {
+    color: #13A10E
+}
+
+.ansi-42 {
+    background: #13A10E
+}
+
+.ansi-33 {
+    color: #C19C00
+}
+
+.ansi-43 {
+    background: #C19C00
+}
+
+.ansi-34 {
+    color: #0037DA
+}
+
+.ansi-44 {
+    background: #0037DA
+}
+
+.ansi-35 {
+    color: #881798
+}
+
+.ansi-45 {
+    background: #881798
+}
+
+.ansi-36 {
+    color: #3A96DD
+}
+
+.ansi-46 {
+    background: #3A96DD
+}
+
+body.dark .ansi-37 {
+    color: #CCCCCC
+}
+
+body:not(.dark) .ansi-47 {
+    background: #CCCCCC
+}
+
+.ansi-90 {
+    color: #767676
+}
+
+.ansi-100 {
+    background: #767676
+}
+
+.ansi-91 {
+    color: #FC391F
+}
+
+.ansi-101 {
+    background: #FC391F
+}
+
+.ansi-92 {
+    color: #16C60C
+}
+
+.ansi-102 {
+    background: #16C60C
+}
+
+.ansi-93 {
+    color: #F9F1A5
+}
+
+.ansi-103 {
+    background: #F9F1A5
+}
+
+.ansi-94 {
+    color: #3B78FF
+}
+
+.ansi-104 {
+    background: #3B78FF
+}
+
+.ansi-95 {
+    color: #B4009E
+}
+
+.ansi-105 {
+    background: #B4009E
+}
+
+.ansi-96 {
+    color: #61D6D6
+}
+
+.ansi-106 {
+    background: #61D6D6
+}
+
+.ansi-97 {
+    color: #F2F2F2
+}
+
+.ansi-107 {
+    background: #F2F2F2
+}

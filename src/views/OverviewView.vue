@@ -20,7 +20,9 @@ const instances = computed(() =>
         (instance) =>
             !filter.value ||
             instance[1].address.includes(filter.value) ||
-            instance[1].custom_name.includes(filter.value)
+            instance[1].custom_name
+                .toLowerCase()
+                .includes(filter.value.toLowerCase())
     )
 );
 </script>
@@ -30,6 +32,7 @@ const instances = computed(() =>
         <SectionMain>
             <SectionTitleLineWithButton :icon="mdiHome" title="总览" main />
             <FormControl
+                v-model="filter"
                 type="input"
                 :icon="mdiFilter"
                 class="mb-5"
@@ -37,13 +40,12 @@ const instances = computed(() =>
                 autocomplete="none"
                 transparent
                 placeholder="通过名称或地址筛选实例..."
-                v-model="filter"
             />
             <div class="grid lg:grid-cols-3 md:grid-cols-2">
                 <CardBox
-                    class="transition-all select-none flex flex-wrap cursor-pointer"
                     v-for="item in instances"
                     :key="item[0]"
+                    class="transition-all select-none flex flex-wrap cursor-pointer"
                     is-hoverable
                     @click="$router.push('/instance/' + item[0])"
                 >
@@ -89,8 +91,8 @@ const instances = computed(() =>
                 </CardBox>
             </div>
             <CardBoxComponentEmpty
-                message="啥都没有找到哦..."
                 v-if="instances.length === 0"
+                message="啥都没有找到哦..."
             />
         </SectionMain>
     </LayoutAuthenticated>

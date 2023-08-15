@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { mdiForwardburger, mdiBackburger, mdiMenu } from "@mdi/js";
-import { ref } from "vue";
-import { useRouter } from "vue-router";
-import menuAside from "@/menus/menuAside";
-import menuNavBar from "@/menus/menuNavBar";
-import { useServiceStore } from "@/service/store";
-import { useStyleStore } from "@/style";
+import AsideMenu from "@/components/AsideMenu.vue";
 import BaseIcon from "@/components/BaseIcon.vue";
-import FormControl from "@/components/FormControl.vue";
+import FooterBar from "@/components/FooterBar.vue";
 import NavBar from "@/components/NavBar.vue";
 import NavBarItemPlain from "@/components/NavBarItemPlain.vue";
-import AsideMenu from "@/components/AsideMenu.vue";
-import FooterBar from "@/components/FooterBar.vue";
+import NotificationBar from "@/components/NotificationBar.vue";
+import menuAside from "@/menus/menuAside";
+import menuNavBar from "@/menus/menuNavBar";
+import { readyState } from "@/service/webSocket";
+import { useStyleStore } from "@/style";
+import { mdiAlert, mdiBackburger, mdiForwardburger, mdiMenu } from "@mdi/js";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 const layoutAsidePadding = "xl:pl-60";
 
@@ -31,9 +31,6 @@ const menuClick = (event, item) => {
     if (item.isToggleLightDark) {
         styleStore.setDarkMode();
     }
-
-    if (item.isLogout) {
-    }
 };
 </script>
 
@@ -46,7 +43,7 @@ const menuClick = (event, item) => {
                 'overflow-hidden lg:overflow-visible': isAsideMobileExpanded,
             },
         ]"
-        class="pt-14 min-h-screen w-screen transition-position lg:w-auto"
+        class="pt-14 min-h-screen w-full transition-position lg:w-auto"
     >
         <NavBar
             :menu="menuNavBar"
@@ -81,6 +78,24 @@ const menuClick = (event, item) => {
             @menu-click="menuClick"
             @aside-lg-close-click="isAsideLgActive = false"
         />
+        <NotificationBar
+            v-if="readyState != 1"
+            color="warning"
+            :icon="mdiAlert"
+            class="m-6"
+        >
+            <b>连接异常</b>
+            请尝试
+            <router-link
+                :to="{
+                    name: 'login',
+                    query: { redirect: $route.fullPath },
+                }"
+            >
+                重新登录
+            </router-link>
+            后重试
+        </NotificationBar>
         <slot />
         <FooterBar />
     </div>

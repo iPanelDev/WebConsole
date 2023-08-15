@@ -12,7 +12,9 @@ const serviceStore = useServiceStore();
 const account = computed(() => serviceStore.account ?? "未登录");
 const currentAddress = computed(() => serviceStore.currentAddress);
 const lastLogin = computed(() =>
-    formatTimespanString((Date.now() - serviceStore.lastLogin.getTime()) / 1000)
+    formatTimespanString(
+        (Date.now() - serviceStore.lastLogin?.getTime()) / 1000
+    )
 );
 </script>
 

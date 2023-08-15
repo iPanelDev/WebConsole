@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import BaseButton from "@/components/BaseButton.vue";
 import BaseButtons from "@/components/BaseButtons.vue";
-import BaseDivider from "@/components/BaseDivider.vue";
 import CardBox from "@/components/CardBox.vue";
 import FormControl from "@/components/FormControl.vue";
 import FormField from "@/components/FormField.vue";
@@ -10,7 +9,7 @@ import SectionTitleLineWithButton from "@/components/SectionTitleLineWithButton.
 import UserCard from "@/components/UserCard.vue";
 import LayoutAuthenticated from "@/layouts/LayoutAuthenticated.vue";
 import { useServiceStore } from "@/service/store";
-import { mdiAccount, mdiAsterisk, mdiFormTextboxPassword } from "@mdi/js";
+import { mdiAccount, mdiFormTextboxPassword } from "@mdi/js";
 import { reactive } from "vue";
 
 const mainStore = useServiceStore();

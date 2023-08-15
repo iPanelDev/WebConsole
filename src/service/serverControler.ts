@@ -1,20 +1,13 @@
 import { ref } from "vue";
 
-import info from "./info";
-import { send } from "./webSocket";
+import { useServiceStore } from "@/service/store";
+import { send } from "@/service/webSocket";
 
-export const outputsMapTracker = ref(0);
+export const inputHistory = Array.from(
+    (JSON.parse(localStorage.getItem("ipanel.inputHistory")) as string[]) || []
+).filter((l) => Boolean(l?.trim()));
 
-export const outputsMap = new Map<string, string[]>(
-    JSON.parse(localStorage.getItem("ipanel.outputHistory"))
-);
-
-export const inputHistory = ref(
-    Array.from(
-        (JSON.parse(localStorage.getItem("ipanel.inputHistory")) as string[]) ||
-            []
-    ).filter((l) => Boolean(l?.trim()))
-);
+export const inputHistoryRef = ref(inputHistory);
 
 export function start() {
     send({
@@ -31,11 +24,10 @@ export function stop() {
 }
 
 export function kill() {
-    if (confirm("确定结束此进程吗？\n此操作可能导致存档损坏等问题"))
-        send({
-            type: "action",
-            sub_type: "server_kill",
-        });
+    send({
+        type: "action",
+        sub_type: "server_kill",
+    });
 }
 
 export function input(line: string) {
@@ -45,61 +37,59 @@ export function input(line: string) {
         data: [line],
     });
 
-    if (inputHistory.value.length > 50)
-        inputHistory.value.splice(50, inputHistory.value.length - 50);
+    if (inputHistory.length > 50)
+        inputHistory.splice(50, inputHistory.length - 50);
 
     if (line?.trim()) {
-        if (inputHistory.value.includes(line))
-            inputHistory.value.splice(inputHistory.value.indexOf(line), 1);
-        inputHistory.value.unshift(line);
+        if (inputHistory.includes(line))
+            inputHistory.splice(inputHistory.indexOf(line), 1);
+        inputHistory.unshift(line);
     }
-    localStorage.setItem(
-        "ipanel.inputHistory",
-        JSON.stringify(inputHistory.value)
-    );
+    localStorage.setItem("ipanel.inputHistory", JSON.stringify(inputHistory));
+
+    inputHistoryRef.value = [...inputHistory];
 }
 
 export function addToMap(guid: string, list: string[]) {
-    const tem = (outputsMap.get(guid) || []).concat(list);
+    const serviceStore = useServiceStore();
+    const tem = (serviceStore.outputs.get(guid) || []).concat(list);
 
     if (tem.length > 500) tem.splice(0, tem.length - 500);
 
-    outputsMap.set(guid, tem);
+    serviceStore.outputs.set(guid, tem);
     updateAndSave();
 }
 
 export function clearOutputsMap(guid: string) {
-    outputsMap.set(guid, []);
+    useServiceStore().outputs.set(guid, []);
     updateAndSave();
 }
 
 export function clearInputHistory() {
-    inputHistory.value.length = 0;
-    localStorage.setItem(
-        "ipanel.inputHistory",
-        JSON.stringify(inputHistory.value)
-    );
+    inputHistory.length = 0;
+    localStorage.setItem("ipanel.inputHistory", JSON.stringify(inputHistory));
+    inputHistoryRef.value = [...inputHistory];
 }
 
 export function clearInvalidOutputHistory() {
-    const currentKeys = Array.from(info.instances.keys());
-    const invalid = Array.from(outputsMap.keys()).filter(
+    const serviceStore = useServiceStore();
+    const currentKeys = Array.from(serviceStore.instances.keys());
+    const invalid = Array.from(serviceStore.outputs.keys()).filter(
         (key) => !currentKeys.includes(key)
     );
 
     if (invalid.length === 0) return;
 
     for (const item of invalid) {
-        outputsMap.delete(item);
+        serviceStore.outputs.delete(item);
     }
 
     updateAndSave();
 }
 
 function updateAndSave() {
-    outputsMapTracker.value = Math.random();
-    localStorage.setItem(
-        "ipanel.outputHistory",
-        JSON.stringify(Array.from(outputsMap.entries()))
+    sessionStorage.setItem(
+        "ipanel.outputs",
+        JSON.stringify(Array.from(useServiceStore().outputs.entries()))
     );
 }
