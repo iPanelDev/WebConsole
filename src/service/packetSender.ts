@@ -1,32 +1,35 @@
 import { useServiceStore } from "@/service/store";
-import { send } from "@/service/webSocket";
+import { readyState, send } from "@/service/webSocket";
 import md5 from "blueimp-md5";
 
-export function subscribe(guid: string) {
+export function subscribe(instanceId: string) {
     send({
-        type: "action",
+        type: "request",
         sub_type: "subscribe",
-        data: guid,
+        data: instanceId,
     });
-    useServiceStore().subscribeTarget = guid;
+    useServiceStore().subscribeTarget = instanceId;
 }
 
-export function verify(salt: string) {
+export function verify(uuid: string) {
     const serviceStore = useServiceStore();
     send({
-        type: "action",
+        type: "request",
         sub_type: "verify",
         data: {
-            token: md5(salt + serviceStore.account + serviceStore.password),
-            account: useServiceStore().account,
+            token: md5(uuid + serviceStore.account + serviceStore.password),
+            account: serviceStore.account,
             client_type: "console",
         },
     });
 }
 
 export function listInstance() {
+    if (readyState.value !== 1) {
+        clearInterval(useServiceStore().heartbeatTimer);
+    }
     send({
-        type: "action",
+        type: "request",
         sub_type: "list_instance",
     });
 }

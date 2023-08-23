@@ -42,53 +42,63 @@ const instances = computed(() =>
                 placeholder="通过名称或地址筛选实例..."
             />
             <div class="grid lg:grid-cols-3 md:grid-cols-2">
-                <CardBox
+                <RouterLink
+                    :to="`/instance/${item[0]}`"
                     v-for="item in instances"
                     :key="item[0]"
-                    class="transition-all select-none flex flex-wrap cursor-pointer"
-                    is-hoverable
-                    @click="$router.push('/instance/' + item[0])"
                 >
-                    <div class="flex mb-5">
-                        <span class="mr-2 text-xl">
-                            {{ item[1].custom_name ?? "未知名称" }}
-                        </span>
-                        <span class="text-lg text-gray-600 dark:text-gray-400"
-                            >{{ item[1].address }}
-                        </span>
-                    </div>
-                    <div class="flex mb-1 text-gray-700 dark:text-gray-300">
-                        <BaseIcon :path="mdiServer" />
-                        服务器状态
-                        <span class="ml-2">
-                            {{
-                                item[1].short_info.server_status
-                                    ? "运行中"
-                                    : "未启动"
-                            }}
-                        </span>
-                    </div>
-                    <div class="flex mb-1 text-gray-700 dark:text-gray-300">
-                        <BaseIcon :path="mdiFile" />
-                        启动文件
-                        <span class="ml-2">
-                            {{
-                                item[1].short_info.server_filename ??
-                                EmptyStringPlaceholder
-                            }}
-                        </span>
-                    </div>
-                    <div class="flex mb-1 text-gray-700 dark:text-gray-300">
-                        <BaseIcon :path="mdiClock" />
-                        运行时间
-                        <span class="ml-2">
-                            {{
-                                item[1].short_info.server_time ??
-                                EmptyStringPlaceholder
-                            }}
-                        </span>
-                    </div>
-                </CardBox>
+                    <CardBox
+                        class="transition-all select-none flex flex-wrap cursor-pointer border-slate-300 dark:border-slate-700 border  w-full"
+                        is-hoverable
+                    >
+                        <div class="flex mb-5 truncate">
+                            <span class="mr-2 text-xl">
+                                {{ item[1].custom_name ?? "未知名称" }}
+                            </span>
+                            <span
+                                class="text-lg text-gray-600 dark:text-gray-400"
+                                >{{ item[1].address }}
+                            </span>
+                        </div>
+                        <div
+                            class="flex mb-1 text-gray-700 dark:text-gray-300 truncate"
+                        >
+                            <BaseIcon :path="mdiServer" />
+                            服务器状态
+                            <span class="ml-2">
+                                {{
+                                    item[1].short_info.server_status
+                                        ? "运行中"
+                                        : "未启动"
+                                }}
+                            </span>
+                        </div>
+                        <div
+                            class="flex mb-1 text-gray-700 dark:text-gray-300 truncate"
+                        >
+                            <BaseIcon :path="mdiFile" />
+                            启动文件
+                            <span class="ml-2">
+                                {{
+                                    item[1].short_info.server_filename ??
+                                    EmptyStringPlaceholder
+                                }}
+                            </span>
+                        </div>
+                        <div
+                            class="flex mb-1 text-gray-700 dark:text-gray-300 truncate"
+                        >
+                            <BaseIcon :path="mdiClock" />
+                            运行时间
+                            <span class="ml-2">
+                                {{
+                                    item[1].short_info.server_time ??
+                                    EmptyStringPlaceholder
+                                }}
+                            </span>
+                        </div>
+                    </CardBox>
+                </RouterLink>
             </div>
             <CardBoxComponentEmpty
                 v-if="instances.length === 0"

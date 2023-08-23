@@ -11,28 +11,28 @@ export const inputHistoryRef = ref(inputHistory);
 
 export function start() {
     send({
-        type: "action",
+        type: "request",
         sub_type: "server_start",
     });
 }
 
 export function stop() {
     send({
-        type: "action",
+        type: "request",
         sub_type: "server_stop",
     });
 }
 
 export function kill() {
     send({
-        type: "action",
+        type: "request",
         sub_type: "server_kill",
     });
 }
 
 export function input(line: string) {
     send({
-        type: "action",
+        type: "request",
         sub_type: "server_input",
         data: [line],
     });
@@ -50,18 +50,18 @@ export function input(line: string) {
     inputHistoryRef.value = [...inputHistory];
 }
 
-export function addToMap(guid: string, list: string[]) {
+export function addToMap(instanceId: string, list: string[]) {
     const serviceStore = useServiceStore();
-    const tem = (serviceStore.outputs.get(guid) || []).concat(list);
+    const tem = (serviceStore.outputs.get(instanceId) || []).concat(list);
 
     if (tem.length > 500) tem.splice(0, tem.length - 500);
 
-    serviceStore.outputs.set(guid, tem);
+    serviceStore.outputs.set(instanceId, tem);
     updateAndSave();
 }
 
-export function clearOutputsMap(guid: string) {
-    useServiceStore().outputs.set(guid, []);
+export function clearOutputsMap(instanceId: string) {
+    useServiceStore().outputs.set(instanceId, []);
     updateAndSave();
 }
 
@@ -88,7 +88,7 @@ export function clearInvalidOutputHistory() {
 }
 
 function updateAndSave() {
-    sessionStorage.setItem(
+    localStorage.setItem(
         "ipanel.outputs",
         JSON.stringify(Array.from(useServiceStore().outputs.entries()))
     );

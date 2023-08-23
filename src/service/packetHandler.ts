@@ -2,10 +2,13 @@ import { ref } from "vue";
 
 import { createNotify } from "@/notification";
 import router from "@/router";
-import { listInstance, verify } from "@/service/packetSender";
+import { listInstance, subscribe, verify } from "@/service/packetSender";
 import { addToMap, clearOutputsMap } from "@/service/serverControler";
 import { useServiceStore } from "@/service/store";
 import { FullInfo, Instance, Packet } from "@/service/types";
+
+// @ts-expect-error
+import moment from "moment";
 
 export const isVerified = ref(false);
 
@@ -18,8 +21,8 @@ export function handle(msg: string): Packet | void {
     const { type } = packet;
 
     switch (type) {
-        case "action":
-            actions(packet);
+        case "request":
+            requests(packet);
             break;
 
         case "return":
@@ -48,12 +51,12 @@ function logUnknownSubType(sub_type: string) {
 }
 
 /**
- * 处理`action`数据包
+ * 处理`request`数据包
  */
-function actions({ sub_type, data }: Packet) {
+function requests({ sub_type, data }: Packet) {
     switch (sub_type) {
         case "verify_request":
-            verify(data.salt);
+            verify(data.uuid);
             break;
 
         default:
@@ -82,11 +85,20 @@ function events({ sub_type, data }: Packet): Packet | void {
                     title: "验证成功",
                     type: "info",
                 });
-                router.push(
-                    (router.currentRoute.value.query["redirect"] as string) ||
-                        "/overview"
-                );
-                serviceStore.lastLogin = new Date();
+
+                if (router.currentRoute.value.path === "/login")
+                    router.push(
+                        (router.currentRoute.value.query[
+                            "redirect"
+                        ] as string) || "/overview"
+                    );
+
+                if (router.currentRoute.value.params["instanceId"]) {
+                    subscribe(
+                        router.currentRoute.value.params["instanceId"] as string
+                    );
+                }
+                serviceStore.lastLoginTime = new Date();
                 serviceStore.heartbeatTimer = setInterval(listInstance, 2500);
                 listInstance();
             }
@@ -105,12 +117,12 @@ function events({ sub_type, data }: Packet): Packet | void {
 /**
  * 处理`broadcast`数据包
  */
-function broadcasts({ sub_type, data }: Packet) {
+function broadcasts({ sub_type, data, sender }: Packet) {
     const serviceStore = useServiceStore();
 
     switch (sub_type) {
         case "server_start":
-            clearOutputsMap(serviceStore.subscribeTarget);
+            clearOutputsMap(sender.instance_id);
             createNotify({
                 type: "info",
                 title: "服务器已启动",
@@ -127,13 +139,13 @@ function broadcasts({ sub_type, data }: Packet) {
 
         case "server_input":
             addToMap(
-                serviceStore.subscribeTarget,
+                sender.instance_id,
                 data.map((line: string) => `>${line}`)
             );
             break;
 
         case "server_output":
-            addToMap(serviceStore.subscribeTarget, data);
+            addToMap(sender.instance_id, data);
             break;
 
         default:
@@ -147,12 +159,12 @@ function broadcasts({ sub_type, data }: Packet) {
  */
 function returns({ sub_type, data }: Packet) {
     switch (sub_type) {
-        case "list":
+        case "instance_list":
             updateList(data);
             break;
 
-        case "target_info":
-            processTargetInfo(data);
+        case "instance_info":
+            processInstanceInfo(data.instance_id, data.info);
             break;
 
         default:
@@ -164,46 +176,48 @@ function returns({ sub_type, data }: Packet) {
 /**
  * 处理目标实例的信息
  */
-function processTargetInfo(data?: FullInfo) {
+function processInstanceInfo(instanceId: string, fullInfo?: FullInfo) {
     const serviceStore = useServiceStore();
 
-    if (!serviceStore.subscribeTarget || !data) return;
+    if (!fullInfo) return;
 
-    const targetInstance = serviceStore.instances.get(
-        serviceStore.subscribeTarget
-    );
+    const targetInstance = serviceStore.instances.get(instanceId);
 
     if (!targetInstance) return;
 
-    targetInstance.full_info = data;
-    serviceStore.instances.set(serviceStore.subscribeTarget, targetInstance);
-    serviceStore.updateInfo(data);
+    targetInstance.full_info = fullInfo;
+    serviceStore.instances.set(instanceId, targetInstance);
+
+    const array = serviceStore.instanceInfos.get(instanceId) || [];
+    array.push([moment().format("HH:mm:ss"), fullInfo]);
+
+    while (array.length > 20) array.shift();
+
+    serviceStore.instanceInfos.set(instanceId, array);
 }
 
 /**
  * 更新实例列表
  */
-function updateList(data?: { type: "instance"; list: Instance[] }) {
+function updateList(data?: Instance[]) {
     const serviceStore = useServiceStore();
-    if (data.type === "instance") {
-        const newGuids = data.list.map((i) => i.guid);
-        const oldGuids = Array.from(serviceStore.instances.keys());
+    const newInstances = data.map((i) => i.instance_id);
+    const oldInstances = Array.from(serviceStore.instances.keys());
 
-        // 清除无效的ID
-        const invalidGuids = oldGuids.filter((g) => !newGuids.includes(g));
-        invalidGuids.forEach((v) => serviceStore.instances.delete(v));
+    // 清除无效的ID
+    const invalidGuids = oldInstances.filter((g) => !newInstances.includes(g));
+    invalidGuids.forEach((v) => serviceStore.instances.delete(v));
 
-        for (const instance of data.list) {
-            if (
-                newGuids.includes(instance.guid) &&
-                oldGuids.includes(instance.guid)
-            ) {
-                const fullInfo = serviceStore.instances.get(
-                    instance.guid
-                )?.full_info;
-                instance.full_info = fullInfo;
-            }
-            serviceStore.instances.set(instance.guid, instance);
+    for (const instance of data) {
+        if (
+            newInstances.includes(instance.instance_id) &&
+            oldInstances.includes(instance.instance_id)
+        ) {
+            const fullInfo = serviceStore.instances.get(
+                instance.instance_id
+            )?.full_info;
+            instance.full_info = fullInfo;
         }
+        serviceStore.instances.set(instance.instance_id, instance);
     }
 }

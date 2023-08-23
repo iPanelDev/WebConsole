@@ -5,6 +5,7 @@ import { handle, isVerified } from "@/service/packetHandler";
 import { Packet } from "@/service/types";
 import { getConfig } from "@/utils/configManager";
 import { useServiceStore } from "./store";
+import { useRoute } from "vue-router";
 
 /**
  * 状态枚举值
@@ -40,21 +41,25 @@ export const readyState = ref(ws?.readyState ?? State.CLOSED);
 
 export const isConnected = () => ws?.readyState === 1;
 
+export const isReconnecting = ref(false);
+
+export const reconnectTime = ref(new Date());
+
+export const errorMsg = ref("");
+
 function updateReadyState() {
     readyState.value = ws?.readyState ?? State.CLOSED;
-    console.log(ws?.readyState);
-    
 }
 
 /**
  * 连接
- * @param addr 地址
- * @param account 账号
- * @param password 密码
+ * @param skipCheck 跳过检查
  * @returns 错误信息
  */
-export function connectTo() {
+export function connect(skipCheck = false) {
     const serviceStore = useServiceStore();
+    errorMsg.value = null;
+
     let address = serviceStore.address;
     if (getConfig().lockWebSocket)
         address =
@@ -63,8 +68,9 @@ export function connectTo() {
             "/ws";
 
     if (
-        readyState.value <= 1 ||
-        !checkValues(address, serviceStore.account, serviceStore.password)
+        !skipCheck &&
+        (readyState.value <= 1 ||
+            !checkValues(address, serviceStore.account, serviceStore.password))
     )
         return;
 
@@ -75,40 +81,30 @@ export function connectTo() {
         ws.onopen = updateReadyState;
         ws.onerror = updateReadyState;
         serviceStore.disconnectReason = null;
+        serviceStore.isDisconnectedByUser = false;
+        reconnectTime.value = null;
     } catch (e) {
-        console.error(e);
-        createNotify({
-            title: "无法创建WS对象",
-            message: (e as Error).message || e,
-            type: "error",
-        });
+        errorMsg.value = String(e);
     }
 }
 
+/**
+ * 检查输入值
+ */
 function checkValues(addr: string, account: string, password: string) {
-    if (typeof addr != "string" || !addr)
-        createNotify({
-            title: "填写信息有误",
-            message: "WS地址为空",
-            type: "error",
-        });
+    if (typeof addr != "string" || !addr) errorMsg.value = "WS地址为空";
     else if (typeof account != "string" || !account)
-        createNotify({
-            title: "填写信息有误",
-            message: "账号为空",
-            type: "error",
-        });
+        errorMsg.value = "帐号为空";
     else if (typeof password != "string" || !password)
-        createNotify({
-            title: "填写信息有误",
-            message: "密码为空",
-            type: "error",
-        });
+        errorMsg.value = "密码为空";
     else return true;
 
     return false;
 }
 
+/**
+ * 断开事件
+ */
 function onClose(e: CloseEvent) {
     const serviceStore = useServiceStore();
     updateReadyState();
@@ -126,11 +122,15 @@ function onClose(e: CloseEvent) {
         type: "warn",
         duration: !serviceStore.disconnectReason && e.code === 1000 ? 5000 : -1,
     });
-}
+    ws = null;
 
-export function send(packet: Packet) {
-    ws?.send(JSON.stringify(packet));
-    console.debug("发送消息", packet);
+    if (
+        isVerified.value &&
+        serviceStore.autoReconnect &&
+        !serviceStore.isDisconnectedByUser
+    ) {
+        setTimeout(reconnect, 10000);
+    }
 }
 
 function onMsg(e: MessageEvent) {
@@ -146,12 +146,29 @@ function onMsg(e: MessageEvent) {
     }
 }
 
-export function disconnect() {
-    ws?.close(1000);
-    ws = null;
+/**
+ * 发送数据包
+ * @param packet 数据包
+ */
+export function send(packet: Packet) {
+    updateReadyState();
+    ws?.send(JSON.stringify(packet));
+    console.debug("发送消息", packet);
 }
 
-export function checkConnectionStatus(guid?: string) {
+/**
+ * 断开连接
+ */
+export function disconnect() {
+    ws?.close(1000);
+    useServiceStore().isDisconnectedByUser = true;
+}
+
+/**
+ * 检查连接状态
+ * @param instanceId
+ */
+export function checkConnectionStatus(instanceId?: string) {
     if (!isVerified || !isConnected())
         createNotify({
             title:
@@ -159,7 +176,7 @@ export function checkConnectionStatus(guid?: string) {
             message: "请点击左上角的Logo进行连接",
             type: "error",
         });
-    else if (guid && !useServiceStore().instances.has(guid)) {
+    else if (instanceId && !useServiceStore().instances.has(instanceId)) {
         createNotify({
             type: "warn",
             title: "没有找到此实例",
@@ -167,3 +184,37 @@ export function checkConnectionStatus(guid?: string) {
         });
     }
 }
+
+/**
+ * 重新连接
+ */
+async function reconnect() {
+    const serviceStore = useServiceStore();
+
+    if (
+        serviceStore.isDisconnectedByUser ||
+        useRoute()?.path === "/login" ||
+        window.location.pathname.includes("login") ||
+        !serviceStore.address ||
+        !serviceStore.autoReconnect
+    )
+        return;
+
+    try {
+        reconnectTime.value = new Date();
+        isReconnecting.value = true;
+        const url = new URL(serviceStore.address);
+        const address =
+            (url.protocol === "wss:" ? "https:" : "http:") +
+            `//${url.host}/api/ping`;
+        await fetch(address);
+        connect();
+    } catch (error) {
+        errorMsg.value = `重连失败. ${String(error)}`;
+        console.error(error);
+    } finally {
+        isReconnecting.value = false;
+    }
+}
+
+setTimeout(reconnect, 200);

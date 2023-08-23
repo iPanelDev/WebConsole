@@ -23,9 +23,9 @@ app.use(pinia);
 app.mount("#app");
 
 if (
-    (!localStorage["darkMode"] &&
+    (!localStorage["ipanel.darkMode"] &&
         window.matchMedia("(prefers-color-scheme: dark)").matches) ||
-    localStorage["darkMode"] === "1"
+    localStorage["ipanel.darkMode"] === "1"
 ) {
     styleStore.setDarkMode(true);
 }

@@ -25,7 +25,7 @@ export const useStyleStore = defineStore("style", {
             this.darkMode = payload !== null ? payload : !this.darkMode;
 
             if (typeof localStorage !== "undefined") {
-                localStorage.setItem("darkMode", this.darkMode ? "1" : "0");
+                localStorage.setItem("ipanel.darkMode", this.darkMode ? "1" : "0");
             }
 
             if (typeof document !== "undefined") {

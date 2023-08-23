@@ -2,12 +2,15 @@
 import AsideMenu from "@/components/AsideMenu.vue";
 import BaseIcon from "@/components/BaseIcon.vue";
 import FooterBar from "@/components/FooterBar.vue";
+import LoginLayer from "@/components/LoginLayer.vue";
 import NavBar from "@/components/NavBar.vue";
 import NavBarItemPlain from "@/components/NavBarItemPlain.vue";
 import NotificationBar from "@/components/NotificationBar.vue";
 import instanceSidebar from "@/menus/instanceSidebar";
 import menuNavBar from "@/menus/menuNavBar";
-import { readyState } from "@/service/webSocket";
+import { isVerified } from "@/service/packetHandler";
+import { useServiceStore } from "@/service/store";
+import { disconnect, readyState } from "@/service/webSocket";
 import { useStyleStore } from "@/style";
 import {
     mdiAlert,
@@ -44,11 +47,15 @@ router.beforeEach(() => {
 const menuClick = (event, item) => {
     if (item.isToggleLightDark) {
         styleStore.setDarkMode();
+    } else if (item.isLogout) {
+        disconnect();
+        useServiceStore().$reset();
     }
 };
 </script>
 
 <template>
+    <LoginLayer />
     <div
         :class="[
             layoutAsidePadding,
@@ -90,11 +97,10 @@ const menuClick = (event, item) => {
             :is-aside-lg-active="isAsideLgActive"
             :menu="instanceSidebar"
             :bottom-item="backToOverview"
-            @menu-click="menuClick"
             @aside-lg-close-click="isAsideLgActive = false"
         />
         <NotificationBar
-            v-if="readyState !== 1"
+            v-if="readyState !== 1 && isVerified"
             color="warning"
             :icon="mdiAlert"
             class="m-6"

@@ -5,6 +5,7 @@ import { useServiceStore } from "@/service/store";
 
 import BaseButton from "@/components/BaseButton.vue";
 import CardBox from "@/components/CardBox.vue";
+import CardBoxModal from "@/components/CardBoxModal.vue";
 import Console from "@/components/Console.vue";
 import FormControl from "@/components/FormControl.vue";
 import SectionMain from "@/components/SectionMain.vue";
@@ -29,19 +30,18 @@ import {
     mdiStop,
     mdiTrashCan,
 } from "@mdi/js";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
-import CardBoxModal from "@/components/CardBoxModal.vue";
 
-const guid = useRoute().params["guid"] as string;
-subscribe(guid);
+const instanceId = useRoute().params["instanceId"] as string;
+onMounted(() => subscribe(instanceId));
 
 const serviceStore = useServiceStore();
 
-const datas = computed(() => serviceStore.outputs.get(guid) || []);
+const datas = computed(() => serviceStore.outputs.get(instanceId) || []);
 
 const status = computed(
-    () => serviceStore.instances.get(guid)?.short_info.server_status
+    () => serviceStore.instances.get(instanceId)?.short_info.server_status
 );
 
 const inputRef = ref("");
@@ -96,11 +96,12 @@ function send() {
     <LayoutOfInstance>
         <CardBoxModal
             v-model="isModalActive"
-            title="Please confirm action"
+            title="确定要强制结束进程吗"
             button-label="确认"
             has-cancel
             @confirm="kill"
         >
+            此操作可能导致存档损坏等问题
         </CardBoxModal>
         <SectionMain ref="sectionElRef" class="bg-gray-50 dark:bg-slate-800">
             <SectionTitleLineWithButton :icon="mdiConsole" title="控制台" main>
@@ -110,7 +111,7 @@ function send() {
                         :icon="mdiTrashCan"
                         color="whiteDark"
                         title="清屏"
-                        @click="() => clearOutputsMap(guid)"
+                        @click="() => clearOutputsMap(instanceId)"
                     />
                     <BaseButton
                         v-if="isFullscreen"

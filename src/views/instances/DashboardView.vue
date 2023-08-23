@@ -22,15 +22,18 @@ import { useRoute } from "vue-router";
 import BaseIcon from "@/components/BaseIcon.vue";
 
 const serviceStore = useServiceStore();
-const guid = useRoute().params["guid"] as string;
-subscribe(guid);
+const instanceId = useRoute().params["instanceId"] as string;
+onMounted(() => subscribe(instanceId));
 
 const infos: ComputedRef<Array<[string, FullInfo]>> = computed(
-    () => serviceStore.instanceInfos.get(guid) || []
+    () => serviceStore.instanceInfos.get(instanceId) || []
 );
-
-const fullInfo = computed(() => serviceStore.instances.get(guid)?.full_info);
-const shortInfo = computed(() => serviceStore.instances.get(guid)?.short_info);
+const fullInfo = computed(
+    () => serviceStore.instances.get(instanceId)?.full_info
+);
+const shortInfo = computed(
+    () => serviceStore.instances.get(instanceId)?.short_info
+);
 
 onUnmounted(watch(fullInfo, generate));
 
@@ -107,21 +110,21 @@ onMounted(generate);
             />
 
             <div class="grid grid-cols-1 lg:gap-3 lg:grid-cols-3">
-                <CardBox class="pd-6 mb-3">
+                <CardBox class="pd-6 mb-3 truncate">
                     <div class="text-xl mb-3 flex items-center">
                         <BaseIcon :path="mdiEarthBox" size="17" />系统
                     </div>
                     {{ shortInfo?.os || "未知" }}
                 </CardBox>
 
-                <CardBox class="pd-6 mb-3">
+                <CardBox class="pd-6 mb-3 truncate">
                     <div class="text-xl mb-3 flex items-center">
                         <BaseIcon :path="mdiServer" size="17" />服务器状态
                     </div>
                     {{ shortInfo?.server_status ? "运行中" : "未启动" }}
                 </CardBox>
 
-                <CardBox class="pd-6 mb-3">
+                <CardBox class="pd-6 mb-3 truncate">
                     <div class="text-xl mb-3 flex items-center">
                         <BaseIcon :path="mdiClock" size="17" />服务器运行时间
                     </div>
@@ -138,7 +141,7 @@ onMounted(generate);
                             class="mr-3"
                         />CPU使用率
                     </h1>
-                    {{ fullInfo?.sys?.cpu_usage.toFixed(1) || 0 }}%
+                    {{ fullInfo?.sys?.cpu_usage?.toFixed(1) || 0 }}%
                 </div>
                 <LineChart :data="cpuData" />
             </CardBox>
@@ -165,7 +168,7 @@ onMounted(generate);
                         (fullInfo?.sys?.total_ram / 1024 / 1024).toFixed(1) || 0
                     }}
                     GB |
-                    {{ fullInfo?.sys?.ram_usage.toFixed(1) || 0 }}%
+                    {{ fullInfo?.sys?.ram_usage?.toFixed(1) || 0 }}%
                 </div>
                 <LineChart :data="ramData" />
             </CardBox>

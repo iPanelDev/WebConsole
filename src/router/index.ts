@@ -49,15 +49,15 @@ const routes: RouteRecordRaw[] = [
     },
 
     {
-        path: "/instance/:guid",
-        redirect: (to) => `/instance/${to.params["guid"]}/dashboard`,
+        path: "/instance/:instanceId",
+        redirect: (to) => `/instance/${to.params["instanceId"]}/dashboard`,
     },
 
     {
         meta: {
             title: "仪表盘",
         },
-        path: "/instance/:guid/dashboard",
+        path: "/instance/:instanceId/dashboard",
         name: "instance",
         // @ts-expect-error
         component: () => import("@/views/instances/DashboardView.vue"),
@@ -67,7 +67,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
             title: "控制台",
         },
-        path: "/instance/:guid/console",
+        path: "/instance/:instanceId/console",
         name: "console",
         // @ts-expect-error
         component: () => import("@/views/instances/ConsoleView.vue"),

@@ -1,46 +1,74 @@
 import { defineStore } from "pinia";
 import { FullInfo, Instance } from "@/service/types";
-import { connectTo } from "@/service/webSocket";
-
-// @ts-expect-error
-import moment from "moment";
 
 export const useServiceStore = defineStore("user", {
     state: () => ({
-        account: null,
-        address: null,
-        password: null,
-        lastLogin: null,
+        account: localStorage["ipanel.account"],
+
+        address: localStorage["ipanel.address"],
+
+        password: localStorage["ipanel.password"],
+
+        /**
+         * 被用户断开
+         */
+        isDisconnectedByUser: false,
+
+        /**
+         * 上次登录时间
+         */
+        lastLoginTime: null,
+
+        /**
+         * 记住密码
+         */
+        rememberPassword: localStorage["ipanel.rememberPassword"] === "1",
+
+        /**
+         * 自动连接
+         */
+        autoReconnect: localStorage["ipanel.autoReconnect"] === "1",
+
+        /**
+         * 当前地址
+         */
         currentAddress: "未知地址",
 
-        isFieldFocusRegistered: false,
-
-        // 实例
+        /**
+         * 实例
+         */
         instances: new Map<string, Instance>(),
 
-        // 输出
+        /**
+         * 输出
+         */
         outputs: new Map<string, string[]>(
-            JSON.parse(sessionStorage["ipanel.outputs"] || "[]")
+            JSON.parse(localStorage["ipanel.outputs"] || "[]")
         ),
 
-        // 订阅目标
+        /**
+         * 订阅目标
+         */
         subscribeTarget: null,
 
-        // 断开原因
+        /**
+         * 断开原因
+         */
         disconnectReason: null,
 
-        // 心跳计时器
+        /**
+         * 心跳计时器
+         */
         heartbeatTimer: null,
 
-        // 实例信息
+        /**
+         * 实例信息
+         */
         instanceInfos: new Map<string, [string, FullInfo][]>(),
     }),
 
     actions: {
-        /**
-         * 设置用户
-         */
-        setUser(payload: Record<string, any>) {
+        input(payload: Record<string, any>) {
             if (payload.account) {
                 this.account = payload.account;
             }
@@ -50,32 +78,20 @@ export const useServiceStore = defineStore("user", {
             if (payload.password) {
                 this.password = payload.password;
             }
-        },
 
-        login: () => connectTo(),
-
-        restore() {
-            if (!localStorage) return;
-
-            this.account = localStorage["iapenl.account"];
-            this.address = localStorage["iapenl.address"];
-            this.password = localStorage["iapenl.password"];
+            this.rememberPassword = payload.rememberPassword;
+            this.autoReconnect = payload.autoReconnect;
         },
 
         save() {
-            localStorage["iapenl.account"] = this.account ?? "";
-            localStorage["iapenl.address"] = this.address ?? "";
-            localStorage["iapenl.password"] = this.password ?? "";
-        },
-
-        updateInfo(fullInfo: FullInfo) {
-            const array = this.instanceInfos.get(this.subscribeTarget) || [];
-
-            array.push([moment().format("HH:mm:ss"), fullInfo]);
-
-            while (array.length > 20) array.shift();
-
-            this.instanceInfos.set(this.subscribeTarget, array);
+            localStorage["ipanel.account"] = this.account ?? "";
+            localStorage["ipanel.address"] = this.address ?? "";
+            localStorage["ipanel.password"] =
+                (this.rememberPassword && this.password) || "";
+            localStorage["ipanel.rememberPassword"] = Number(
+                this.rememberPassword
+            );
+            localStorage["ipanel.autoReconnect"] = Number(this.autoReconnect);
         },
     },
 });
