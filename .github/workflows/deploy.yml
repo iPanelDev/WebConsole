@@ -1,6 +1,13 @@
 name: deploy
 
 on:
+  push:
+    paths:
+      - "**.vue"
+      - "**.html"
+      - "**.ts"
+      - "**.js"
+      - "**.json"
   workflow_dispatch:
 
 permissions:
@@ -22,7 +29,8 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v3
 
-      - shell: bash
+      - name: Build
+        shell: bash
         run: |
           npm i
           npm run build
