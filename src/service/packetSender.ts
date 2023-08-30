@@ -1,14 +1,26 @@
-import { useServiceStore } from "@/service/store";
-import { readyState, send } from "@/service/webSocket";
+import { useServiceStore, useConnectionStore } from "@/service/store";
+import { send } from "@/service/webSocket";
 import md5 from "blueimp-md5";
 
 export function subscribe(instanceId: string) {
-    send({
-        type: "request",
-        sub_type: "subscribe",
-        data: instanceId,
-    });
-    useServiceStore().subscribeTarget = instanceId;
+    if (useConnectionStore().hasVerified) {
+        send({
+            type: "request",
+            sub_type: "subscribe",
+            data: instanceId,
+        });
+        useServiceStore().subscribeTarget = instanceId;
+    }
+}
+
+export function dissubscribe() {
+    if (useConnectionStore().hasVerified) {
+        send({
+            type: "request",
+            sub_type: "dissubscribe",
+        });
+        useServiceStore().subscribeTarget = "";
+    }
 }
 
 export function verify(uuid: string) {
@@ -25,11 +37,44 @@ export function verify(uuid: string) {
 }
 
 export function listInstance() {
-    if (readyState.value !== 1) {
-        clearInterval(useServiceStore().heartbeatTimer);
+    const connectionStore = useConnectionStore();
+
+    if (connectionStore.state !== 1) {
+        connectionStore.clearTimer();
+        return;
     }
+
     send({
         type: "request",
         sub_type: "list_instance",
     });
+}
+
+export function getCurrentUserInfo() {
+    if (useConnectionStore().hasVerified) {
+        send({
+            type: "request",
+            sub_type: "get_current_user_info",
+        });
+    }
+}
+
+export function getUsers() {
+    if (useConnectionStore().hasVerified) {
+        useServiceStore().users = [];
+        send({
+            type: "request",
+            sub_type: "get_all_users",
+        });
+    }
+}
+
+export function getDirInfo(path = "") {
+    if (useConnectionStore().hasVerified) {
+        send({
+            type: "request",
+            sub_type: "get_dir_info",
+            data: path,
+        });
+    }
 }

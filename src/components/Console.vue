@@ -28,9 +28,8 @@ onMounted(scrollToBottom);
 <style>
 div#console {
     font-family: Consolas, "Courier New", Courier, "微软雅黑";
-    height: 70vh;
+    height: 50vh;
     min-height: 500px;
-
     scrollbar-width: thin;
     scrollbar-color: rgb(156, 163, 175) rgb(249, 250, 251);
 }

@@ -143,7 +143,7 @@ function send() {
                     autocomplete="none"
                     placeholder="在此输入命令..."
                     title="你可以使用上下键切换历史输入"
-                    @keyup.enter="send"
+                    @keyup.enter.stop="send"
                     @keyup.up="updateIndex(1)"
                     @keyup.down="updateIndex(-1)"
                 />

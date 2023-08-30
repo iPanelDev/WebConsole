@@ -1,4 +1,4 @@
-import { getConfig } from "@/utils/configManager";
+import { getWebGlobalConfig } from "@/utils/configManager";
 import {
     RouteRecordRaw,
     createMemoryHistory,
@@ -44,6 +44,26 @@ const routes: RouteRecordRaw[] = [
     },
 
     {
+        meta: {
+            title: "设置",
+        },
+        path: "/settings",
+        name: "settings",
+        // @ts-expect-error
+        component: () => import("@/views/SettingsView.vue"),
+    },
+
+    {
+        meta: {
+            title: "用户管理",
+        },
+        path: "/users",
+        name: "users",
+        // @ts-expect-error
+        component: () => import("@/views/UsersView.vue"),
+    },
+
+    {
         path: "/instance",
         redirect: "/overview",
     },
@@ -75,7 +95,27 @@ const routes: RouteRecordRaw[] = [
 
     {
         meta: {
-            title: "错误",
+            title: "系统终端",
+        },
+        path: "/instance/:instanceId/terminal",
+        name: "terminal",
+        // @ts-expect-error
+        component: () => import("@/views/instances/TerminalView.vue"),
+    },
+
+    {
+        meta: {
+            title: "文件管理",
+        },
+        path: "/instance/:instanceId/files",
+        name: "files",
+        // @ts-expect-error
+        component: () => import("@/views/instances/FilesView.vue"),
+    },
+
+    {
+        meta: {
+            title: "404",
         },
         path: "/:path(.*)*",
         name: "error",
@@ -88,23 +128,21 @@ const routes: RouteRecordRaw[] = [
 ];
 
 const routerHistory = (function () {
-    const config = getConfig();
-
-    const basePath = config.basePath || "/";
+    const config = getWebGlobalConfig();
 
     switch (config.routerHistoryType) {
         case "hash":
-            return createWebHashHistory(basePath);
+            return createWebHashHistory();
 
         case "memory":
-            return createMemoryHistory(basePath);
+            return createMemoryHistory();
 
         case "web":
-            return createWebHistory(basePath);
+            return createWebHistory();
 
         default:
             console.warn("config.routerHistoryType有误");
-            return createWebHistory(basePath);
+            return createWebHistory();
     }
 })();
 

@@ -26,7 +26,7 @@ const instanceId = useRoute().params["instanceId"] as string;
 onMounted(() => subscribe(instanceId));
 
 const infos: ComputedRef<Array<[string, FullInfo]>> = computed(
-    () => serviceStore.instanceInfos.get(instanceId) || []
+    () => serviceStore.instanceInfosHistory.get(instanceId) || []
 );
 const fullInfo = computed(
     () => serviceStore.instances.get(instanceId)?.full_info
@@ -168,7 +168,7 @@ onMounted(generate);
                         (fullInfo?.sys?.total_ram / 1024 / 1024).toFixed(1) || 0
                     }}
                     GB |
-                    {{ fullInfo?.sys?.ram_usage?.toFixed(1) || 0 }}%
+                    {{ (fullInfo?.sys?.ram_usage || 0).toFixed(1) || 0 }}%
                 </div>
                 <LineChart :data="ramData" />
             </CardBox>

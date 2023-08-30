@@ -4,19 +4,19 @@ import { createPinia } from "pinia";
 // @ts-expect-error
 import App from "./App.vue";
 import router from "./router";
-import { useServiceStore } from "@/service/store";
+import { useConnectionStore, useServiceStore } from "@/service/store";
 import { useStyleStore } from "@/style";
 
 import "./css/main.css";
 
-/* Init Pinia */
+/* 初始化 Pinia */
 const pinia = createPinia();
 
-/* Init Pinia stores */
+/* 初始化 Pinia stores */
 useServiceStore(pinia);
+useConnectionStore(pinia);
 const styleStore = useStyleStore(pinia);
 
-/* Create Vue app */
 const app = createApp(App);
 app.use(router);
 app.use(pinia);

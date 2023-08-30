@@ -9,9 +9,10 @@
   "compilerOptions": {
     "composite": true,
     "lib": [
-      "ES2022",
+      "es2023",
       "DOM"
     ],
+    "target": "ES2022",
     "module": "ESNext",
     "types": [
       "node"

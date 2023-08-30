@@ -1,4 +1,5 @@
 import { encode } from "html-entities";
+import { getSettings } from "@/utils/settingsManager";
 
 /**
  * 颜色数码
@@ -53,6 +54,8 @@ export function convert(line = "") {
 
     if (!line || !line.includes("\x1b")) {
         return line;
+    } else if (!getSettings().colorfulOutput) {
+        return line.replace(/\x1b\[.*?m/g, "");
     }
 
     const outputs = [];
@@ -121,4 +124,15 @@ export function formatTimespanString(span: number) {
     if (span < 60 * 60) return `${(span / 60).toFixed(1)}分钟`;
     if (span < 60 * 60 * 24) return `${(span / 60 / 60).toFixed(1)}小时`;
     return `${(span / 60 / 60 / 24).toFixed(1)}天`;
+}
+
+export function formatFileSize(size: number) {
+    if (size == null || size == undefined || size < 0) return "";
+    if (size < 1024) return `${size}B`;
+    if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)}KB`;
+    if (size < 1024 * 1024 * 1024)
+        return `${(size / 1024 / 1024).toFixed(1)}MB`;
+    if (size < 1024 * 1024 * 1024 * 1024)
+        return `${(size / 1024 / 1024 / 1024).toFixed(1)}GB`;
+    return `${(size / 1024 / 1024 / 1024 / 1024 / 1024).toFixed(1)}TB`;
 }

@@ -6,19 +6,20 @@ import LoginLayer from "@/components/LoginLayer.vue";
 import NavBar from "@/components/NavBar.vue";
 import NavBarItemPlain from "@/components/NavBarItemPlain.vue";
 import NotificationBar from "@/components/NotificationBar.vue";
-import menuAside from "@/menus/menuAside";
-import menuNavBar from "@/menus/menuNavBar";
-import { isVerified } from "@/service/packetHandler";
-import { useServiceStore } from "@/service/store";
-import { disconnect, readyState } from "@/service/webSocket";
+import adminSidebar from "@/menus/adminSidebar";
+import commonSidebar from "@/menus/commonSidebar";
+import navbar from "@/menus/navbar";
+import { useConnectionStore, useServiceStore } from "@/service/store";
+import { disconnect } from "@/service/webSocket";
 import { useStyleStore } from "@/style";
 import { mdiAlert, mdiBackburger, mdiForwardburger, mdiMenu } from "@mdi/js";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 
 const layoutAsidePadding = "xl:pl-60";
 
 const styleStore = useStyleStore();
+const connectionStore = useConnectionStore();
 
 const router = useRouter();
 
@@ -38,6 +39,12 @@ const menuClick = (event, item) => {
         useServiceStore().$reset();
     }
 };
+
+const siderbar = computed(() =>
+    useServiceStore().currentUser?.level === 3
+        ? [].concat(commonSidebar, adminSidebar)
+        : commonSidebar
+);
 </script>
 
 <template>
@@ -53,7 +60,7 @@ const menuClick = (event, item) => {
         class="pt-14 min-h-screen w-full transition-position lg:w-auto"
     >
         <NavBar
-            :menu="menuNavBar"
+            :menu="navbar"
             :class="[
                 layoutAsidePadding,
                 { 'ml-60 lg:ml-0': isAsideMobileExpanded },
@@ -81,12 +88,12 @@ const menuClick = (event, item) => {
         <AsideMenu
             :is-aside-mobile-expanded="isAsideMobileExpanded"
             :is-aside-lg-active="isAsideLgActive"
-            :menu="menuAside"
+            :menu="siderbar"
             @menu-click="menuClick"
             @aside-lg-close-click="isAsideLgActive = false"
         />
         <NotificationBar
-            v-if="readyState !== 1 && isVerified"
+            v-if="connectionStore.state !== 1 && connectionStore.hasVerified"
             color="warning"
             :icon="mdiAlert"
             class="m-6"

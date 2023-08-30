@@ -1,19 +1,16 @@
 <script setup lang="ts">
 import BaseLevel from "@/components/BaseLevel.vue";
 import CardBox from "@/components/CardBox.vue";
-import PillTag from "@/components/PillTag.vue";
 import { useServiceStore } from "@/service/store";
 import { formatTimespanString } from "@/utils/strings";
-import { mdiCheckDecagram } from "@mdi/js";
 import { computed } from "vue";
 
 const serviceStore = useServiceStore();
 
 const account = computed(() => serviceStore.account ?? "未登录");
-const currentAddress = computed(() => serviceStore.currentAddress);
 const lastLogin = computed(() =>
     formatTimespanString(
-        (Date.now() - serviceStore.lastLogin?.getTime()) / 1000
+        (Date.now() - serviceStore.lastLoginTime?.getTime()) / 1000
     )
 );
 </script>
@@ -28,15 +25,12 @@ const lastLogin = computed(() =>
                 </h1>
                 <p>
                     上次于 <b>{{ lastLogin }}</b> 前从
-                    <b>{{ currentAddress }}</b> 登录
+                    <b>{{
+                        (serviceStore.currentUser?.ip_addresses || [])[0] ||
+                        "未知地址"
+                    }}</b>
+                    登录
                 </p>
-                <div class="flex justify-center md:block">
-                    <PillTag
-                        label="Verified"
-                        color="info"
-                        :icon="mdiCheckDecagram"
-                    />
-                </div>
             </div>
         </BaseLevel>
     </CardBox>

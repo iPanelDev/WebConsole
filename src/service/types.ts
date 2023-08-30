@@ -5,6 +5,24 @@ export declare type Instance = {
     custom_name: string | null;
     uuid: string;
     instance_id: string;
+    dir_tree: Map<string, Item[]>;
+};
+
+export declare type DirInfo = DirBase & {
+    dir: string;
+};
+
+export declare type DirBase = {
+    is_exist: boolean;
+    items?: Item[];
+};
+
+export declare type Item = {
+    type: "file" | "dir";
+    path: string;
+    name: string;
+    size?: number;
+    items?: Record<string, Item>;
 };
 
 export declare type ShortInfo = {
@@ -36,4 +54,12 @@ export declare type FullInfo = {
         ram_usage: number;
         cpu_usage: number;
     };
+};
+
+export declare type User = {
+    last_login_time: string;
+    level: number;
+    instances: string[];
+    description?: string;
+    ip_addresses: string[];
 };

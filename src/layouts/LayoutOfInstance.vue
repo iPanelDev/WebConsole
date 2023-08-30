@@ -7,24 +7,26 @@ import NavBar from "@/components/NavBar.vue";
 import NavBarItemPlain from "@/components/NavBarItemPlain.vue";
 import NotificationBar from "@/components/NotificationBar.vue";
 import instanceSidebar from "@/menus/instanceSidebar";
-import menuNavBar from "@/menus/menuNavBar";
-import { isVerified } from "@/service/packetHandler";
-import { useServiceStore } from "@/service/store";
-import { disconnect, readyState } from "@/service/webSocket";
+import navbar from "@/menus/navbar";
+import { useConnectionStore, useServiceStore } from "@/service/store";
+import { disconnect } from "@/service/webSocket";
 import { useStyleStore } from "@/style";
 import {
     mdiAlert,
     mdiArrowLeft,
     mdiBackburger,
+    mdiConsoleLine,
+    mdiFile,
     mdiForwardburger,
     mdiMenu,
 } from "@mdi/js";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 
 const layoutAsidePadding = "xl:pl-60";
 
 const styleStore = useStyleStore();
+const connectionStore = useConnectionStore();
 
 const router = useRouter();
 
@@ -52,6 +54,31 @@ const menuClick = (event, item) => {
         useServiceStore().$reset();
     }
 };
+
+const siderbar = computed(() =>
+    useServiceStore().currentUser?.level === 2
+        ? instanceSidebar.concat([
+              {
+                  to: "./terminal",
+                  label: "系统终端",
+                  icon: mdiConsoleLine,
+              },
+          ])
+        : useServiceStore().currentUser?.level === 3
+        ? instanceSidebar.concat([
+              {
+                  to: "./files",
+                  label: "文件管理",
+                  icon: mdiFile,
+              },
+              {
+                  to: "./terminal",
+                  label: "系统终端",
+                  icon: mdiConsoleLine,
+              },
+          ])
+        : instanceSidebar
+);
 </script>
 
 <template>
@@ -67,7 +94,7 @@ const menuClick = (event, item) => {
         class="pt-14 min-h-screen w-full transition-position lg:w-auto bg-gray-50 dark:bg-slate-800 dark:text-slate-100"
     >
         <NavBar
-            :menu="menuNavBar"
+            :menu="navbar"
             :class="[
                 layoutAsidePadding,
                 { 'ml-60 lg:ml-0': isAsideMobileExpanded },
@@ -95,12 +122,12 @@ const menuClick = (event, item) => {
         <AsideMenu
             :is-aside-mobile-expanded="isAsideMobileExpanded"
             :is-aside-lg-active="isAsideLgActive"
-            :menu="instanceSidebar"
+            :menu="siderbar"
             :bottom-item="backToOverview"
             @aside-lg-close-click="isAsideLgActive = false"
         />
         <NotificationBar
-            v-if="readyState !== 1 && isVerified"
+            v-if="connectionStore.state !== 1 && connectionStore.hasVerified"
             color="warning"
             :icon="mdiAlert"
             class="m-6"

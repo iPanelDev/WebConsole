@@ -5,22 +5,17 @@ import CardBox from "@/components/CardBox.vue";
 import FormCheckRadio from "@/components/FormCheckRadio.vue";
 import FormControl from "@/components/FormControl.vue";
 import FormField from "@/components/FormField.vue";
-import { isVerified } from "@/service/packetHandler";
-import { useServiceStore } from "@/service/store";
-import {
-    connect,
-    disconnect,
-    isReconnecting,
-    readyState,
-    errorMsg,
-} from "@/service/webSocket";
+import NotificationBar from "@/components/NotificationBar.vue";
+import { useConnectionStore, useServiceStore } from "@/service/store";
+import { connect, disconnect } from "@/service/webSocket";
+import { getWebGlobalConfig } from "@/utils/configManager";
 import { mdiAccount, mdiAsterisk } from "@mdi/js";
 import { reactive } from "vue";
-import NotificationBar from "./NotificationBar.vue";
 
 const serviceStore = useServiceStore();
+const connectionStore = useConnectionStore();
 
-if (readyState.value != 1 && readyState.value != 3) {
+if (connectionStore.state != 1 && connectionStore.state != 3) {
     serviceStore.$reset();
     disconnect();
 }
@@ -38,6 +33,8 @@ const submit = () => {
     serviceStore.save();
     connect();
 };
+
+const config = getWebGlobalConfig();
 </script>
 
 <template>
@@ -47,7 +44,11 @@ const submit = () => {
         class="w-11/12 md:w-7/12 lg:w-6/12 xl:w-4/12 shadow-2xl"
     >
         <div class="text-2xl font-semibold mb-3">连接你的iPanel Host</div>
-        <FormField label="地址" help="WebSocket连接地址">
+        <FormField
+            label="地址"
+            help="WebSocket连接地址"
+            v-if="!config.lockWebSocket"
+        >
             <FormControl
                 v-model="form.address"
                 :icon="mdiAccount"
@@ -101,15 +102,23 @@ const submit = () => {
                         type="submit"
                         color="info"
                         label="登录"
-                        :disabled="readyState === 1"
+                        :disabled="connectionStore.state === 1"
                     />
                     <div
                         class="text-sm text-gray-400 dark:text-gray-600 flex items-center"
                     >
-                        <span v-if="isReconnecting"> 正在重连中 </span>
-                        <span v-else-if="isVerified"> 你已经登录了 </span>
-                        <span v-else-if="readyState === 1"> 正在等待验证 </span>
-                        <span v-else-if="readyState !== 3"> 连接中 </span>
+                        <span v-if="connectionStore.isReconnecting">
+                            正在重连中
+                        </span>
+                        <span v-else-if="connectionStore.hasVerified">
+                            你已经登录了
+                        </span>
+                        <span v-else-if="connectionStore.state === 1">
+                            正在等待验证
+                        </span>
+                        <span v-else-if="connectionStore.state !== 3">
+                            连接中
+                        </span>
                     </div>
                 </BaseButtons>
 
@@ -123,8 +132,12 @@ const submit = () => {
                     </a>
                 </div>
             </div>
-            <NotificationBar color="danger" class="mt-4" v-if="errorMsg">
-                {{ errorMsg }}
+            <NotificationBar
+                color="danger"
+                class="mt-4"
+                v-if="connectionStore.errorMsg"
+            >
+                {{ connectionStore.errorMsg }}
             </NotificationBar>
         </template>
     </CardBox>

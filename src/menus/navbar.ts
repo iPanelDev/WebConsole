@@ -16,6 +16,7 @@ export default [
                 to: "/profile",
             },
             {
+                to: "/settings",
                 icon: mdiCogOutline,
                 label: "设置",
             },

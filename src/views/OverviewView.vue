@@ -10,6 +10,7 @@ import { mdiHome, mdiFilter, mdiServer, mdiFile, mdiClock } from "@mdi/js";
 import { useServiceStore } from "@/service/store";
 import { EmptyStringPlaceholder } from "@/meta/constant";
 import { computed, ref } from "vue";
+import { dissubscribe } from "@/service/packetSender";
 
 const serviceStore = useServiceStore();
 
@@ -25,6 +26,8 @@ const instances = computed(() =>
                 .includes(filter.value.toLowerCase())
     )
 );
+
+dissubscribe();
 </script>
 
 <template>
@@ -43,13 +46,14 @@ const instances = computed(() =>
             />
             <div class="grid lg:grid-cols-3 md:grid-cols-2">
                 <RouterLink
-                    :to="`/instance/${item[0]}`"
                     v-for="item in instances"
                     :key="item[0]"
+                    :to="`/instance/${item[0]}`"
                 >
                     <CardBox
-                        class="transition-all select-none flex flex-wrap cursor-pointer border-slate-300 dark:border-slate-700 border  w-full"
+                        class="transition-all select-none flex flex-wrap cursor-pointer border-slate-300 dark:border-slate-700 border w-full hover:border-slate-500 hover:dark:border-slate-500"
                         is-hoverable
+                        style="transition-property: all !important"
                     >
                         <div class="flex mb-5 truncate">
                             <span class="mr-2 text-xl">

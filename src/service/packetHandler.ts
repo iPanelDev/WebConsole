@@ -1,16 +1,25 @@
-import { ref } from "vue";
-
 import { createNotify } from "@/notification";
 import router from "@/router";
-import { listInstance, subscribe, verify } from "@/service/packetSender";
+import {
+    getCurrentUserInfo,
+    getUsers,
+    listInstance,
+    subscribe,
+    verify,
+} from "@/service/packetSender";
 import { addToMap, clearOutputsMap } from "@/service/serverControler";
-import { useServiceStore } from "@/service/store";
-import { FullInfo, Instance, Packet } from "@/service/types";
+import { useConnectionStore, useServiceStore } from "@/service/store";
+import {
+    DirInfo,
+    FullInfo,
+    Instance,
+    Item,
+    Packet,
+    User,
+} from "@/service/types";
 
 // @ts-expect-error
 import moment from "moment";
-
-export const isVerified = ref(false);
 
 /**
  * 处理数据包
@@ -47,7 +56,7 @@ export function handle(msg: string): Packet | void {
  * 处理未知子类型的数据包
  */
 function logUnknownSubType(sub_type: string) {
-    console.error("数据包子类型未知：" + sub_type);
+    console.warn("数据包子类型未知：" + sub_type);
 }
 
 /**
@@ -70,20 +79,21 @@ function requests({ sub_type, data }: Packet) {
  */
 function events({ sub_type, data }: Packet): Packet | void {
     const serviceStore = useServiceStore();
+    const connectionStore = useConnectionStore();
 
     switch (sub_type) {
         case "verify_result":
-            isVerified.value = data.success;
+            connectionStore.hasVerified = data.success;
             if (!data.success)
                 createNotify({
                     title: "验证失败",
                     message: data.reason || "原因未知",
-                    type: "warn",
+                    type: "warning",
                 });
             else {
                 createNotify({
                     title: "验证成功",
-                    type: "info",
+                    type: "success",
                 });
 
                 if (router.currentRoute.value.path === "/login")
@@ -98,14 +108,24 @@ function events({ sub_type, data }: Packet): Packet | void {
                         router.currentRoute.value.params["instanceId"] as string
                     );
                 }
+
                 serviceStore.lastLoginTime = new Date();
-                serviceStore.heartbeatTimer = setInterval(listInstance, 2500);
+                connectionStore.clearTimer();
+                connectionStore.heartbeatTimer = setInterval(
+                    listInstance,
+                    2500
+                );
+
                 listInstance();
+                getCurrentUserInfo();
             }
             break;
 
         case "disconnection":
-            serviceStore.disconnectReason = data?.reason ?? String(data);
+            connectionStore.disconnectReason = data?.reason ?? String(data);
+            break;
+
+        case "operation_result":
             break;
 
         default:
@@ -118,8 +138,6 @@ function events({ sub_type, data }: Packet): Packet | void {
  * 处理`broadcast`数据包
  */
 function broadcasts({ sub_type, data, sender }: Packet) {
-    const serviceStore = useServiceStore();
-
     switch (sub_type) {
         case "server_start":
             clearOutputsMap(sender.instance_id);
@@ -135,6 +153,9 @@ function broadcasts({ sub_type, data, sender }: Packet) {
                 title: "服务器已关闭",
                 message: `退出代码：${data}`,
             });
+            addToMap(sender.instance_id, [
+                `\x1b[96m[iPanel]\x1b[0m 进程已于${new Date().toLocaleTimeString()}退出(${data})`,
+            ]);
             break;
 
         case "server_input":
@@ -157,7 +178,8 @@ function broadcasts({ sub_type, data, sender }: Packet) {
 /**
  * 处理`return`数据包
  */
-function returns({ sub_type, data }: Packet) {
+function returns({ sub_type, data, sender }: Packet) {
+    const serviceStore = useServiceStore();
     switch (sub_type) {
         case "instance_list":
             updateList(data);
@@ -167,6 +189,28 @@ function returns({ sub_type, data }: Packet) {
             processInstanceInfo(data.instance_id, data.info);
             break;
 
+        case "user_info":
+            serviceStore.currentUser = data as User;
+
+            if (serviceStore.currentUser?.level === 3) {
+                getUsers();
+            }
+            break;
+
+        case "user_dict":
+            const array: (User & { account: string })[] = [];
+            for (const key in data) {
+                const user = data[key];
+                user.account = key;
+                array.push(user);
+            }
+            serviceStore.users = array;
+            break;
+
+        case "dir_info":
+            processInstanceDirInfo(sender.instance_id, data);
+            break;
+
         default:
             logUnknownSubType(sub_type);
             break;
@@ -174,13 +218,30 @@ function returns({ sub_type, data }: Packet) {
 }
 
 /**
- * 处理目标实例的信息
+ * 处理实例目录信息
+ */
+function processInstanceDirInfo(instanceId: string, dirInfo?: DirInfo) {
+    if (!dirInfo || !dirInfo?.is_exist) return;
+
+    const serviceStore = useServiceStore();
+    const dirTree =
+        serviceStore.instances.get(instanceId)?.dir_tree ||
+        new Map<string, Item[]>();
+
+    dirTree.set(dirInfo.dir.replaceAll("./", ""), dirInfo.items);
+
+    const targetInstance = serviceStore.instances.get(instanceId);
+    targetInstance.dir_tree = dirTree;
+    serviceStore.instances.set(instanceId, targetInstance);
+}
+
+/**
+ * 处理实例的信息
  */
 function processInstanceInfo(instanceId: string, fullInfo?: FullInfo) {
-    const serviceStore = useServiceStore();
-
     if (!fullInfo) return;
 
+    const serviceStore = useServiceStore();
     const targetInstance = serviceStore.instances.get(instanceId);
 
     if (!targetInstance) return;
@@ -188,12 +249,12 @@ function processInstanceInfo(instanceId: string, fullInfo?: FullInfo) {
     targetInstance.full_info = fullInfo;
     serviceStore.instances.set(instanceId, targetInstance);
 
-    const array = serviceStore.instanceInfos.get(instanceId) || [];
+    const array = serviceStore.instanceInfosHistory.get(instanceId) || [];
     array.push([moment().format("HH:mm:ss"), fullInfo]);
 
     while (array.length > 20) array.shift();
 
-    serviceStore.instanceInfos.set(instanceId, array);
+    serviceStore.instanceInfosHistory.set(instanceId, array);
 }
 
 /**
@@ -213,10 +274,12 @@ function updateList(data?: Instance[]) {
             newInstances.includes(instance.instance_id) &&
             oldInstances.includes(instance.instance_id)
         ) {
-            const fullInfo = serviceStore.instances.get(
+            const oldInstance = serviceStore.instances.get(
                 instance.instance_id
-            )?.full_info;
-            instance.full_info = fullInfo;
+            );
+            instance.full_info = oldInstance?.full_info;
+            instance.short_info = oldInstance?.short_info;
+            instance.dir_tree = oldInstance?.dir_tree;
         }
         serviceStore.instances.set(instance.instance_id, instance);
     }

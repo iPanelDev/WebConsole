@@ -2,6 +2,7 @@ import { ref } from "vue";
 
 import { useServiceStore } from "@/service/store";
 import { send } from "@/service/webSocket";
+import { getSettings } from "@/utils/settingsManager";
 
 export const inputHistory = Array.from(
     (JSON.parse(localStorage.getItem("ipanel.inputHistory")) as string[]) || []
@@ -54,14 +55,19 @@ export function addToMap(instanceId: string, list: string[]) {
     const serviceStore = useServiceStore();
     const tem = (serviceStore.outputs.get(instanceId) || []).concat(list);
 
-    if (tem.length > 500) tem.splice(0, tem.length - 500);
+    if (
+        tem.length > getSettings().maxCacheLines &&
+        getSettings().maxCacheLines > 0
+    )
+        tem.splice(0, tem.length - getSettings().maxCacheLines);
 
     serviceStore.outputs.set(instanceId, tem);
     updateAndSave();
 }
 
-export function clearOutputsMap(instanceId: string) {
-    useServiceStore().outputs.set(instanceId, []);
+export function clearOutputsMap(instanceId?: string) {
+    if (instanceId != undefined) useServiceStore().outputs.set(instanceId, []);
+    else useServiceStore().outputs.clear();
     updateAndSave();
 }
 
@@ -88,8 +94,10 @@ export function clearInvalidOutputHistory() {
 }
 
 function updateAndSave() {
-    localStorage.setItem(
-        "ipanel.outputs",
-        JSON.stringify(Array.from(useServiceStore().outputs.entries()))
-    );
+    if (getSettings().saveOutput)
+        localStorage.setItem(
+            "ipanel.outputs",
+            JSON.stringify(Array.from(useServiceStore().outputs.entries()))
+        );
+    else localStorage.setItem("ipanel.outputs", "[]");
 }

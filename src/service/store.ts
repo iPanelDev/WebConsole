@@ -1,18 +1,13 @@
 import { defineStore } from "pinia";
-import { FullInfo, Instance } from "@/service/types";
+import { FullInfo, Instance, User } from "@/service/types";
 
-export const useServiceStore = defineStore("user", {
+export const useServiceStore = defineStore("service", {
     state: () => ({
         account: localStorage["ipanel.account"],
 
         address: localStorage["ipanel.address"],
 
         password: localStorage["ipanel.password"],
-
-        /**
-         * 被用户断开
-         */
-        isDisconnectedByUser: false,
 
         /**
          * 上次登录时间
@@ -28,11 +23,6 @@ export const useServiceStore = defineStore("user", {
          * 自动连接
          */
         autoReconnect: localStorage["ipanel.autoReconnect"] === "1",
-
-        /**
-         * 当前地址
-         */
-        currentAddress: "未知地址",
 
         /**
          * 实例
@@ -52,19 +42,19 @@ export const useServiceStore = defineStore("user", {
         subscribeTarget: null,
 
         /**
-         * 断开原因
-         */
-        disconnectReason: null,
-
-        /**
-         * 心跳计时器
-         */
-        heartbeatTimer: null,
-
-        /**
          * 实例信息
          */
-        instanceInfos: new Map<string, [string, FullInfo][]>(),
+        instanceInfosHistory: new Map<string, [string, FullInfo][]>(),
+
+        /**
+         * 当前用户
+         */
+        currentUser: {} as User,
+
+        /**
+         * 用户列表
+         */
+        users: [],
     }),
 
     actions: {
@@ -92,6 +82,61 @@ export const useServiceStore = defineStore("user", {
                 this.rememberPassword
             );
             localStorage["ipanel.autoReconnect"] = Number(this.autoReconnect);
+        },
+    },
+});
+
+export const useConnectionStore = defineStore("connection", {
+    state: () => ({
+        /**
+         * WebSocket对象
+         */
+        ws: null,
+
+        /**
+         * WS连接状态
+         */
+        state: 3,
+
+        /**
+         * 已经连接
+         */
+        hasConnected: false,
+
+        /**
+         * 已经通过验证
+         */
+        hasVerified: false,
+
+        /**
+         * 正在重连
+         */
+        isReconnecting: false,
+
+        /**
+         * 被用户关闭
+         */
+        isClosedByUser: false,
+
+        /**
+         * 断开原因
+         */
+        disconnectReason: null,
+
+        /**
+         * 心跳计时器
+         */
+        heartbeatTimer: null,
+
+        /**
+         * 错误信息
+         */
+        errorMsg: null,
+    }),
+
+    actions: {
+        clearTimer() {
+            clearInterval(this.heartbeatTimer);
         },
     },
 });

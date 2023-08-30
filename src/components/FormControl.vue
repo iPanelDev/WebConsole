@@ -81,8 +81,6 @@ const controlIconH = computed(() =>
     props.type === "textarea" ? "h-full" : "h-12"
 );
 
-const mainStore = useServiceStore();
-
 const selectEl = ref(null);
 
 const textareaEl = ref(null);
@@ -110,17 +108,11 @@ if (props.ctrlKFocus) {
     };
 
     onMounted(() => {
-        if (!mainStore.isFieldFocusRegistered) {
-            window.addEventListener("keydown", fieldFocusHook);
-            mainStore.isFieldFocusRegistered = true;
-        } else {
-            // console.error('Duplicate field focus event')
-        }
+        window.addEventListener("keydown", fieldFocusHook);
     });
 
     onBeforeUnmount(() => {
         window.removeEventListener("keydown", fieldFocusHook);
-        mainStore.isFieldFocusRegistered = false;
     });
 }
 
@@ -167,6 +159,7 @@ defineExpose({ inputEl, selectEl, textareaEl });
             :placeholder="placeholder"
             :type="computedType"
             :class="inputElClass"
+            v-bind="$attrs"
         />
         <FormControlIcon v-if="icon" :icon="icon" :h="controlIconH" />
     </div>

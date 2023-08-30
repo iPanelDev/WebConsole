@@ -11,8 +11,8 @@
   "compilerOptions": {
     "target": "ES2022",
     "lib": [
-      "ES6",
-      "ES2015",
+      "es2023",
+      "ES2022.String",
       "DOM"
     ],
   }

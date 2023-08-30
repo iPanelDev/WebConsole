@@ -1,7 +1,4 @@
-import {
-    mdiConsole,
-    mdiMonitorDashboard
-} from "@mdi/js";
+import { mdiConsole, mdiConsoleLine, mdiMonitorDashboard } from "@mdi/js";
 
 export default [
     {
@@ -15,7 +12,4 @@ export default [
         label: "控制台",
     },
 
-    {
-        isDivider: true,
-    },
 ];
