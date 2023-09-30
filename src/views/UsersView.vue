@@ -5,14 +5,26 @@ import SectionMain from "@/components/SectionMain.vue";
 import SectionTitleLineWithButton from "@/components/SectionTitleLineWithButton.vue";
 import UsersTable from "@/components/UsersTable.vue";
 import LayoutAuthenticated from "@/layouts/LayoutAuthenticated.vue";
-import { getUsers } from "@/service/packetSender";
+import { listUsers } from "@/service/requests";
 import { useServiceStore } from "@/service/store";
+import { User } from "@/service/types";
+import { unwrap } from "@/utils/wrapper";
 import { mdiAccountMultiple, mdiAlertCircle, mdiRefresh } from "@mdi/js";
-import { onMounted } from "vue";
+import { ref } from "vue";
 
 const serviceStore = useServiceStore();
+
+const users = ref(new Map<string, User>());
 getUsers();
-onMounted(getUsers);
+
+async function getUsers() {
+    const dict = await listUsers();
+
+    users.value.clear();
+    for (const kv of Object.entries(dict)) {
+        users.value.set(kv[0], unwrap(kv[1]));
+    }
+}
 </script>
 <template>
     <LayoutAuthenticated>
@@ -36,7 +48,7 @@ onMounted(getUsers);
                     @click="getUsers"
                 />
             </SectionTitleLineWithButton>
-            <UsersTable />
+            <UsersTable :users="users" />
         </SectionMain>
     </LayoutAuthenticated>
 </template>

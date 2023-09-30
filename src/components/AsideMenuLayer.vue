@@ -41,11 +41,18 @@ const asideLgCloseClick = (event) => {
                 :class="styleStore.asideBrandStyle"
                 class="flex flex-row h-14 items-center justify-between dark:bg-slate-900"
             >
-                <div class="flex-1 xl:pl-0 flex justify-center">
+                <div
+                    class="flex-1 xl:pl-0 flex justify-center items-center cursor-pointer"
+                    @click="$router.push('/overview')"
+                >
                     <img
-                        src="/src/assets/icon.png"
+                        src="/src/assets/logo_small.png"
                         class="inline mr-3 select-none"
-                        style="image-rendering: pixelated"
+                        style="
+                            image-rendering: pixelated;
+                            width: 25px;
+                            height: 25px;
+                        "
                     />
                     <b class="font-black break-keep">iPanel 网页控制台</b>
                 </div>

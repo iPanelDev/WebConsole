@@ -7,12 +7,13 @@ import { computed } from "vue";
 
 const serviceStore = useServiceStore();
 
-const account = computed(() => serviceStore.account ?? "未登录");
+const account = computed(() => serviceStore.userName ?? "未登录");
 const lastLogin = computed(() =>
     formatTimespanString(
-        (Date.now() - serviceStore.lastLoginTime?.getTime()) / 1000
+        (Date.now() - new Date(serviceStore.currentUser.lastLoginTime).getTime()) / 1000
     )
 );
+
 </script>
 
 <template>
@@ -26,7 +27,7 @@ const lastLogin = computed(() =>
                 <p>
                     上次于 <b>{{ lastLogin }}</b> 前从
                     <b>{{
-                        (serviceStore.currentUser?.ip_addresses || [])[0] ||
+                        (serviceStore.currentUser?.ipAddresses || [])[0] ||
                         "未知地址"
                     }}</b>
                     登录

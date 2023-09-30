@@ -6,6 +6,8 @@ import BaseLevel from "@/components/BaseLevel.vue";
 import BaseIcon from "@/components/BaseIcon.vue";
 import BaseButton from "@/components/BaseButton.vue";
 
+const emit = defineEmits(["dismiss"]);
+
 const props = defineProps({
     icon: {
         type: String,
@@ -26,6 +28,7 @@ const isDismissed = ref(false);
 
 const dismiss = () => {
     isDismissed.value = true;
+    emit("dismiss");
 };
 
 const slots = useSlots();

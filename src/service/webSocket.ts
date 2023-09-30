@@ -1,11 +1,14 @@
-import { ref } from "vue";
-
 import { createNotify } from "@/notification";
-import { handle } from "@/service/packetHandler";
-import { Packet } from "@/service/types";
-import { getWebGlobalConfig } from "@/utils/configManager";
-import { useConnectionStore, useServiceStore } from "./store";
+import { login } from "@/service/requests";
+import { addToMap, clearOutputsMap } from "@/service/serverControler";
+import { useConnectionStore, useServiceStore } from "@/service/store";
+import { FullInfo, Packet } from "@/service/types";
+import md5 from "blueimp-md5";
+import { ref } from "vue";
 import { useRoute } from "vue-router";
+
+// @ts-expect-error
+import moment from "moment";
 
 /**
  * 状态枚举值
@@ -48,23 +51,13 @@ export function connect(skipCheck = false) {
     const serviceStore = useServiceStore();
     const connectionStore = useConnectionStore();
 
-    let address = serviceStore.address;
-    if (getWebGlobalConfig().lockWebSocket)
-        address =
-            (window.location.protocol === "https:" ? "wss://" : "ws://") +
-            window.location.host +
-            "/ws";
-
-    if (
-        !skipCheck &&
-        (connectionStore.state <= 1 ||
-            !checkValues(address, serviceStore.account, serviceStore.password))
-    )
-        return;
-    connectionStore.$reset();
-
+    login();
     try {
-        connectionStore.ws = new WebSocket(address);
+        connectionStore.ws = new WebSocket(
+            `${window.location.protocol.replace("http", "ws")}//${
+                window.location.host
+            }/ws`
+        );
         connectionStore.ws.onclose = onClose;
         connectionStore.ws.onmessage = onMsg;
         connectionStore.ws.onopen = updateReadyState;
@@ -78,12 +71,10 @@ export function connect(skipCheck = false) {
 /**
  * 检查输入值
  */
-function checkValues(addr: string, account: string, password: string) {
+function checkValues(userName: string, password: string) {
     const connectionStore = useConnectionStore();
 
-    if (typeof addr != "string" || !addr)
-        connectionStore.errorMsg = "WS地址为空";
-    else if (typeof account != "string" || !account)
+    if (typeof userName != "string" || !userName)
         connectionStore.errorMsg = "帐号为空";
     else if (typeof password != "string" || !password)
         connectionStore.errorMsg = "密码为空";
@@ -161,31 +152,6 @@ export function disconnect() {
 }
 
 /**
- * 检查连接状态
- * @param instanceId
- */
-export function checkConnectionStatus(instanceId?: string) {
-    const connectionStore = useConnectionStore();
-    if (!connectionStore.hasVerified || connectionStore.state === 1)
-        createNotify({
-            title:
-                "你貌似还未" +
-                (connectionStore.state === 1 && !connectionStore.hasVerified
-                    ? "验证"
-                    : "连接"),
-            message: "请点击左上角的Logo进行连接",
-            type: "danger",
-        });
-    else if (instanceId && !useServiceStore().instances.has(instanceId)) {
-        createNotify({
-            type: "danger",
-            title: "没有找到此实例",
-            message: "请返回上一页或重新连接",
-        });
-    }
-}
-
-/**
  * 重新连接
  */
 async function reconnect() {
@@ -196,22 +162,11 @@ async function reconnect() {
         connectionStore.isClosedByUser ||
         useRoute()?.path === "/login" ||
         window.location.pathname.includes("login") ||
-        (!getWebGlobalConfig().lockWebSocket && !serviceStore.address) ||
         !serviceStore.autoReconnect
     )
         return;
 
     try {
-        reconnectTime.value = new Date();
-        connectionStore.isReconnecting = true;
-
-        const lockWebSocket = getWebGlobalConfig().lockWebSocket;
-        const url = lockWebSocket ? null : new URL(serviceStore.address);
-        const address = lockWebSocket
-            ? "/api/ping"
-            : (url.protocol === "wss:" ? "https:" : "http:") +
-              `//${url.host}/api/ping`;
-        await fetch(address);
         connect();
     } catch (error) {
         connectionStore.errorMsg = `重连失败. ${String(
@@ -223,5 +178,126 @@ async function reconnect() {
     }
 }
 
-setTimeout(reconnect, 200);
-setInterval(updateReadyState, 200);
+// setTimeout(reconnect, 200);
+
+/**
+ * 处理数据包
+ */
+export function handle(msg: string): Packet | void {
+    const packet = JSON.parse(msg) as Packet;
+    console.debug("接收消息", packet);
+
+    const { type } = packet;
+
+    switch (type) {
+        case "request":
+            requests(packet);
+            break;
+
+        case "broadcast":
+            broadcasts(packet);
+            break;
+
+        default:
+            console.error("数据包类型未知：" + type);
+            break;
+    }
+}
+
+/**
+ * 处理未知子类型的数据包
+ */
+function logUnknownSubType(sub_type: string) {
+    console.warn("数据包子类型未知：" + sub_type);
+}
+
+/**
+ * 处理`request`数据包
+ */
+function requests({ sub_type, data }: Packet) {
+    const serviceStore = useServiceStore();
+    switch (sub_type) {
+        case "verify_request":
+            send({
+                type: "request",
+                sub_type: "verify",
+                data: {
+                    token: md5(
+                        data.uuid +
+                            serviceStore.userName +
+                            serviceStore.password
+                    ),
+                    user_name: serviceStore.userName,
+                    client_type: "console",
+                },
+            });
+            break;
+
+        default:
+            logUnknownSubType(sub_type);
+            break;
+    }
+}
+
+/**
+ * 处理`broadcast`数据包
+ */
+function broadcasts({ sub_type, data, sender }: Packet) {
+    switch (sub_type) {
+        case "server_start":
+            clearOutputsMap(sender.instance_id);
+            createNotify({
+                type: "info",
+                title: "服务器已启动",
+            });
+            break;
+
+        case "server_stop":
+            createNotify({
+                type: "info",
+                title: "服务器已关闭",
+                message: `退出代码：${data}`,
+            });
+            addToMap(sender.instance_id, [
+                `\x1b[96m[iPanel]\x1b[0m 进程已于${new Date().toLocaleTimeString()}退出(${data})`,
+            ]);
+            break;
+
+        case "server_input":
+            addToMap(
+                sender.instance_id,
+                data.map((line: string) => `>${line}`)
+            );
+            break;
+
+        case "server_output":
+            addToMap(sender.instance_id, data);
+            break;
+
+        default:
+            logUnknownSubType(sub_type);
+            break;
+    }
+}
+
+/**
+ * 处理实例的信息
+ */
+function processInstanceInfo(instanceId: string, fullInfo?: FullInfo) {
+    if (!fullInfo) return;
+
+    const serviceStore = useServiceStore();
+    const targetInstance = serviceStore.instances.get(instanceId);
+
+    if (!targetInstance) return;
+
+    targetInstance.fullInfo = fullInfo;
+    serviceStore.instances.set(instanceId, targetInstance);
+
+    const array = serviceStore.instanceInfosHistory.get(instanceId) || [];
+    array.push([moment().format("HH:mm:ss"), fullInfo]);
+
+    while (array.length > 20) array.shift();
+
+    serviceStore.instanceInfosHistory.set(instanceId, array);
+}

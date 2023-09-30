@@ -2,19 +2,22 @@
 import BaseButton from "@/components/BaseButton.vue";
 import BaseButtons from "@/components/BaseButtons.vue";
 import BaseLevel from "@/components/BaseLevel.vue";
+import CardBoxModal from "@/components/CardBoxModal.vue";
+import PillTag from "@/components/PillTag.vue";
 import { EmptyStringPlaceholder } from "@/meta/constant";
 import { useServiceStore } from "@/service/store";
 import { User } from "@/service/types";
-import { mdiAccountStar, mdiPencil, mdiTrashCan } from "@mdi/js";
-import { computed, ref } from "vue";
-import PillTag from "./PillTag.vue";
-import CardBoxModal from "./CardBoxModal.vue";
+import { mdiPencil, mdiTrashCan } from "@mdi/js";
+import { Ref, computed, ref } from "vue";
+import { deleteUser } from "@/service/requests";
+
+const props = defineProps({
+    users: { require: true, type: Map },
+});
 
 const serviceStore = useServiceStore();
 
-const items = computed(
-    () => serviceStore.users as (User & { account: string })[]
-);
+const items = computed(() => Array.from(props.users as Map<string, User>));
 
 const perPage = ref(10);
 
@@ -41,23 +44,39 @@ const pagesList = computed(() => {
     return pagesList;
 });
 
-const userSelected = ref(null);
-const isModalActive = ref(false);
+const userSelected = ref("");
+const isDeleteConfirmActive = ref(false);
+const isEditActive = ref(false);
 
-function deleteUser(account: string) {
+function showDeleteComfirm(account: string) {
     userSelected.value = account;
-    isModalActive.value = true;
+    isDeleteConfirmActive.value = true;
+}
+
+function showEditForm(account: string) {
+    userSelected.value = account;
+    isEditActive.value = true;
 }
 </script>
 
 <template>
     <CardBoxModal
-        v-model="isModalActive"
+        v-model="isDeleteConfirmActive"
         button-label="确认"
         :title="`确定要删除用户“${userSelected}”吗？`"
         has-cancel
+        @confirm="() => deleteUser(userSelected)"
     >
         此操作不可被撤销
+    </CardBoxModal>
+    <CardBoxModal
+        v-model="isEditActive"
+        button-label="确认"
+        :title="`修改用户“${userSelected}”`"
+        has-cancel
+        @confirm="() => deleteUser(userSelected)"
+    >
+        1111
     </CardBoxModal>
     <table class="collapsable">
         <thead>
@@ -70,42 +89,47 @@ function deleteUser(account: string) {
             </tr>
         </thead>
         <tbody>
-            <tr v-for="user in itemsPaginated">
+            <tr v-for="userItem in itemsPaginated">
                 <td data-label="帐号">
                     <div>
-                        {{ user.account }}
+                        {{ userItem[0] }}
                         <PillTag
                             class="ml-2"
                             label="当前用户"
                             color="info"
                             outline
-                            v-if="user.account === serviceStore.account"
+                            v-if="userItem[0] === serviceStore.userName"
                         />
                     </div>
                 </td>
                 <td data-label="描述">
-                    {{ user.description || EmptyStringPlaceholder }}
+                    {{ userItem[1].description || EmptyStringPlaceholder }}
                 </td>
                 <td data-label="权限等级">
                     {{
-                        ["游客", "只读", "助手", "管理员"][user.level] ||
+                        ["游客", "只读", "助手", "管理员"][userItem[1].level] ||
                         EmptyStringPlaceholder
                     }}
                 </td>
                 <td data-label="最近一次登录IP地址">
                     <pre class="select-all">{{
-                        user.ip_addresses[0] || EmptyStringPlaceholder
+                        userItem[1]?.ipAddresses[0] || EmptyStringPlaceholder
                     }}</pre>
                 </td>
                 <td class="before:hidden lg:w-1 whitespace-nowrap">
                     <BaseButtons type="justify-start lg:justify-end" no-wrap>
-                        <BaseButton color="info" :icon="mdiPencil" small />
+                        <BaseButton
+                            color="info"
+                            :icon="mdiPencil"
+                            small
+                            @click="() => showEditForm(userItem[0])"
+                        />
                         <BaseButton
                             color="danger"
                             :icon="mdiTrashCan"
                             small
-                            :disabled="user.account === serviceStore.account"
-                            @click="() => deleteUser(user.account)"
+                            :disabled="userItem[0] === serviceStore.userName"
+                            @click="() => showDeleteComfirm(userItem[0])"
                         />
                     </BaseButtons>
                 </td>

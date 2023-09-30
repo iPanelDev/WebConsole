@@ -12,12 +12,15 @@ import { clearOutputsMap } from "@/service/serverControler";
 import { mdiCog, mdiGithub, mdiTrashCan } from "@mdi/js";
 import { reactive, watch } from "vue";
 import { getSettings, saveSettings } from "@/utils/settingsManager";
+
 const size = localStorage["ipanel.outputs"]
     ? new Blob([localStorage["ipanel.outputs"]]).size
     : 0;
 
 function clearLocalStorage() {
-    localStorage.clear();
+    if (confirm("确定要删除所有缓存吗")) {
+        localStorage.clear();
+    }
 }
 
 const settings = reactive(getSettings());
@@ -82,10 +85,7 @@ watch(
             <CardBox class="my-3">
                 <div class="text-xl font-bold mb-5">网页设置</div>
                 <FormField
-                    :help="
-                        '❗ 此操作将丢失登录信息、清除所有输出缓存与命令历史记录和重置主题\n' +
-                        '❗ 此操作没有二级确认菜单，一旦清除不可撤销，点击前请务必三思'
-                    "
+                    help="❗ 此操作将丢失登录信息、清除所有输出缓存与命令历史记录和重置主题"
                 >
                     <BaseButton
                         label="清除所有缓存"
@@ -123,7 +123,7 @@ watch(
                     </BaseButtons>
                 </FormField>
                 <div class="my-3">
-                    此软件采用
+                    此网页采用
                     <a
                         href="https://github.com/iPanelDev/WebConsole/blob/main/LICENSE"
                         target="_blank"

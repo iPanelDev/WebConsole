@@ -9,7 +9,7 @@ import SectionTitleLineWithButton from "@/components/SectionTitleLineWithButton.
 import UserCard from "@/components/UserCard.vue";
 import LayoutAuthenticated from "@/layouts/LayoutAuthenticated.vue";
 import { EmptyStringPlaceholder } from "@/meta/constant";
-import { getCurrentUserInfo } from "@/service/packetSender";
+import { updateUserInfo } from "@/service/main";
 import { useServiceStore } from "@/service/store";
 import { mdiAccount, mdiFormTextboxPassword } from "@mdi/js";
 import { reactive } from "vue";
@@ -22,11 +22,9 @@ const passwordForm = reactive({
     password_confirmation: "",
 });
 
-getCurrentUserInfo();
+updateUserInfo();
 
-const submitPass = () => {
-    //
-};
+const submitPass = () => {};
 </script>
 
 <template>
@@ -79,7 +77,7 @@ const submitPass = () => {
                         >
                             <div
                                 v-for="(address, index) in serviceStore
-                                    .currentUser?.ip_addresses || []"
+                                    .currentUser?.ipAddresses || []"
                                 class="flex"
                             >
                                 <span class="mr-2">{{ index + 1 }}.</span>

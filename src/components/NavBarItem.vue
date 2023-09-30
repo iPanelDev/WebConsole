@@ -40,7 +40,7 @@ const componentClass = computed(() => {
     ];
 
     if (props.item.isDesktopNoLabel) {
-        base.push("lg:w-16", "lg:justify-center");
+        base.push("lg:w-12", "lg:justify-center");
     }
 
     return base;
@@ -48,7 +48,7 @@ const componentClass = computed(() => {
 
 const itemLabel = computed(() =>
     props.item.isCurrentUser
-        ? useServiceStore().account ?? "未登录"
+        ? useServiceStore().userName ?? "未登录"
         : props.item.label
 );
 

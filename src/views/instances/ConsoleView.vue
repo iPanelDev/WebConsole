@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import LayoutOfInstance from "@/layouts/LayoutOfInstance.vue";
-import { subscribe } from "@/service/packetSender";
 import { useServiceStore } from "@/service/store";
 
 import BaseButton from "@/components/BaseButton.vue";
@@ -34,14 +33,13 @@ import { computed, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 
 const instanceId = useRoute().params["instanceId"] as string;
-onMounted(() => subscribe(instanceId));
 
 const serviceStore = useServiceStore();
 
 const datas = computed(() => serviceStore.outputs.get(instanceId) || []);
 
 const status = computed(
-    () => serviceStore.instances.get(instanceId)?.short_info.server_status
+    () => serviceStore.instances.get(instanceId)?.shortInfo.server_status
 );
 
 const inputRef = ref("");

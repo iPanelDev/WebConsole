@@ -21,7 +21,7 @@ function loadSettings() {
     }
 }
 
-let settings = loadSettings() || defaultSettings;
+var settings = loadSettings() || defaultSettings;
 
 export const getSettings = () => settings;
 

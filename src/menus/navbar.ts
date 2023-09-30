@@ -4,6 +4,8 @@ import {
     mdiLogout,
     mdiThemeLightDark,
     mdiGithub,
+    mdiWifi,
+    mdiSignal,
 } from "@mdi/js";
 
 export default [
@@ -28,6 +30,15 @@ export default [
                 label: "退出",
                 isLogout: true,
                 to: "/login",
+            },
+        ],
+    },
+    {
+        icon: mdiSignal,
+        menu: [
+            {
+                icon: mdiWifi,
+                label: "延迟",
             },
         ],
     },

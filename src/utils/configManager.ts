@@ -4,6 +4,5 @@ export function getWebGlobalConfig() {
 }
 
 export declare type Config = {
-    lockWebSocket: boolean;
     routerHistoryType: string;
 };

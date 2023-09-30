@@ -1,11 +1,9 @@
+import { FullInfo, Instance, State, User } from "@/service/types";
 import { defineStore } from "pinia";
-import { FullInfo, Instance, User } from "@/service/types";
 
 export const useServiceStore = defineStore("service", {
     state: () => ({
-        account: localStorage["ipanel.account"],
-
-        address: localStorage["ipanel.address"],
+        userName: localStorage["ipanel.user_name"],
 
         password: localStorage["ipanel.password"],
 
@@ -50,20 +48,12 @@ export const useServiceStore = defineStore("service", {
          * 当前用户
          */
         currentUser: {} as User,
-
-        /**
-         * 用户列表
-         */
-        users: [],
     }),
 
     actions: {
-        input(payload: Record<string, any>) {
-            if (payload.account) {
-                this.account = payload.account;
-            }
-            if (payload.address) {
-                this.address = payload.address;
+        update(payload: Record<string, any>) {
+            if (payload.userName) {
+                this.userName = payload.userName;
             }
             if (payload.password) {
                 this.password = payload.password;
@@ -74,8 +64,7 @@ export const useServiceStore = defineStore("service", {
         },
 
         save() {
-            localStorage["ipanel.account"] = this.account ?? "";
-            localStorage["ipanel.address"] = this.address ?? "";
+            localStorage["ipanel.user_name"] = this.userName ?? "";
             localStorage["ipanel.password"] =
                 (this.rememberPassword && this.password) || "";
             localStorage["ipanel.rememberPassword"] = Number(
@@ -94,9 +83,9 @@ export const useConnectionStore = defineStore("connection", {
         ws: null,
 
         /**
-         * WS连接状态
+         * 连接状态
          */
-        state: 3,
+        state: State.none,
 
         /**
          * 已经连接

@@ -6,35 +6,27 @@ import FormCheckRadio from "@/components/FormCheckRadio.vue";
 import FormControl from "@/components/FormControl.vue";
 import FormField from "@/components/FormField.vue";
 import NotificationBar from "@/components/NotificationBar.vue";
+import { prepareToLogin, jumpToOverview } from "@/service/main";
 import { useConnectionStore, useServiceStore } from "@/service/store";
-import { connect, disconnect } from "@/service/webSocket";
-import { getWebGlobalConfig } from "@/utils/configManager";
 import { mdiAccount, mdiAsterisk } from "@mdi/js";
 import { reactive } from "vue";
+import { FullInfo, Instance, State, User } from "@/service/types";
 
 const serviceStore = useServiceStore();
 const connectionStore = useConnectionStore();
 
-if (connectionStore.state != 1 && connectionStore.state != 3) {
-    serviceStore.$reset();
-    disconnect();
-}
-
 const form = reactive({
-    address: serviceStore.address,
-    account: serviceStore.account,
+    userName: serviceStore.userName,
     password: serviceStore.password,
     rememberPassword: serviceStore.rememberPassword,
     autoReconnect: serviceStore.autoReconnect,
 });
 
 const submit = () => {
-    serviceStore.input(form);
+    serviceStore.update(form);
     serviceStore.save();
-    connect();
+    prepareToLogin();
 };
-
-const config = getWebGlobalConfig();
 </script>
 
 <template>
@@ -44,33 +36,20 @@ const config = getWebGlobalConfig();
         class="w-11/12 md:w-7/12 lg:w-6/12 xl:w-4/12 shadow-2xl"
     >
         <div class="text-2xl font-semibold mb-3">连接你的iPanel Host</div>
-        <FormField
-            label="地址"
-            help="WebSocket连接地址"
-            v-if="!config.lockWebSocket"
-        >
-            <FormControl
-                v-model="form.address"
-                :icon="mdiAccount"
-                placeholder="ws://www.example.com:1145/ws"
-                name="address"
-                autocomplete="url"
-            />
-        </FormField>
 
         <FormField
-            label="帐号"
-            help="你可以可在iPanel Host控制台通过命令'user add'创建"
+            label="用户名"
+            help="你可以可在iPanel Host控制台通过命令'user create'创建"
         >
             <FormControl
-                v-model="form.account"
+                v-model="form.userName"
                 :icon="mdiAccount"
                 name="login"
                 autocomplete="username"
             />
         </FormField>
 
-        <FormField label="密码" help="此用户帐号对应的密码">
+        <FormField label="密码" help="此用户对应的密码">
             <FormControl
                 v-model="form.password"
                 :icon="mdiAsterisk"
@@ -99,24 +78,34 @@ const config = getWebGlobalConfig();
             <div class="flex items-center">
                 <BaseButtons>
                     <BaseButton
+                        v-if="connectionStore.state === State.logined"
+                        color="info"
+                        label="跳转到总览页面"
+                        @click="jumpToOverview"
+                    >
+                    </BaseButton>
+                    <BaseButton
                         type="submit"
                         color="info"
                         label="登录"
-                        :disabled="connectionStore.state === 1"
+                        v-else
                     />
                     <div
                         class="text-sm text-gray-400 dark:text-gray-600 flex items-center"
                     >
-                        <span v-if="connectionStore.isReconnecting">
+                        <span
+                            v-if="connectionStore.state === State.reconnecting"
+                        >
                             正在重连中
                         </span>
-                        <span v-else-if="connectionStore.hasVerified">
+                        <span
+                            v-else-if="connectionStore.state === State.logined"
+                        >
                             你已经登录了
                         </span>
-                        <span v-else-if="connectionStore.state === 1">
-                            正在等待验证
-                        </span>
-                        <span v-else-if="connectionStore.state !== 3">
+                        <span
+                            v-else-if="connectionStore.state === State.pending"
+                        >
                             连接中
                         </span>
                     </div>

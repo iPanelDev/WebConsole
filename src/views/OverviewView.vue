@@ -10,7 +10,6 @@ import { mdiHome, mdiFilter, mdiServer, mdiFile, mdiClock } from "@mdi/js";
 import { useServiceStore } from "@/service/store";
 import { EmptyStringPlaceholder } from "@/meta/constant";
 import { computed, ref } from "vue";
-import { dissubscribe } from "@/service/packetSender";
 
 const serviceStore = useServiceStore();
 
@@ -21,13 +20,12 @@ const instances = computed(() =>
         (instance) =>
             !filter.value ||
             instance[1].address.includes(filter.value) ||
-            instance[1].custom_name
+            instance[1].customName
                 .toLowerCase()
                 .includes(filter.value.toLowerCase())
     )
 );
 
-dissubscribe();
 </script>
 
 <template>
@@ -57,7 +55,7 @@ dissubscribe();
                     >
                         <div class="flex mb-5 truncate">
                             <span class="mr-2 text-xl">
-                                {{ item[1].custom_name ?? "未知名称" }}
+                                {{ item[1].customName ?? "未知名称" }}
                             </span>
                             <span
                                 class="text-lg text-gray-600 dark:text-gray-400"
@@ -71,7 +69,7 @@ dissubscribe();
                             服务器状态
                             <span class="ml-2">
                                 {{
-                                    item[1].short_info.server_status
+                                    item[1].shortInfo.server_status
                                         ? "运行中"
                                         : "未启动"
                                 }}
@@ -84,7 +82,7 @@ dissubscribe();
                             启动文件
                             <span class="ml-2">
                                 {{
-                                    item[1].short_info.server_filename ??
+                                    item[1].shortInfo.server_filename ??
                                     EmptyStringPlaceholder
                                 }}
                             </span>
@@ -96,7 +94,7 @@ dissubscribe();
                             运行时间
                             <span class="ml-2">
                                 {{
-                                    item[1].short_info.server_time ??
+                                    item[1].shortInfo.server_time ??
                                     EmptyStringPlaceholder
                                 }}
                             </span>

@@ -4,15 +4,14 @@ import BaseButtons from "@/components/BaseButtons.vue";
 import BaseIcon from "@/components/BaseIcon.vue";
 import BaseLevel from "@/components/BaseLevel.vue";
 import CardBox from "@/components/CardBox.vue";
+import CheckboxCell from "@/components/CheckboxCell.vue";
 import NotificationBar from "@/components/NotificationBar.vue";
 import SectionMain from "@/components/SectionMain.vue";
 import SectionTitleLineWithButton from "@/components/SectionTitleLineWithButton.vue";
-import CheckboxCell from "@/components/CheckboxCell.vue";
 import LayoutOfInstance from "@/layouts/LayoutOfInstance.vue";
 import { EmptyStringPlaceholder } from "@/meta/constant";
-import { getDirInfo } from "@/service/packetSender";
 import { useServiceStore } from "@/service/store";
-import { Item } from "@/service/types";
+import { getIcon } from "@/utils/icons";
 import { formatFileSize } from "@/utils/strings";
 import {
     mdiAlertCircle,
@@ -20,27 +19,17 @@ import {
     mdiFile,
     mdiFolderOutline,
     mdiRefreshCircle,
-    mdiSelect,
-    mdiSelectAll,
 } from "@mdi/js";
 import { Ref, computed, ref } from "vue";
 import { useRoute } from "vue-router";
-import { getIcon } from "@/utils/icons";
-import router from "@/router";
 
 const serviceStore = useServiceStore();
 
 const instanceId = useRoute().params["instanceId"] as string;
 const currentPath = ref("");
-const items = computed(
-    () =>
-        serviceStore.instances
-            .get(instanceId)
-            ?.dir_tree?.get(currentPath.value) || []
-);
-getDirInfo(currentPath.value);
+const items = computed(() => []);
 
-const perPage = ref(15);
+const perPage = ref(20);
 
 const currentPage = ref(0);
 
@@ -65,9 +54,9 @@ const pagesList = computed(() => {
     return pagesList;
 });
 
-const selected: Ref<Item[]> = ref([]);
+const selected: Ref = ref([]);
 
-function check(isChecked: boolean, item: Item) {
+function check(isChecked: boolean, item) {
     if (isChecked) {
         selected.value.push(item);
     } else {
@@ -75,12 +64,11 @@ function check(isChecked: boolean, item: Item) {
     }
 }
 
-function update({ type, path }: Item) {
+function update({ type, path }) {
     if (type != "dir") {
         return;
     }
     currentPath.value = path;
-    getDirInfo(currentPath.value);
     selected.value.splice(0, selected.value.length);
 }
 
@@ -89,13 +77,11 @@ function back() {
         const pattens = currentPath.value.split("/");
         pattens.pop();
         currentPath.value = pattens.join("/");
+        currentPage.value = 0;
     }
 }
 
-function refresh() {
-    serviceStore.instances.get(instanceId)?.dir_tree?.clear();
-    getDirInfo(currentPath.value);
-}
+function refresh() {}
 </script>
 
 <template>
@@ -131,7 +117,7 @@ function refresh() {
                     <thead>
                         <th></th>
                         <th>名称</th>
-                        <th class="text-center">大小</th>
+                        <th class="text-center whitespace-nowrap">大小</th>
                     </thead>
                     <tbody>
                         <tr
@@ -164,7 +150,7 @@ function refresh() {
                         </tr>
                     </tbody>
                 </table>
-                <div class="ml-2 mt-5 text-sm text-center">
+                <div class="ml-2 my-3 text-sm text-center">
                     <span class="mx-2" v-if="selected.length > 0">
                         已选择{{ selected.length }}个项目
                     </span>
@@ -176,10 +162,7 @@ function refresh() {
                         第{{ currentPageHuman }}页 / 共{{ numPages }}页
                     </span>
                 </div>
-
-                <div
-                    class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
-                >
+                <div class="p-3 lg:px-6">
                     <BaseLevel>
                         <BaseButtons>
                             <BaseButton

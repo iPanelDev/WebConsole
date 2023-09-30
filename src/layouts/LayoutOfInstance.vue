@@ -8,8 +8,8 @@ import NavBarItemPlain from "@/components/NavBarItemPlain.vue";
 import NotificationBar from "@/components/NotificationBar.vue";
 import instanceSidebar from "@/menus/instanceSidebar";
 import navbar from "@/menus/navbar";
+import { logout } from "@/service/main";
 import { useConnectionStore, useServiceStore } from "@/service/store";
-import { disconnect } from "@/service/webSocket";
 import { useStyleStore } from "@/style";
 import {
     mdiAlert,
@@ -50,8 +50,7 @@ const menuClick = (event, item) => {
     if (item.isToggleLightDark) {
         styleStore.setDarkMode();
     } else if (item.isLogout) {
-        disconnect();
-        useServiceStore().$reset();
+        logout();
     }
 };
 

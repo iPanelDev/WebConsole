@@ -10,11 +10,12 @@ import { notificationMap } from "@/notification";
     >
         <TransitionGroup name="notify">
             <NotificationBar
-                v-for="kv in notificationMap.entries()"
+                v-for="kv in notificationMap?.entries() || []"
                 :color="kv[1].type"
                 :key="kv[0]"
                 :icon="kv[1].icon"
                 class="pointer-events-auto my-1 mb:w-30 whitespace-pre-line"
+                @dismiss="() => notificationMap.delete(kv[0])"
             >
                 <div class="mr-2 flex flex-col">
                     <div>

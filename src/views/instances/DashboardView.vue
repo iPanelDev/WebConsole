@@ -5,7 +5,6 @@ import CardBox from "@/components/CardBox.vue";
 import LineChart from "@/components/Charts/LineChart.vue";
 import SectionMain from "@/components/SectionMain.vue";
 import SectionTitleLineWithButton from "@/components/SectionTitleLineWithButton.vue";
-import { subscribe } from "@/service/packetSender";
 import { useServiceStore } from "@/service/store";
 import { FullInfo } from "@/service/types";
 import {
@@ -23,16 +22,15 @@ import BaseIcon from "@/components/BaseIcon.vue";
 
 const serviceStore = useServiceStore();
 const instanceId = useRoute().params["instanceId"] as string;
-onMounted(() => subscribe(instanceId));
 
 const infos: ComputedRef<Array<[string, FullInfo]>> = computed(
     () => serviceStore.instanceInfosHistory.get(instanceId) || []
 );
 const fullInfo = computed(
-    () => serviceStore.instances.get(instanceId)?.full_info
+    () => serviceStore.instances.get(instanceId)?.fullInfo
 );
 const shortInfo = computed(
-    () => serviceStore.instances.get(instanceId)?.short_info
+    () => serviceStore.instances.get(instanceId)?.shortInfo
 );
 
 onUnmounted(watch(fullInfo, generate));
@@ -47,7 +45,7 @@ function generate() {
             {
                 label: "总CPU使用率",
                 axis: "x",
-                data: infos.value.map((info) => info[1].sys.cpu_usage),
+                data: infos.value.map((info) => info[1].sys.cpuUsage),
                 fill: true,
                 cubicInterpolationMode: "default",
                 borderColor: "#36A2EB",
@@ -75,7 +73,7 @@ function generate() {
                 label: "空闲内存（GB）",
                 axis: "x",
                 data: infos.value.map(
-                    (info) => info[1].sys.free_ram / 1024 / 1024
+                    (info) => info[1].sys.freeRam / 1024 / 1024
                 ),
                 fill: true,
                 borderColor: "#53bb27",
@@ -86,7 +84,7 @@ function generate() {
                 axis: "x",
                 data: infos.value.map(
                     (info) =>
-                        (info[1].sys.total_ram - info[1].sys.free_ram) /
+                        (info[1].sys.totalRam - info[1].sys.freeRam) /
                         1024 /
                         1024
                 ),
@@ -141,7 +139,7 @@ onMounted(generate);
                             class="mr-3"
                         />CPU使用率
                     </h1>
-                    {{ fullInfo?.sys?.cpu_usage?.toFixed(1) || 0 }}%
+                    {{ fullInfo?.sys?.cpuUsage?.toFixed(1) || 0 }}%
                 </div>
                 <LineChart :data="cpuData" />
             </CardBox>
@@ -157,18 +155,18 @@ onMounted(generate);
                     </h1>
                     {{
                         (
-                            (fullInfo?.sys?.total_ram -
-                                fullInfo?.sys?.free_ram) /
+                            (fullInfo?.sys?.totalRam -
+                                fullInfo?.sys?.freeRam) /
                             1024 /
                             1024
                         ).toFixed(1) || 0
                     }}
                     /
                     {{
-                        (fullInfo?.sys?.total_ram / 1024 / 1024).toFixed(1) || 0
+                        (fullInfo?.sys?.totalRam / 1024 / 1024).toFixed(1) || 0
                     }}
                     GB |
-                    {{ (fullInfo?.sys?.ram_usage || 0).toFixed(1) || 0 }}%
+                    {{ (fullInfo?.sys?.ramUsage || 0).toFixed(1) || 0 }}%
                 </div>
                 <LineChart :data="ramData" />
             </CardBox>

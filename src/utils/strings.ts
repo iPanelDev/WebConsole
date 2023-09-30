@@ -136,3 +136,7 @@ export function formatFileSize(size: number) {
         return `${(size / 1024 / 1024 / 1024).toFixed(1)}GB`;
     return `${(size / 1024 / 1024 / 1024 / 1024 / 1024).toFixed(1)}TB`;
 }
+
+export function convertToCamelCase(input: string) {
+    return input.replace(/_([a-z])/g, (v) => v.replace("_", "").toUpperCase());
+}
