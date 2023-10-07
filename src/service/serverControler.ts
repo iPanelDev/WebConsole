@@ -1,8 +1,12 @@
-import { ref } from "vue";
-
+import {
+    callInstanceInput,
+    callInstanceKill,
+    callInstanceStart,
+    callInstanceStop,
+} from "@/service/requests";
 import { useServiceStore } from "@/service/store";
-import { send } from "@/service/webSocket";
 import { getSettings } from "@/utils/settingsManager";
+import { ref } from "vue";
 
 export const inputHistory = Array.from(
     (JSON.parse(localStorage.getItem("ipanel.inputHistory")) as string[]) || []
@@ -10,33 +14,36 @@ export const inputHistory = Array.from(
 
 export const inputHistoryRef = ref(inputHistory);
 
-export function start() {
-    send({
-        type: "request",
-        sub_type: "server_start",
-    });
+function failureHandler(error: any) {
+    console.error(error);
 }
 
-export function stop() {
-    send({
-        type: "request",
-        sub_type: "server_stop",
-    });
+export function start(instanceId: string) {
+    callInstanceStart(instanceId).catch(failureHandler);
 }
 
-export function kill() {
-    send({
-        type: "request",
-        sub_type: "server_kill",
-    });
+export function stop(instanceId: string) {
+    callInstanceStop(instanceId).catch(failureHandler);
 }
 
-export function input(line: string) {
-    send({
-        type: "request",
-        sub_type: "server_input",
-        data: [line],
-    });
+export function kill(instanceId: string) {
+    callInstanceKill(instanceId).catch(failureHandler);
+}
+
+const cache = [];
+let timer: number;
+
+const debounceInput = (instanceId: string, input: string) => {
+    cache.push(input);
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+        callInstanceInput(instanceId, [...cache]).catch(failureHandler);
+        cache.splice(0, cache.length);
+    }, 250);
+};
+
+export function input(instanceId: string, line: string) {
+    debounceInput(instanceId, line);
 
     if (inputHistory.length > 50)
         inputHistory.splice(50, inputHistory.length - 50);

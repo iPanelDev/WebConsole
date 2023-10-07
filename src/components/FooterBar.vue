@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { containerMaxW } from "@/style";
 import BaseLevel from "@/components/BaseLevel.vue";
-import { VERSION } from "@/meta/constant";
+import { VERSION } from "@/constant";
 
 const year = new Date().getFullYear();
 </script>

@@ -9,7 +9,7 @@ import NotificationBar from "@/components/NotificationBar.vue";
 import SectionMain from "@/components/SectionMain.vue";
 import SectionTitleLineWithButton from "@/components/SectionTitleLineWithButton.vue";
 import LayoutOfInstance from "@/layouts/LayoutOfInstance.vue";
-import { EmptyStringPlaceholder } from "@/meta/constant";
+import { EmptyStringPlaceholder } from "@/constant";
 import { useServiceStore } from "@/service/store";
 import { getIcon } from "@/utils/icons";
 import { formatFileSize } from "@/utils/strings";

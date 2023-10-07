@@ -29,7 +29,7 @@ import {
     mdiStop,
     mdiTrashCan,
 } from "@mdi/js";
-import { computed, onMounted, ref } from "vue";
+import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 
 const instanceId = useRoute().params["instanceId"] as string;
@@ -39,7 +39,7 @@ const serviceStore = useServiceStore();
 const datas = computed(() => serviceStore.outputs.get(instanceId) || []);
 
 const status = computed(
-    () => serviceStore.instances.get(instanceId)?.shortInfo.server_status
+    () => serviceStore.instances.get(instanceId)?.info?.server.status
 );
 
 const inputRef = ref("");
@@ -85,7 +85,7 @@ function send() {
     if (!status.value) return;
 
     index.value = 0;
-    input(inputRef.value);
+    input(instanceId, inputRef.value);
     inputRef.value = "";
     inputElRef.value.inputEl.focus();
 }
@@ -97,7 +97,7 @@ function send() {
             title="确定要强制结束进程吗"
             button-label="确认"
             has-cancel
-            @confirm="kill"
+            @confirm="() => kill(instanceId)"
         >
             此操作可能导致存档损坏等问题
         </CardBoxModal>
@@ -162,7 +162,7 @@ function send() {
                         outline
                         label="启动"
                         :disabled="status"
-                        @click="start"
+                        @click="() => start(instanceId)"
                     />
                     <BaseButton
                         class="w-full my-3"
@@ -171,7 +171,7 @@ function send() {
                         color="contrast"
                         label="停止"
                         :disabled="!status"
-                        @click="stop"
+                        @click="() => stop(instanceId)"
                     />
                     <BaseButton
                         class="w-full"

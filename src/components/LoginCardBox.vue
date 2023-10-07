@@ -6,11 +6,12 @@ import FormCheckRadio from "@/components/FormCheckRadio.vue";
 import FormControl from "@/components/FormControl.vue";
 import FormField from "@/components/FormField.vue";
 import NotificationBar from "@/components/NotificationBar.vue";
-import { prepareToLogin, jumpToOverview } from "@/service/main";
+import { jumpToOverview, prepareToLogin } from "@/service";
 import { useConnectionStore, useServiceStore } from "@/service/store";
+import { State } from "@/service/types";
 import { mdiAccount, mdiAsterisk } from "@mdi/js";
 import { reactive } from "vue";
-import { FullInfo, Instance, State, User } from "@/service/types";
+import { defaultIcons } from "@/notification";
 
 const serviceStore = useServiceStore();
 const connectionStore = useConnectionStore();
@@ -122,11 +123,17 @@ const submit = () => {
                 </div>
             </div>
             <NotificationBar
-                color="danger"
+                :icon="defaultIcons[connectionStore.noticeType] || ''"
+                :color="connectionStore.noticeType"
                 class="mt-4"
-                v-if="connectionStore.errorMsg"
+                v-if="connectionStore.notice"
             >
-                {{ connectionStore.errorMsg }}
+                <div class="mr-2 flex flex-col">
+                    <div>
+                        <b>连接时出现问题</b>
+                    </div>
+                    <div>{{ connectionStore.notice }}</div>
+                </div>
             </NotificationBar>
         </template>
     </CardBox>

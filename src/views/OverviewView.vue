@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import CardBox from "@/components/CardBox.vue";
-import FormControl from "@/components/FormControl.vue";
-import CardBoxComponentEmpty from "@/components/CardBoxComponentEmpty.vue";
-import SectionMain from "@/components/SectionMain.vue";
 import BaseIcon from "@/components/BaseIcon.vue";
+import CardBox from "@/components/CardBox.vue";
+import CardBoxComponentEmpty from "@/components/CardBoxComponentEmpty.vue";
+import FormControl from "@/components/FormControl.vue";
+import SectionMain from "@/components/SectionMain.vue";
 import SectionTitleLineWithButton from "@/components/SectionTitleLineWithButton.vue";
 import LayoutAuthenticated from "@/layouts/LayoutAuthenticated.vue";
-import { mdiHome, mdiFilter, mdiServer, mdiFile, mdiClock } from "@mdi/js";
+import { EmptyStringPlaceholder } from "@/constant";
+import { callWhenLogined, updateInstancesInfo } from "@/service";
 import { useServiceStore } from "@/service/store";
-import { EmptyStringPlaceholder } from "@/meta/constant";
-import { computed, ref } from "vue";
+import { mdiClock, mdiFile, mdiFilter, mdiHome, mdiServer } from "@mdi/js";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 
 const serviceStore = useServiceStore();
 
@@ -26,6 +27,10 @@ const instances = computed(() =>
     )
 );
 
+const timer = setInterval(updateInstancesInfo, 2000);
+callWhenLogined(updateInstancesInfo);
+onMounted(updateInstancesInfo);
+onBeforeUnmount(() => clearInterval(timer));
 </script>
 
 <template>
@@ -69,7 +74,7 @@ const instances = computed(() =>
                             服务器状态
                             <span class="ml-2">
                                 {{
-                                    item[1].shortInfo.server_status
+                                    item[1].info?.server?.status
                                         ? "运行中"
                                         : "未启动"
                                 }}
@@ -82,7 +87,7 @@ const instances = computed(() =>
                             启动文件
                             <span class="ml-2">
                                 {{
-                                    item[1].shortInfo.server_filename ??
+                                    item[1].info?.server?.filename ??
                                     EmptyStringPlaceholder
                                 }}
                             </span>
@@ -94,7 +99,7 @@ const instances = computed(() =>
                             运行时间
                             <span class="ml-2">
                                 {{
-                                    item[1].shortInfo.server_time ??
+                                    item[1].info?.server?.runTime ??
                                     EmptyStringPlaceholder
                                 }}
                             </span>

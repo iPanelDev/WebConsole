@@ -15,7 +15,7 @@ export default defineConfig({
         proxy: {
             "/api": "http://127.0.0.1:30000/",
 
-            "/ws": {
+            "/broadcast": {
                 target: "ws://127.0.0.1:30000",
                 changeOrigin: true,
                 ws: true,

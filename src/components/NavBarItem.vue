@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { mdiChevronUp, mdiChevronDown } from "@mdi/js";
-import { RouterLink } from "vue-router";
-import { computed, ref, onMounted, onBeforeUnmount } from "vue";
-import { useStyleStore } from "@/style";
-import { useServiceStore } from "@/service/store";
+import BaseDivider from "@/components/BaseDivider.vue";
 import BaseIcon from "@/components/BaseIcon.vue";
 import NavBarMenuList from "@/components/NavBarMenuList.vue";
-import BaseDivider from "@/components/BaseDivider.vue";
+import { useConnectionStore, useServiceStore } from "@/service/store";
+import { useStyleStore } from "@/style";
+import { mdiChevronDown, mdiChevronUp } from "@mdi/js";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { RouterLink } from "vue-router";
 
 const props = defineProps({
     item: {
@@ -30,6 +30,7 @@ const is = computed(() => {
 });
 
 const styleStore = useStyleStore();
+const connectionStore = useConnectionStore();
 
 const componentClass = computed(() => {
     const base = [
@@ -43,12 +44,18 @@ const componentClass = computed(() => {
         base.push("lg:w-12", "lg:justify-center");
     }
 
+    if(props.item.isLatency){
+        base.push("text-sm");
+    }
+
     return base;
 });
 
 const itemLabel = computed(() =>
     props.item.isCurrentUser
         ? useServiceStore().userName ?? "未登录"
+        : props.item.isLatency&&connectionStore.latency
+        ? connectionStore.latency + "ms"
         : props.item.label
 );
 

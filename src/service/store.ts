@@ -1,9 +1,9 @@
-import { FullInfo, Instance, State, User } from "@/service/types";
+import { Instance, InstanceInfo, State, User } from "@/service/types";
 import { defineStore } from "pinia";
 
 export const useServiceStore = defineStore("service", {
     state: () => ({
-        userName: localStorage["ipanel.user_name"],
+        userName: localStorage["ipanel.userName"],
 
         password: localStorage["ipanel.password"],
 
@@ -42,7 +42,7 @@ export const useServiceStore = defineStore("service", {
         /**
          * 实例信息
          */
-        instanceInfosHistory: new Map<string, [string, FullInfo][]>(),
+        instanceInfosHistory: new Map<string, [string, InstanceInfo][]>(),
 
         /**
          * 当前用户
@@ -64,7 +64,7 @@ export const useServiceStore = defineStore("service", {
         },
 
         save() {
-            localStorage["ipanel.user_name"] = this.userName ?? "";
+            localStorage["ipanel.userName"] = this.userName ?? "";
             localStorage["ipanel.password"] =
                 (this.rememberPassword && this.password) || "";
             localStorage["ipanel.rememberPassword"] = Number(
@@ -118,9 +118,19 @@ export const useConnectionStore = defineStore("connection", {
         heartbeatTimer: null,
 
         /**
-         * 错误信息
+         * 提示消息
          */
-        errorMsg: null,
+        notice: null,
+
+        /**
+         * 提示消息类型
+         */
+        noticeType: "warning",
+
+        /**
+         * 延迟
+         */
+        latency: null,
     }),
 
     actions: {

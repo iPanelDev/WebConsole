@@ -8,22 +8,21 @@ import LayoutAuthenticated from "@/layouts/LayoutAuthenticated.vue";
 import { listUsers } from "@/service/requests";
 import { useServiceStore } from "@/service/store";
 import { User } from "@/service/types";
-import { unwrap } from "@/utils/wrapper";
 import { mdiAccountMultiple, mdiAlertCircle, mdiRefresh } from "@mdi/js";
 import { ref } from "vue";
 
 const serviceStore = useServiceStore();
 
-const users = ref(new Map<string, User>());
+const users = ref({});
 getUsers();
 
 async function getUsers() {
-    const dict = await listUsers();
+    const dict = {};
 
-    users.value.clear();
-    for (const kv of Object.entries(dict)) {
-        users.value.set(kv[0], unwrap(kv[1]));
+    for (const kv of Object.entries(await listUsers())) {
+        dict[kv[0]] = kv[1];
     }
+    users.value = dict;
 }
 </script>
 <template>
@@ -48,7 +47,7 @@ async function getUsers() {
                     @click="getUsers"
                 />
             </SectionTitleLineWithButton>
-            <UsersTable :users="users" />
+            <UsersTable :users="users" @delete="getUsers" />
         </SectionMain>
     </LayoutAuthenticated>
 </template>

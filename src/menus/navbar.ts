@@ -1,11 +1,9 @@
 import {
     mdiAccount,
     mdiCogOutline,
-    mdiLogout,
-    mdiThemeLightDark,
     mdiGithub,
-    mdiWifi,
-    mdiSignal,
+    mdiLogout,
+    mdiThemeLightDark
 } from "@mdi/js";
 
 export default [
@@ -34,13 +32,8 @@ export default [
         ],
     },
     {
-        icon: mdiSignal,
-        menu: [
-            {
-                icon: mdiWifi,
-                label: "延迟",
-            },
-        ],
+        label: "未连接",
+        isLatency: true,
     },
     {
         icon: mdiThemeLightDark,

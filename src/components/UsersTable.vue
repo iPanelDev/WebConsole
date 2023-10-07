@@ -4,20 +4,22 @@ import BaseButtons from "@/components/BaseButtons.vue";
 import BaseLevel from "@/components/BaseLevel.vue";
 import CardBoxModal from "@/components/CardBoxModal.vue";
 import PillTag from "@/components/PillTag.vue";
-import { EmptyStringPlaceholder } from "@/meta/constant";
+import { EmptyStringPlaceholder } from "@/constant";
 import { useServiceStore } from "@/service/store";
 import { User } from "@/service/types";
 import { mdiPencil, mdiTrashCan } from "@mdi/js";
 import { Ref, computed, ref } from "vue";
 import { deleteUser } from "@/service/requests";
+import { createNotify } from "@/notification";
 
-const props = defineProps({
-    users: { require: true, type: Map },
-});
+const emit = defineEmits(["delete"]);
+const props = defineProps(["users"]);
 
 const serviceStore = useServiceStore();
 
-const items = computed(() => Array.from(props.users as Map<string, User>));
+const items = computed(() =>
+    Array.from(Object.entries(props.users as Record<string, User>))
+);
 
 const perPage = ref(10);
 
@@ -57,6 +59,23 @@ function showEditForm(account: string) {
     userSelected.value = account;
     isEditActive.value = true;
 }
+
+function userDelete() {
+    try {
+        deleteUser(userSelected.value);
+        createNotify({
+            type: "success",
+            title: "删除用户成功",
+        });
+    } catch (error) {
+        createNotify({
+            type: "warning",
+            title: "删除用户失败",
+            message: error,
+        });
+    }
+    emit("delete");
+}
 </script>
 
 <template>
@@ -65,7 +84,7 @@ function showEditForm(account: string) {
         button-label="确认"
         :title="`确定要删除用户“${userSelected}”吗？`"
         has-cancel
-        @confirm="() => deleteUser(userSelected)"
+        @confirm="userDelete"
     >
         此操作不可被撤销
     </CardBoxModal>
@@ -74,7 +93,7 @@ function showEditForm(account: string) {
         button-label="确认"
         :title="`修改用户“${userSelected}”`"
         has-cancel
-        @confirm="() => deleteUser(userSelected)"
+        @confirm=""
     >
         1111
     </CardBoxModal>

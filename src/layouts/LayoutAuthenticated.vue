@@ -9,7 +9,7 @@ import NotificationBar from "@/components/NotificationBar.vue";
 import adminSidebar from "@/menus/adminSidebar";
 import commonSidebar from "@/menus/commonSidebar";
 import navbar from "@/menus/navbar";
-import { logout } from "@/service/main";
+import { logout } from "@/service";
 import { useConnectionStore, useServiceStore } from "@/service/store";
 import { useStyleStore } from "@/style";
 import { mdiAlert, mdiBackburger, mdiForwardburger, mdiMenu } from "@mdi/js";

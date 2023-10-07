@@ -8,8 +8,15 @@ import NavBarItemPlain from "@/components/NavBarItemPlain.vue";
 import NotificationBar from "@/components/NotificationBar.vue";
 import instanceSidebar from "@/menus/instanceSidebar";
 import navbar from "@/menus/navbar";
-import { logout } from "@/service/main";
+import { createNotify } from "@/notification";
+import {
+    callWhenLogined,
+    logout,
+    subscirbe,
+    updateInstancesInfo,
+} from "@/service";
 import { useConnectionStore, useServiceStore } from "@/service/store";
+import { State } from "@/service/types";
 import { useStyleStore } from "@/style";
 import {
     mdiAlert,
@@ -20,8 +27,8 @@ import {
     mdiForwardburger,
     mdiMenu,
 } from "@mdi/js";
-import { computed, ref } from "vue";
-import { useRouter } from "vue-router";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 const layoutAsidePadding = "xl:pl-60";
 
@@ -78,6 +85,24 @@ const siderbar = computed(() =>
           ])
         : instanceSidebar
 );
+
+const online = ref(true);
+const instanceId = useRoute().params["instanceId"] as string;
+const timer = setInterval(update, 5000);
+
+subscirbe(instanceId);
+callWhenLogined(() => subscirbe(instanceId));
+callWhenLogined(update);
+onMounted(update);
+onBeforeUnmount(() => clearInterval(timer));
+
+async function update() {
+    const state = await updateInstancesInfo(instanceId);
+    if (state && !online.value) {
+        createNotify({ title: "实例已恢复", type: "success" });
+    }
+    online.value = state;
+}
 </script>
 
 <template>
@@ -126,7 +151,17 @@ const siderbar = computed(() =>
             @aside-lg-close-click="isAsideLgActive = false"
         />
         <NotificationBar
-            v-if="connectionStore.state !== 1 && connectionStore.hasVerified"
+            v-if="!/^[a-z0-9]{32}$/.test(instanceId)"
+            color="warning"
+            :icon="mdiAlert"
+            class="m-6"
+        >
+            <b>当前页面路径异常</b>
+            请尝试
+            <router-link to="/overview" replace> 重新选择实例 </router-link>
+        </NotificationBar>
+        <NotificationBar
+            v-else-if="connectionStore.state !== State.logined"
             color="warning"
             :icon="mdiAlert"
             class="m-6"
@@ -143,6 +178,16 @@ const siderbar = computed(() =>
                 重新登录
             </router-link>
             后重试
+        </NotificationBar>
+
+        <NotificationBar
+            v-else-if="!online"
+            color="warning"
+            :icon="mdiAlert"
+            class="m-6"
+        >
+            <b>实例信息获取异常</b>
+            此实例可能已经断开或不存在
         </NotificationBar>
         <slot />
         <FooterBar />

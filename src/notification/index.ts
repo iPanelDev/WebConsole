@@ -1,4 +1,4 @@
-import { mdiAlert, mdiAlertOctagon, mdiInformation } from "@mdi/js";
+import { mdiAlert, mdiAlertOctagon, mdiCheck, mdiCheckCircleOutline, mdiInformation } from "@mdi/js";
 import { ref } from "vue";
 
 export declare type NotificationOption = {
@@ -30,9 +30,9 @@ const acceptables = [
     "danger",
 ];
 
-const defaultIcons = {
+export const defaultIcons = {
     info: mdiInformation,
-    success: null,
+    success: mdiCheckCircleOutline,
     warning: mdiAlertOctagon,
     danger: mdiAlert,
 };
