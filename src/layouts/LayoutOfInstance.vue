@@ -73,7 +73,7 @@ const siderbar = computed(() =>
         : useServiceStore().currentUser?.level === 3
         ? instanceSidebar.concat([
               {
-                  to: "./files",
+                  to: "./filesManager",
                   label: "文件管理",
                   icon: mdiFile,
               },
@@ -98,6 +98,9 @@ onBeforeUnmount(() => clearInterval(timer));
 
 async function update() {
     const state = await updateInstancesInfo(instanceId);
+    if (typeof state !== "boolean") {
+        return;
+    }
     if (state && !online.value) {
         createNotify({ title: "实例已恢复", type: "success" });
     }

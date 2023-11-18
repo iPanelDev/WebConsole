@@ -46,12 +46,12 @@ const asideLgCloseClick = (event) => {
                     @click="$router.push('/overview')"
                 >
                     <img
-                        src="/src/assets/logo_small.png"
+                        src="/src/assets/logo.png"
                         class="inline mr-3 select-none"
                         style="
                             image-rendering: pixelated;
-                            width: 25px;
-                            height: 25px;
+                            width: 27px;
+                            height: 27px;
                         "
                     />
                     <b class="font-black break-keep">iPanel 网页控制台</b>

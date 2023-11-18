@@ -1,3 +1,4 @@
+import { createNotify } from "@/notification";
 import {
     callInstanceInput,
     callInstanceKill,
@@ -6,6 +7,7 @@ import {
 } from "@/service/requests";
 import { useServiceStore } from "@/service/store";
 import { getSettings } from "@/utils/settingsManager";
+import { AxiosError } from "axios";
 import { ref } from "vue";
 
 export const inputHistory = Array.from(
@@ -16,6 +18,15 @@ export const inputHistoryRef = ref(inputHistory);
 
 function failureHandler(error: any) {
     console.error(error);
+    if (error instanceof AxiosError) {
+        if (error.status == "403") {
+            createNotify({
+                title: "权限不足",
+                type: "warning",
+                message: "可能是用户等级权限不足或没有使用此实例的权限",
+            });
+        }
+    }
 }
 
 export function start(instanceId: string) {

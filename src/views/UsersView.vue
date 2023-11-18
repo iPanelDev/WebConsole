@@ -7,7 +7,6 @@ import UsersTable from "@/components/UsersTable.vue";
 import LayoutAuthenticated from "@/layouts/LayoutAuthenticated.vue";
 import { listUsers } from "@/service/requests";
 import { useServiceStore } from "@/service/store";
-import { User } from "@/service/types";
 import { mdiAccountMultiple, mdiAlertCircle, mdiRefresh } from "@mdi/js";
 import { ref } from "vue";
 

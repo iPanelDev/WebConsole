@@ -26,13 +26,11 @@ import { useRoute } from "vue-router";
 const serviceStore = useServiceStore();
 
 const instanceId = useRoute().params["instanceId"] as string;
+
 const currentPath = ref("");
-const items = computed(() => []);
-
+const items = ref([]);
 const perPage = ref(20);
-
 const currentPage = ref(0);
-
 const itemsPaginated = computed(() =>
     items.value.slice(
         perPage.value * currentPage.value,
@@ -64,7 +62,7 @@ function check(isChecked: boolean, item) {
     }
 }
 
-function update({ type, path }) {
+async function update({ type, path }) {
     if (type != "dir") {
         return;
     }

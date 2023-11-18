@@ -9,6 +9,10 @@ import { Packet, State } from "@/service/types";
 export function connect() {
     const connectionStore = useConnectionStore();
 
+    if (connectionStore.ws?.readyState === WebSocket.OPEN) {
+        return;
+    }
+
     try {
         connectionStore.ws = new WebSocket(
             `${window.location.protocol.replace("http", "ws")}//${

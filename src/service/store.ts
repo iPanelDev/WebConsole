@@ -131,6 +131,16 @@ export const useConnectionStore = defineStore("connection", {
          * 延迟
          */
         latency: null,
+
+        /**
+         * 上一次请求时间
+         */
+        lastRequestStatusTime: 0,
+
+        /**
+         * 上一次请求时间
+         */
+        lastRequestInstanceTime: 0,
     }),
 
     actions: {

@@ -16,6 +16,8 @@ import { Instance, State, User } from "@/service/types";
 import { connect } from "@/service/webSocket";
 import { reactive } from "vue";
 
+const requestMinInterval = 200;
+
 const funcQueue: Function[] = [];
 
 export function callWhenLogined(func: Function) {
@@ -163,10 +165,19 @@ export async function updateInstancesInfo(
 ): Promise<boolean> {
     const connectionStore = useConnectionStore();
 
-    if (connectionStore.state !== State.logined) {
+    if (
+        Date.now() - connectionStore.lastRequestInstanceTime <
+        requestMinInterval
+    ) {
+        console.warn(
+            "更新实例信息已跳过，间隔",
+            Date.now() - connectionStore.lastRequestInstanceTime
+        );
+        return;
+    }
+    if (connectionStore.state !== State.logined || document.hidden) {
         return false;
     }
-
     const serviceStore = useServiceStore();
 
     try {
@@ -182,6 +193,7 @@ export async function updateInstancesInfo(
                 ])
             );
 
+        connectionStore.lastRequestInstanceTime = Date.now();
         return true;
     } catch (error) {
         console.warn("实例信息更新失败", error);
@@ -194,12 +206,22 @@ export async function updateInstancesInfo(
  */
 async function checkStatus() {
     const connectionStore = useConnectionStore();
-
-    if (connectionStore.state === State.logined) {
+    if (
+        Date.now() - connectionStore.lastRequestStatusTime <
+        requestMinInterval
+    ) {
+        console.warn(
+            "检查状态已跳过，间隔",
+            Date.now() - connectionStore.lastRequestStatusTime
+        );
+        return;
+    }
+    if (connectionStore.state === State.logined && !document.hidden) {
         try {
             const startTime = Date.now();
             const state = await getStatus();
             connectionStore.latency = Date.now() - startTime;
+            connectionStore.lastRequestStatusTime = Date.now();
 
             if (!state.logined) {
                 createNotify({

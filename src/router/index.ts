@@ -107,10 +107,10 @@ const routes: RouteRecordRaw[] = [
         meta: {
             title: "文件管理",
         },
-        path: "/instance/:instanceId/files",
+        path: "/instance/:instanceId/filesManager",
         name: "files",
         // @ts-expect-error
-        component: () => import("@/views/instances/FilesView.vue"),
+        component: () => import("@/views/instances/FilesManagerView.vue"),
     },
 
     {

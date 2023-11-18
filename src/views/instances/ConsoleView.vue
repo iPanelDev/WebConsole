@@ -38,6 +38,8 @@ const serviceStore = useServiceStore();
 
 const datas = computed(() => serviceStore.outputs.get(instanceId) || []);
 
+const user = computed(() => serviceStore.currentUser);
+
 const status = computed(
     () => serviceStore.instances.get(instanceId)?.info?.server.status
 );
@@ -154,7 +156,15 @@ function send() {
             </div>
 
             <div class="mb-3 md:flex w-full">
-                <CardBox is-hoverable class="md:mr-4 m-2 md:w-min select-none">
+                <CardBox
+                    is-hoverable
+                    class="md:mr-4 m-2 md:w-min select-none"
+                    :disabled="
+                        user.level === 1 ||
+                        (user.level === 2 &&
+                            !user.instances.includes(instanceId))
+                    "
+                >
                     <BaseButton
                         class="w-full"
                         :icon="mdiPlay"

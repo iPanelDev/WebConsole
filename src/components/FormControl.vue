@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onBeforeUnmount } from "vue";
-import { useServiceStore } from "@/service/store";
 import FormControlIcon from "@/components/FormControlIcon.vue";
 
 const props = defineProps({
@@ -129,7 +128,7 @@ defineExpose({ inputEl, selectEl, textareaEl });
             :class="inputElClass"
         >
             <option
-                v-for="option in options"
+                v-for="option in (options as any[])"
                 :key="option.id ?? option"
                 :value="option"
             >
@@ -139,7 +138,7 @@ defineExpose({ inputEl, selectEl, textareaEl });
         <textarea
             v-else-if="computedType === 'textarea'"
             :id="id"
-            v-model="computedValue"
+            v-model="(computedValue as any)"
             :class="inputElClass"
             :name="name"
             :maxlength="maxlength"
@@ -153,7 +152,7 @@ defineExpose({ inputEl, selectEl, textareaEl });
             v-model="computedValue"
             :name="name"
             :maxlength="maxlength"
-            :inputmode="inputmode"
+            :inputmode="(inputmode as any)"
             :autocomplete="autocomplete"
             :required="required"
             :placeholder="placeholder"
