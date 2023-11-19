@@ -1,6 +1,5 @@
-import { useServiceStore } from "@/service/store";
-import { Instance, SimplePacket, Status, User } from "@/service/types";
-import { convertToCamelCase } from "@/utils/strings";
+import { useConnectionStore, useServiceStore } from "@/service/store";
+import { SimplePacket } from "@/service/types";
 import axios from "axios";
 import md5 from "blueimp-md5";
 
@@ -99,7 +98,9 @@ export async function getInstanceInfo(instanceId: string) {
  */
 export async function subscribeInstance(instanceId: string) {
     await axios.get<SimplePacket>(
-        `/api/instance/${encodeURIComponent(instanceId)}/subscribe`
+        `/api/instance/${encodeURIComponent(
+            instanceId
+        )}/subscribe?connectionId=${useConnectionStore().wsConnectionId}`
     );
 }
 
@@ -141,7 +142,12 @@ export async function callInstanceKill(instanceId: string) {
 export async function callInstanceInput(instanceId: string, inputs: string[]) {
     await axios.post<SimplePacket>(
         `/api/instance/${encodeURIComponent(instanceId)}/input`,
-        JSON.stringify(inputs)
+        JSON.stringify(inputs),
+        {
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }
     );
 }
 

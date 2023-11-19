@@ -17,15 +17,17 @@ const serviceStore = useServiceStore();
 const filter = ref("");
 
 const instances = computed(() =>
-    Array.from(serviceStore.instances.entries()).filter(
+    Array.from(serviceStore.instances.values()).filter(
         (instance) =>
             !filter.value ||
-            instance[1].address.includes(filter.value) ||
-            instance[1].customName
+            instance.address.includes(filter.value) ||
+            instance.customName
                 .toLowerCase()
                 .includes(filter.value.toLowerCase())
     )
 );
+console.log(instances);
+
 
 const timer = setInterval(updateInstancesInfo, 2000);
 callWhenLogined(updateInstancesInfo);
@@ -50,8 +52,8 @@ onBeforeUnmount(() => clearInterval(timer));
             <div class="grid lg:grid-cols-3 md:grid-cols-2">
                 <RouterLink
                     v-for="item in instances"
-                    :key="item[0]"
-                    :to="`/instance/${item[0]}`"
+                    :key="item.instanceId"
+                    :to="`/instance/${item.instanceId}`"
                 >
                     <CardBox
                         class="transition-all select-none flex flex-wrap cursor-pointer border-slate-300 dark:border-slate-700 border w-full hover:border-slate-500 hover:dark:border-slate-500"
@@ -60,11 +62,12 @@ onBeforeUnmount(() => clearInterval(timer));
                     >
                         <div class="flex mb-5 truncate">
                             <span class="mr-2 text-xl">
-                                {{ item[1].customName ?? "未知名称" }}
+                                {{ item.customName ?? "未知名称" }}
                             </span>
                             <span
                                 class="text-lg text-gray-600 dark:text-gray-400"
-                                >{{ item[1].address }}
+                            >
+                                {{ item.address }}
                             </span>
                         </div>
                         <div
@@ -74,7 +77,7 @@ onBeforeUnmount(() => clearInterval(timer));
                             服务器状态
                             <span class="ml-2">
                                 {{
-                                    item[1].info?.server?.status
+                                    item.info?.server?.status
                                         ? "运行中"
                                         : "未启动"
                                 }}
@@ -87,7 +90,7 @@ onBeforeUnmount(() => clearInterval(timer));
                             启动文件
                             <span class="ml-2">
                                 {{
-                                    item[1].info?.server?.filename ??
+                                    item.info?.server?.filename ??
                                     EmptyStringPlaceholder
                                 }}
                             </span>
@@ -99,7 +102,7 @@ onBeforeUnmount(() => clearInterval(timer));
                             运行时间
                             <span class="ml-2">
                                 {{
-                                    item[1].info?.server?.runTime ??
+                                    item.info?.server?.runTime ??
                                     EmptyStringPlaceholder
                                 }}
                             </span>

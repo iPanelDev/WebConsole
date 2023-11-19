@@ -3,10 +3,9 @@
  */
 export declare interface Packet {
     type: string;
-    sub_type: string;
+    subType: string;
     data?: any;
     sender?: Record<string, string>;
-    echo?: any;
 }
 
 /**

@@ -11,5 +11,4 @@ export default [
         icon: mdiConsole,
         label: "控制台",
     },
-
 ];

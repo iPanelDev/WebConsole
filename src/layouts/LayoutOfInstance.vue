@@ -72,16 +72,16 @@ const siderbar = computed(() =>
           ])
         : useServiceStore().currentUser?.level === 3
         ? instanceSidebar.concat([
-              {
-                  to: "./filesManager",
-                  label: "文件管理",
-                  icon: mdiFile,
-              },
-              {
-                  to: "./terminal",
-                  label: "系统终端",
-                  icon: mdiConsoleLine,
-              },
+              //   {
+              //       to: "./filesManager",
+              //       label: "文件管理",
+              //       icon: mdiFile,
+              //   },
+              //   {
+              //       to: "./terminal",
+              //       label: "系统终端",
+              //       icon: mdiConsoleLine,
+              //   },
           ])
         : instanceSidebar
 );
@@ -103,6 +103,7 @@ async function update() {
     }
     if (state && !online.value) {
         createNotify({ title: "实例已恢复", type: "success" });
+        subscirbe(instanceId);
     }
     online.value = state;
 }

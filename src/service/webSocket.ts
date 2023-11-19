@@ -1,7 +1,9 @@
 import { createNotify } from "@/notification";
+import router from "@/router";
 import { addToMap, clearOutputsMap } from "@/service/serverControler";
 import { useConnectionStore } from "@/service/store";
 import { Packet, State } from "@/service/types";
+import { subscirbe } from ".";
 
 /**
  * 连接
@@ -22,6 +24,7 @@ export function connect() {
         connectionStore.ws.onopen = onOpen;
         connectionStore.ws.onclose = onClose;
         connectionStore.ws.onmessage = onMsg;
+        connectionStore.wsConnectionId = null;
     } catch (e) {
         connectionStore.notice = String(e);
     }
@@ -56,12 +59,12 @@ function onMsg(e: MessageEvent) {
     const packet = JSON.parse(e.data) as Packet;
     console.debug("WebSocket接收消息", packet);
 
-    const { type, sub_type, sender, data } = packet;
+    const { type, subType, sender, data } = packet;
 
     if (type === "broadcast") {
-        switch (sub_type) {
+        switch (subType) {
             case "server_start":
-                clearOutputsMap(sender.instance_id);
+                clearOutputsMap(sender.instanceId);
                 createNotify({
                     type: "info",
                     title: "服务器已启动",
@@ -74,22 +77,28 @@ function onMsg(e: MessageEvent) {
                     title: "服务器已关闭",
                     message: `退出代码：${data}`,
                 });
-                addToMap(sender.instance_id, [
+                addToMap(sender.instanceId, [
                     `\x1b[96m[iPanel]\x1b[0m 进程已于${new Date().toLocaleTimeString()}退出(${data})`,
                 ]);
                 break;
 
             case "server_input":
                 addToMap(
-                    sender.instance_id,
+                    sender.instanceId,
                     data.map((line: string) => `>${line}`)
                 );
                 break;
 
             case "server_output":
-                addToMap(sender.instance_id, data);
+                addToMap(sender.instanceId, data);
                 break;
         }
+    } else if (type === "return" && subType === "connection_id") {
+        const connectionStore = useConnectionStore();
+        connectionStore.wsConnectionId = data as string;
+
+        const instanceId = router.currentRoute.value.params["instanceId"];
+        if (instanceId) subscirbe(instanceId as string);
     }
 }
 

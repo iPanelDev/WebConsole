@@ -83,6 +83,11 @@ export const useConnectionStore = defineStore("connection", {
         ws: null,
 
         /**
+         * WebSocket连接Id
+         */
+        wsConnectionId: null,
+
+        /**
          * 连接状态
          */
         state: State.none,
