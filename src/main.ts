@@ -1,13 +1,13 @@
-import { createApp } from "vue";
 import { createPinia } from "pinia";
+import { createApp } from "vue";
 
 // @ts-expect-error
-import App from "./App.vue";
-import router from "./router";
+import App from "@/App.vue";
+import router from "@/router";
 import { useConnectionStore, useServiceStore } from "@/service/store";
 import { useStyleStore } from "@/style";
 
-import "./css/main.css";
+import "@/css/main.css";
 
 /* 初始化 Pinia */
 const pinia = createPinia();

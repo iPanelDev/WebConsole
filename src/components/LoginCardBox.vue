@@ -104,11 +104,6 @@ const submit = () => {
                         >
                             你已经登录了
                         </span>
-                        <span
-                            v-else-if="connectionStore.state === State.pending"
-                        >
-                            连接中
-                        </span>
                     </div>
                 </BaseButtons>
 

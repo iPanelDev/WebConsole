@@ -9,22 +9,46 @@ import SectionTitleLineWithButton from "@/components/SectionTitleLineWithButton.
 import UserCard from "@/components/UserCard.vue";
 import LayoutAuthenticated from "@/layouts/LayoutAuthenticated.vue";
 import { EmptyStringPlaceholder } from "@/constant";
-import { updateUserInfo } from "@/service";
+import { callWhenLogined, updateUserInfo } from "@/service";
 import { useServiceStore } from "@/service/store";
+import { editSelfPwd } from "@/service/requests";
 import { mdiAccount, mdiFormTextboxPassword } from "@mdi/js";
 import { reactive } from "vue";
+import { validatePwd } from "@/service/user";
+import { createNotify } from "@/notification";
 
 const serviceStore = useServiceStore();
 
 const passwordForm = reactive({
-    password_current: "",
     password: "",
-    password_confirmation: "",
+    passwordForConfirmation: "",
 });
 
-updateUserInfo();
+callWhenLogined(updateUserInfo);
 
-const submitPass = () => {};
+async function edit() {
+    try {
+        validatePwd(passwordForm.password);
+
+        if (passwordForm.password !== passwordForm.passwordForConfirmation)
+            throw "两次输入的密码不一致";
+
+        await editSelfPwd(passwordForm.password);
+
+        createNotify({
+            type: "success",
+            title: "修改密码成功",
+        });
+        passwordForm.password = "";
+        passwordForm.passwordForConfirmation = "";
+    } catch (error) {
+        createNotify({
+            title: "修改密码失败",
+            message: String(error),
+            type: "danger",
+        });
+    }
+}
 </script>
 
 <template>
@@ -87,7 +111,7 @@ const submitPass = () => {};
                     </div>
                 </CardBox>
 
-                <CardBox is-form @submit.prevent="submitPass">
+                <CardBox is-form @submit.prevent="edit">
                     <div class="text-xl mb-5 font-bold">修改密码</div>
                     <FormField label="新的密码">
                         <FormControl
@@ -102,7 +126,7 @@ const submitPass = () => {};
 
                     <FormField label="确认密码" help="重复输入一遍新的密码">
                         <FormControl
-                            v-model="passwordForm.password_confirmation"
+                            v-model="passwordForm.passwordForConfirmation"
                             :icon="mdiFormTextboxPassword"
                             name="password_confirmation"
                             type="password"

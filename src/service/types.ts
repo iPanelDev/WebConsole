@@ -11,7 +11,7 @@ export declare interface Packet {
 /**
  * 数据包
  */
-export declare interface SimplePacket {
+export declare interface HttpPacket {
     data?: any;
     code: number;
 }
@@ -22,7 +22,7 @@ export declare interface SimplePacket {
 export declare type Instance = {
     info?: InstanceInfo;
     address: string;
-    customName: string | null;
+    customName?: string | null;
     uuid: string;
     instanceId: string;
     metadata: Metadata;
@@ -40,7 +40,7 @@ export declare type InstanceInfo = {
         runTime: string | null;
         usage: number;
     };
-    sys: {
+    system: {
         os: string | null;
         cpuName: string | null;
         totalRam: number;
@@ -56,6 +56,7 @@ export declare type User = {
     instances: string[];
     description?: string;
     ipAddresses: string[];
+    password?: string;
 };
 
 export declare type Status = {
@@ -65,7 +66,6 @@ export declare type Status = {
 
 export enum State {
     none,
-    pending,
     logined,
     failure,
     reconnecting,

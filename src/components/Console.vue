@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, watch, ref, nextTick, onMounted } from "vue";
-import OutputLine from "./OutputLine.vue";
+import OutputLine from "@/components/OutputLine.vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 
 const props = defineProps({
     datas: {

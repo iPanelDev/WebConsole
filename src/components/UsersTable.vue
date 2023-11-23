@@ -2,24 +2,20 @@
 import BaseButton from "@/components/BaseButton.vue";
 import BaseButtons from "@/components/BaseButtons.vue";
 import BaseLevel from "@/components/BaseLevel.vue";
-import CardBoxModal from "@/components/CardBoxModal.vue";
 import PillTag from "@/components/PillTag.vue";
 import { EmptyStringPlaceholder } from "@/constant";
+import { permissionLevel } from "@/service";
 import { useServiceStore } from "@/service/store";
 import { User } from "@/service/types";
-import { mdiPencil, mdiTrashCan } from "@mdi/js";
-import { Ref, computed, ref } from "vue";
-import { deleteUser } from "@/service/requests";
-import { createNotify } from "@/notification";
+import { mdiAccountRemove, mdiPencil } from "@mdi/js";
+import { computed, ref } from "vue";
 
-const emit = defineEmits(["delete"]);
+const emit = defineEmits(["edit", "remove"]);
 const props = defineProps(["users"]);
 
 const serviceStore = useServiceStore();
 
-const items = computed(() =>
-    Array.from(Object.entries(props.users as Record<string, User>))
-);
+const items = computed(() => props.users as [string, User]);
 
 const perPage = ref(10);
 
@@ -45,58 +41,9 @@ const pagesList = computed(() => {
 
     return pagesList;
 });
-
-const userSelected = ref("");
-const isDeleteConfirmActive = ref(false);
-const isEditActive = ref(false);
-
-function showDeleteComfirm(account: string) {
-    userSelected.value = account;
-    isDeleteConfirmActive.value = true;
-}
-
-function showEditForm(account: string) {
-    userSelected.value = account;
-    isEditActive.value = true;
-}
-
-function userDelete() {
-    try {
-        deleteUser(userSelected.value);
-        createNotify({
-            type: "success",
-            title: "删除用户成功",
-        });
-    } catch (error) {
-        createNotify({
-            type: "warning",
-            title: "删除用户失败",
-            message: error,
-        });
-    }
-    emit("delete");
-}
 </script>
 
 <template>
-    <CardBoxModal
-        v-model="isDeleteConfirmActive"
-        button-label="确认"
-        :title="`确定要删除用户“${userSelected}”吗？`"
-        has-cancel
-        @confirm="userDelete"
-    >
-        此操作不可被撤销
-    </CardBoxModal>
-    <CardBoxModal
-        v-model="isEditActive"
-        button-label="确认"
-        :title="`修改用户“${userSelected}”`"
-        has-cancel
-        @confirm=""
-    >
-        1111
-    </CardBoxModal>
     <table class="collapsable">
         <thead>
             <tr>
@@ -126,7 +73,7 @@ function userDelete() {
                 </td>
                 <td data-label="权限等级">
                     {{
-                        ["游客", "只读", "助手", "管理员"][userItem[1].level] ||
+                        permissionLevel[userItem[1].level] ||
                         EmptyStringPlaceholder
                     }}
                 </td>
@@ -140,15 +87,18 @@ function userDelete() {
                         <BaseButton
                             color="info"
                             :icon="mdiPencil"
+                            title="编辑用户信息"
                             small
-                            @click="() => showEditForm(userItem[0])"
+                            :disabled="userItem[0] === serviceStore.userName"
+                            @click="() => emit('edit', userItem[0])"
                         />
                         <BaseButton
                             color="danger"
-                            :icon="mdiTrashCan"
+                            :icon="mdiAccountRemove"
+                            title="删除用户"
                             small
                             :disabled="userItem[0] === serviceStore.userName"
-                            @click="() => showDeleteComfirm(userItem[0])"
+                            @click="() => emit('remove', userItem[0])"
                         />
                     </BaseButtons>
                 </td>

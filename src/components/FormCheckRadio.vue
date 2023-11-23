@@ -49,6 +49,7 @@ const inputType = computed(() =>
             :value="inputValue"
         />
         <span class="check" />
-        <span class="pl-2">{{ label }}</span>
+        <span class="pl-2" v-if="label">{{ label }}</span>
+        <span class="pl-2" v-else><slot /></span>
     </label>
 </template>

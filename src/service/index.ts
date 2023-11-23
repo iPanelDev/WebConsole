@@ -7,8 +7,8 @@ import {
     getUserInfo,
     getVersion,
     listInstances,
-    logIn,
-    logOut,
+    login,
+    logout as _logout,
     subscribeInstance,
 } from "@/service/requests";
 import { useConnectionStore, useServiceStore } from "@/service/store";
@@ -21,12 +21,16 @@ const requestMinInterval = 200;
 const funcQueue: Function[] = [];
 
 export function callWhenLogined(func: Function) {
-    if (typeof func !== "function") {
-        return;
-    }
+    if (typeof func !== "function") return;
+    const connectionStore = useConnectionStore();
 
-    funcQueue.push(func);
+    if (connectionStore.state == State.logined) func();
+    else funcQueue.push(func);
+
+    funcQueue.forEach((func) => func());
+    funcQueue.splice(0, funcQueue.length);
 }
+export const permissionLevel = ["游客", "只读", "助手", "管理员"];
 
 /**
  * 准备登录
@@ -35,11 +39,7 @@ export async function prepareToLogin() {
     const serviceStore = useServiceStore();
     const connectionStore = useConnectionStore();
 
-    if (
-        connectionStore.state == State.pending ||
-        connectionStore.state == State.logined
-    )
-        return;
+    if (connectionStore.state == State.logined) return;
 
     connectionStore.notice = null;
 
@@ -55,7 +55,7 @@ export async function prepareToLogin() {
 
     try {
         connectionStore.$reset();
-        const { user } = await logIn();
+        const { user } = await login();
 
         onLogined(user);
         createNotify({ type: "success", title: "登录成功" });
@@ -140,8 +140,9 @@ export function jumpToOverview() {
  */
 export async function logout() {
     try {
-        await logOut();
+        await _logout();
     } catch (error) {
+        console.error(error);
         createNotify({
             type: "warning",
             title: "退出时异常",
@@ -187,7 +188,7 @@ export async function updateInstancesInfo(
             serviceStore.instances = map;
         } else
             serviceStore.instances = new Map<string, Instance>(
-                (await listInstances()).map((instance) => [
+                (await listInstances()).map((instance: Instance) => [
                     instance.instanceId,
                     instance,
                 ])
@@ -257,6 +258,12 @@ export async function subscirbe(instanceId: string) {
     }
 }
 
+enum VersionResult {
+    same,
+    older,
+    newer,
+}
+
 /**
  * 比较版本
  */
@@ -267,19 +274,19 @@ async function compareVersion() {
 
     const minLength = Math.min(hostVers.length, consoleVer.length, 3);
 
-    let result: -1 | 0 | 1 = 0;
+    let result: VersionResult = VersionResult.same;
 
     for (let i = 0; i < minLength; i++) {
         if (hostVers[i] > consoleVer[i]) {
-            result = -1;
+            result = VersionResult.older;
             break;
         } else if (hostVers[i] < consoleVer[i]) {
-            result = 1;
+            result = VersionResult.newer;
             break;
         }
     }
 
-    if (result !== 0) {
+    if (result !== VersionResult.same) {
         createNotify({
             type: "warning",
             title: "与后端的版本不匹配",
@@ -288,7 +295,7 @@ async function compareVersion() {
         });
 
         switch (result) {
-            case 1:
+            case VersionResult.newer:
                 console.warn(
                     "与后端的版本不匹配，这可能导致部分功能不可用\n",
                     `网页控制台版本：${VERSION}（较新）\n`,
@@ -296,7 +303,7 @@ async function compareVersion() {
                 );
                 break;
 
-            case -1:
+            case VersionResult.older:
                 console.warn(
                     "与后端的版本不匹配，这可能导致部分功能不可用\n",
                     `网页控制台版本：${VERSION}\n`,

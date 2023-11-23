@@ -9,9 +9,9 @@ import SectionMain from "@/components/SectionMain.vue";
 import SectionTitleLineWithButton from "@/components/SectionTitleLineWithButton.vue";
 import LayoutAuthenticated from "@/layouts/LayoutAuthenticated.vue";
 import { clearOutputsMap } from "@/service/serverControler";
+import { getSettings, saveSettings } from "@/utils/settingsManager";
 import { mdiCog, mdiGithub, mdiTrashCan } from "@mdi/js";
 import { reactive, watch } from "vue";
-import { getSettings, saveSettings } from "@/utils/settingsManager";
 
 const size = localStorage["ipanel.outputs"]
     ? new Blob([localStorage["ipanel.outputs"]]).size
@@ -37,7 +37,7 @@ watch(
         <SectionMain>
             <SectionTitleLineWithButton :icon="mdiCog" title="设置" main />
             <CardBox class="my-3">
-                <div class="text-xl font-bold mb-5">实例设置</div>
+                <div class="text-xl font-bold mb-5">通用实例设置</div>
 
                 <FormField help="关闭后控制台将去除所有颜色">
                     <FormCheckRadio

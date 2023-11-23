@@ -40,7 +40,7 @@ function generate() {
             {
                 label: "总CPU使用率",
                 axis: "x",
-                data: infos.value.map((info) => info[1].sys.cpuUsage),
+                data: infos.value.map((info) => info[1].system.cpuUsage),
                 fill: true,
                 cubicInterpolationMode: "default",
                 borderColor: "#36A2EB",
@@ -68,7 +68,7 @@ function generate() {
                 label: "空闲内存（GB）",
                 axis: "x",
                 data: infos.value.map(
-                    (info) => info[1].sys.freeRam / 1024 / 1024
+                    (info) => info[1].system.freeRam / 1024 / 1024
                 ),
                 fill: true,
                 borderColor: "#53bb27",
@@ -79,7 +79,7 @@ function generate() {
                 axis: "x",
                 data: infos.value.map(
                     (info) =>
-                        (info[1].sys.totalRam - info[1].sys.freeRam) /
+                        (info[1].system.totalRam - info[1].system.freeRam) /
                         1024 /
                         1024
                 ),
@@ -127,7 +127,7 @@ onMounted(generate);
                     <div class="text-xl mb-3 flex items-center">
                         <BaseIcon :path="mdiEarthBox" size="17" />系统
                     </div>
-                    {{ info?.sys?.os || "未知" }}
+                    {{ info?.system?.os || "未知" }}
                 </CardBox>
 
                 <CardBox class="pd-6 mb-3 truncate">
@@ -154,7 +154,7 @@ onMounted(generate);
                             class="mr-3"
                         />CPU使用率
                     </h1>
-                    {{ info?.sys?.cpuUsage?.toFixed(1) || 0 }}%
+                    {{ info?.system?.cpuUsage?.toFixed(1) || 0 }}%
                 </div>
                 <LineChart :data="cpuData" />
             </CardBox>
@@ -170,15 +170,17 @@ onMounted(generate);
                     </h1>
                     {{
                         (
-                            (info?.sys?.totalRam - info?.sys?.freeRam) /
+                            (info?.system?.totalRam - info?.system?.freeRam) /
                             1024 /
                             1024
                         )?.toFixed(1) || 0
                     }}
                     /
-                    {{ (info?.sys?.totalRam / 1024 / 1024)?.toFixed(1) || 0 }}
+                    {{
+                        (info?.system?.totalRam / 1024 / 1024)?.toFixed(1) || 0
+                    }}
                     GB |
-                    {{ info?.sys?.ramUsage?.toFixed(1) || 0 || 0 }}%
+                    {{ info?.system?.ramUsage?.toFixed(1) || 0 || 0 }}%
                 </div>
                 <LineChart :data="ramData" />
             </CardBox>
