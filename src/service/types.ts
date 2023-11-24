@@ -25,20 +25,21 @@ export declare type Instance = {
     customName?: string | null;
     uuid: string;
     instanceId: string;
-    metadata: Metadata;
+    metadata: { version?: string; name?: string; environment?: string };
 };
 
-export declare type Metadata = {
-    version?: string;
-    name?: string;
-};
+export declare type Metadata = {};
 
 export declare type InstanceInfo = {
+    updateTime: string;
     server: {
         filename: string | null;
         status: boolean;
         runTime: string | null;
         usage: number;
+        version?: string;
+        onlinePlayers?: number;
+        capacity?: number;
     };
     system: {
         os: string | null;

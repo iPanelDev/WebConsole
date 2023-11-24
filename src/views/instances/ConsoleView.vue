@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import LayoutOfInstance from "@/layouts/LayoutOfInstance.vue";
-import { useServiceStore } from "@/service/store";
-
 import BaseButton from "@/components/BaseButton.vue";
 import CardBox from "@/components/CardBox.vue";
 import CardBoxModal from "@/components/CardBoxModal.vue";
@@ -9,6 +6,7 @@ import Console from "@/components/Console.vue";
 import FormControl from "@/components/FormControl.vue";
 import SectionMain from "@/components/SectionMain.vue";
 import SectionTitleLineWithButton from "@/components/SectionTitleLineWithButton.vue";
+import LayoutOfInstance from "@/layouts/LayoutOfInstance.vue";
 import {
     clearInputHistory,
     clearOutputsMap,
@@ -19,6 +17,7 @@ import {
     start,
     stop,
 } from "@/service/serverControler";
+import { useServiceStore } from "@/service/store";
 import {
     mdiArrowUp,
     mdiConsole,
@@ -41,7 +40,7 @@ const datas = computed(() => serviceStore.outputs.get(instanceId) || []);
 const user = computed(() => serviceStore.currentUser);
 
 const status = computed(
-    () => serviceStore.instances.get(instanceId)?.info?.server.status
+    () => serviceStore.instances[instanceId]?.info?.server.status
 );
 
 const inputRef = ref("");

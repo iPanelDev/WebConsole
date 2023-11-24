@@ -17,15 +17,13 @@ export const inputHistory = Array.from(
 export const inputHistoryRef = ref(inputHistory);
 
 function failureHandler(error: any) {
-    console.error(error);
     if (error instanceof AxiosError) {
-        if (error.status == "403") {
+        if (error.status == "403")
             createNotify({
                 title: "权限不足",
                 type: "warning",
                 message: "可能是用户等级权限不足或没有使用此实例的权限",
             });
-        }
     }
 }
 
@@ -97,7 +95,7 @@ export function clearInputHistory() {
 
 export function clearInvalidOutputHistory() {
     const serviceStore = useServiceStore();
-    const currentKeys = Array.from(serviceStore.instances.keys());
+    const currentKeys = Array.from(Object.keys(serviceStore.instances));
     const invalid = Array.from(serviceStore.outputs.keys()).filter(
         (key) => !currentKeys.includes(key)
     );

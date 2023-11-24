@@ -8,39 +8,46 @@ import LayoutOfInstance from "@/layouts/LayoutOfInstance.vue";
 import { useServiceStore } from "@/service/store";
 import { InstanceInfo } from "@/service/types";
 import {
-    mdiClock,
+    mdiApplication,
     mdiCpu64Bit,
-    mdiEarthBox,
+    mdiHexagonOutline,
     mdiInformationBoxOutline,
     mdiMemory,
     mdiMonitorDashboard,
     mdiServer,
 } from "@mdi/js";
-import { ComputedRef, computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
+const isNullOrUndefined = (v: any) => v === undefined || v === null;
 const serviceStore = useServiceStore();
 const instanceId = useRoute().params["instanceId"] as string;
 
-const infos: ComputedRef<Array<[string, InstanceInfo]>> = computed(
-    () => serviceStore.instanceInfosHistory.get(instanceId) || []
-);
-const info = computed(() => serviceStore.instances.get(instanceId)?.info);
-const meta = computed(() => serviceStore.instances.get(instanceId)?.metadata);
-
-// onUnmounted(watch(info, generate));
-
+const info = computed(() => serviceStore.instances[instanceId]?.info);
+const meta = computed(() => serviceStore.instances[instanceId]?.metadata);
+const infos: InstanceInfo[] =
+    serviceStore.instanceInfosHistory[instanceId] || [];
 const cpuData = ref({});
 const ramData = ref({});
 
-function generate() {
+watch(info, update);
+
+function update() {
+    const time = infos.length > 0 ? infos[infos.length - 1]?.updateTime : null;
+    if (time === info.value?.updateTime || !info || !info.value?.updateTime)
+        return;
+
+    infos.push(info.value);
+
+    if (infos.length > 20) infos.splice(0, infos.length - 20);
+
     cpuData.value = {
-        labels: infos.value.map((info) => info[0]),
+        labels: infos.map((i) => new Date(i.updateTime).toLocaleTimeString()),
         datasets: [
             {
                 label: "总CPU使用率",
                 axis: "x",
-                data: infos.value.map((info) => info[1].system.cpuUsage),
+                data: infos.map((i) => i.system.cpuUsage),
                 fill: true,
                 cubicInterpolationMode: "default",
                 borderColor: "#36A2EB",
@@ -49,9 +56,8 @@ function generate() {
             {
                 label: "服务器进程使用率",
                 axis: "x",
-                data: infos.value.map(
-                    (info) =>
-                        (info[1].server.status && info[1].server.usage) || 0
+                data: infos.map(
+                    (i) => (i.server.status && i.server.usage) || 0
                 ),
                 fill: true,
                 cubicInterpolationMode: "default",
@@ -62,14 +68,12 @@ function generate() {
     };
 
     ramData.value = {
-        labels: infos.value.map((info) => info[0]),
+        labels: infos.map((i) => new Date(i.updateTime).toLocaleTimeString()),
         datasets: [
             {
                 label: "空闲内存（GB）",
                 axis: "x",
-                data: infos.value.map(
-                    (info) => info[1].system.freeRam / 1024 / 1024
-                ),
+                data: infos.map((i) => i.system.freeRam / 1024 / 1024),
                 fill: true,
                 borderColor: "#53bb27",
                 backgroundColor: "#8cf648",
@@ -77,21 +81,20 @@ function generate() {
             {
                 label: "已用内存（GB）",
                 axis: "x",
-                data: infos.value.map(
-                    (info) =>
-                        (info[1].system.totalRam - info[1].system.freeRam) /
-                        1024 /
-                        1024
+                data: infos.map(
+                    (i) => (i.system.totalRam - i.system.freeRam) / 1024 / 1024
                 ),
                 fill: true,
-                borderColor: "#ff6363",
-                backgroundColor: "#bd3232",
+                borderColor: "#0e7490",
+                backgroundColor: "#06b6d4",
             },
         ],
     };
+
+    serviceStore.instanceInfosHistory[instanceId] = infos;
 }
 
-onMounted(generate);
+onMounted(update);
 </script>
 <template>
     <LayoutOfInstance>
@@ -103,56 +106,119 @@ onMounted(generate);
             />
 
             <div class="grid grid-cols-1 lg:gap-3 lg:grid-cols-2">
-                <CardBox class="pd-6 mb-3 truncate">
+                <CardBox class="pd-6 mb-3 lg:truncate">
                     <div class="text-xl mb-3 flex items-center">
-                        <BaseIcon
-                            :path="mdiInformationBoxOutline"
-                            size="17"
-                        />实例信息
+                        <BaseIcon :path="mdiApplication" size="17" />
+                        实例
                     </div>
-                    <div class="flex">
-                        {{ meta?.name || "未知名称" }}
+                    {{ meta?.name || "未知名称" }}
 
-                        <span
-                            v-if="meta?.version"
-                            title="版本"
-                            class="ml-3 text-gray-500"
-                        >
-                            - {{ meta?.version }}
-                        </span>
-                    </div>
+                    <span
+                        v-if="meta?.version"
+                        title="版本"
+                        class="mr-1 text-gray-500 break-keep"
+                    >
+                        [{{ meta?.version }}]
+                    </span>
+
+                    <span
+                        v-if="meta?.version"
+                        title="环境"
+                        class="mr-1 text-gray-500 break-keep"
+                    >
+                        [{{ meta?.environment }}]
+                    </span>
                 </CardBox>
 
-                <CardBox class="pd-6 mb-3 truncate">
+                <CardBox class="pd-6 mb-3 lg:truncate">
                     <div class="text-xl mb-3 flex items-center">
-                        <BaseIcon :path="mdiEarthBox" size="17" />系统
+                        <BaseIcon :path="mdiHexagonOutline" size="17" />
+                        系统
                     </div>
                     {{ info?.system?.os || "未知" }}
                 </CardBox>
 
-                <CardBox class="pd-6 mb-3 truncate">
+                <CardBox class="pd-6 mb-3 lg:truncate">
                     <div class="text-xl mb-3 flex items-center">
-                        <BaseIcon :path="mdiServer" size="17" />服务器状态
+                        <BaseIcon :path="mdiServer" size="17" />
+                        服务器状态
                     </div>
+                    <span
+                        :class="[
+                            info?.server.status
+                                ? 'text-green-500'
+                                : 'text-gray-500',
+                        ]"
+                        >●</span
+                    >
                     {{ info?.server.status ? "运行中" : "未启动" }}
+                    <span
+                        v-if="info?.server?.status && info?.server?.filename"
+                        class="mr-1 text-gray-500 break-keep"
+                    >
+                        [进程名称:
+                        <pre class="inline">{{ info?.server?.filename }}</pre>
+                        ]
+                    </span>
+                    <span
+                        v-if="info?.server?.status && info?.server?.runTime"
+                        class="mr-1 text-gray-500 break-keep"
+                    >
+                        [已运行{{ info?.server?.runTime }}]
+                    </span>
                 </CardBox>
 
-                <CardBox class="pd-6 mb-3 truncate">
+                <CardBox class="pd-6 mb-3 lg:truncate">
                     <div class="text-xl mb-3 flex items-center">
-                        <BaseIcon :path="mdiClock" size="17" />服务器运行时间
+                        <BaseIcon :path="mdiInformationBoxOutline" size="17" />
+                        服务器信息
                     </div>
-                    {{ info?.server.runTime || "未启动" }}
+                    <div class="flex">
+                        <div
+                            v-if="
+                                !isNullOrUndefined(
+                                    info?.server?.onlinePlayers
+                                ) && !isNullOrUndefined(info?.server?.capacity)
+                            "
+                        >
+                            在线:
+                            <pre class="inline">{{
+                                info?.server?.onlinePlayers
+                            }}</pre>
+                            /
+                            <pre class="inline">{{
+                                info?.server?.capacity
+                            }}</pre>
+                        </div>
+
+                        <span
+                            class="mx-2"
+                            v-if="
+                                info?.server?.version &&
+                                !isNullOrUndefined(
+                                    info?.server?.onlinePlayers
+                                ) &&
+                                !isNullOrUndefined(info?.server?.capacity)
+                            "
+                        >
+                            |
+                        </span>
+
+                        <div v-if="info?.server?.version">
+                            版本:
+                            <pre class="inline">{{
+                                info?.server?.version
+                            }}</pre>
+                        </div>
+                    </div>
                 </CardBox>
             </div>
 
             <CardBox class="pd-6 mb-5">
                 <div class="flex items-center mb-3 justify-between">
                     <h1 class="text-2xl flex items-center">
-                        <BaseIcon
-                            :path="mdiCpu64Bit"
-                            size="25"
-                            class="mr-3"
-                        />CPU使用率
+                        <BaseIcon :path="mdiCpu64Bit" size="25" class="mr-3" />
+                        CPU使用率
                     </h1>
                     {{ info?.system?.cpuUsage?.toFixed(1) || 0 }}%
                 </div>
@@ -162,11 +228,8 @@ onMounted(generate);
             <CardBox class="pd-6 mb-5">
                 <div class="flex items-center mb-3 justify-between">
                     <h1 class="text-2xl flex items-center">
-                        <BaseIcon
-                            :path="mdiMemory"
-                            size="25"
-                            class="mr-3"
-                        />内存
+                        <BaseIcon :path="mdiMemory" size="25" class="mr-3" />
+                        内存
                     </h1>
                     {{
                         (

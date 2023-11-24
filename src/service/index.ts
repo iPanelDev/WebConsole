@@ -2,19 +2,18 @@ import { VERSION } from "@/constant";
 import { createNotify, NotificationType } from "@/notification";
 import router from "@/router";
 import {
+    logout as _logout,
     getInstanceInfo,
     getStatus,
     getUserInfo,
     getVersion,
     listInstances,
     login,
-    logout as _logout,
     subscribeInstance,
 } from "@/service/requests";
 import { useConnectionStore, useServiceStore } from "@/service/store";
-import { Instance, State, User } from "@/service/types";
+import { State, User } from "@/service/types";
 import { connect } from "@/service/webSocket";
-import { reactive } from "vue";
 
 const requestMinInterval = 200;
 
@@ -24,11 +23,11 @@ export function callWhenLogined(func: Function) {
     if (typeof func !== "function") return;
     const connectionStore = useConnectionStore();
 
-    if (connectionStore.state == State.logined) func();
-    else funcQueue.push(func);
-
-    funcQueue.forEach((func) => func());
-    funcQueue.splice(0, funcQueue.length);
+    if (connectionStore.state == State.logined) {
+        func();
+        funcQueue.forEach((func) => func());
+        funcQueue.splice(0, funcQueue.length);
+    } else funcQueue.push(func);
 }
 export const permissionLevel = ["游客", "只读", "助手", "管理员"];
 
@@ -163,7 +162,7 @@ export async function logout() {
  */
 export async function updateInstancesInfo(
     instanceId: string = null
-): Promise<boolean> {
+): Promise<boolean | undefined> {
     const connectionStore = useConnectionStore();
 
     if (
@@ -176,23 +175,32 @@ export async function updateInstancesInfo(
         );
         return;
     }
-    if (connectionStore.state !== State.logined || document.hidden) {
-        return false;
-    }
+    if (connectionStore.state !== State.logined) return false;
+
+    if (document.hidden) return;
+
     const serviceStore = useServiceStore();
 
     try {
         if (instanceId) {
-            const map = reactive(serviceStore.instances);
-            map.set(instanceId, await getInstanceInfo(instanceId));
-            serviceStore.instances = map;
-        } else
-            serviceStore.instances = new Map<string, Instance>(
-                (await listInstances()).map((instance: Instance) => [
-                    instance.instanceId,
-                    instance,
-                ])
+            serviceStore.instances[instanceId] = await getInstanceInfo(
+                instanceId
             );
+        } else {
+            const newInstances = await listInstances();
+
+            newInstances.forEach(
+                (instance) =>
+                    (serviceStore.instances[instance.instanceId] = instance)
+            );
+
+            const invivalid = newInstances.map((i) => i.instanceId);
+
+            for (const id of invivalid) {
+                if (!serviceStore.instances[id])
+                    delete serviceStore.instances[id];
+            }
+        }
 
         connectionStore.lastRequestInstanceTime = Date.now();
         return true;

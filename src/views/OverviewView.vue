@@ -5,10 +5,11 @@ import CardBoxComponentEmpty from "@/components/CardBoxComponentEmpty.vue";
 import FormControl from "@/components/FormControl.vue";
 import SectionMain from "@/components/SectionMain.vue";
 import SectionTitleLineWithButton from "@/components/SectionTitleLineWithButton.vue";
-import LayoutAuthenticated from "@/layouts/LayoutAuthenticated.vue";
 import { EmptyStringPlaceholder } from "@/constant";
+import LayoutAuthenticated from "@/layouts/LayoutAuthenticated.vue";
 import { callWhenLogined, updateInstancesInfo } from "@/service";
 import { useServiceStore } from "@/service/store";
+import { Instance } from "@/service/types";
 import { mdiClock, mdiFile, mdiFilter, mdiHome, mdiServer } from "@mdi/js";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 
@@ -16,18 +17,18 @@ const serviceStore = useServiceStore();
 
 const filter = ref("");
 
-const instances = computed(() =>
-    Array.from(serviceStore.instances.values()).filter(
-        (instance) =>
+const instancesFiltered = computed(() =>
+    Array.from(
+        Object.entries(serviceStore.instances as Record<string, Instance>)
+    ).filter(
+        (item) =>
             !filter.value ||
-            instance.address.includes(filter.value) ||
-            instance.customName
+            item[1].address.includes(filter.value) ||
+            item[1].customName
                 .toLowerCase()
                 .includes(filter.value.toLowerCase())
     )
 );
-console.log(instances);
-
 
 const timer = setInterval(updateInstancesInfo, 2000);
 callWhenLogined(updateInstancesInfo);
@@ -51,9 +52,9 @@ onBeforeUnmount(() => clearInterval(timer));
             />
             <div class="grid lg:grid-cols-3 md:grid-cols-2">
                 <RouterLink
-                    v-for="item in instances"
-                    :key="item.instanceId"
-                    :to="`/instance/${item.instanceId}`"
+                    v-for="item in instancesFiltered"
+                    :key="item[0]"
+                    :to="`/instance/${item[0]}`"
                 >
                     <CardBox
                         class="transition-all select-none flex flex-wrap cursor-pointer border-slate-300 dark:border-slate-700 border w-full hover:border-slate-500 hover:dark:border-slate-500"
@@ -62,12 +63,12 @@ onBeforeUnmount(() => clearInterval(timer));
                     >
                         <div class="flex mb-5 truncate">
                             <span class="mr-2 text-xl">
-                                {{ item.customName ?? "未知名称" }}
+                                {{ item[1].customName ?? "未知名称" }}
                             </span>
                             <span
                                 class="text-lg text-gray-600 dark:text-gray-400"
                             >
-                                {{ item.address }}
+                                {{ item[1].address }}
                             </span>
                         </div>
                         <div
@@ -77,7 +78,7 @@ onBeforeUnmount(() => clearInterval(timer));
                             服务器状态
                             <span class="ml-2">
                                 {{
-                                    item.info?.server?.status
+                                    item[1].info?.server?.status
                                         ? "运行中"
                                         : "未启动"
                                 }}
@@ -90,7 +91,7 @@ onBeforeUnmount(() => clearInterval(timer));
                             启动文件
                             <span class="ml-2">
                                 {{
-                                    item.info?.server?.filename ??
+                                    item[1].info?.server?.filename ??
                                     EmptyStringPlaceholder
                                 }}
                             </span>
@@ -102,7 +103,7 @@ onBeforeUnmount(() => clearInterval(timer));
                             运行时间
                             <span class="ml-2">
                                 {{
-                                    item.info?.server?.runTime ??
+                                    item[1].info?.server?.runTime ??
                                     EmptyStringPlaceholder
                                 }}
                             </span>
@@ -111,7 +112,7 @@ onBeforeUnmount(() => clearInterval(timer));
                 </RouterLink>
             </div>
             <CardBoxComponentEmpty
-                v-if="instances.length === 0"
+                v-if="instancesFiltered.length === 0"
                 message="啥都没有找到哦..."
             />
         </SectionMain>

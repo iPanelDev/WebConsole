@@ -19,7 +19,7 @@ export function connect() {
         connectionStore.ws = new WebSocket(
             `${window.location.protocol.replace("http", "ws")}//${
                 window.location.host
-            }/broadcast`
+            }/ws/broadcast`
         );
         connectionStore.ws.onopen = onOpen;
         connectionStore.ws.onclose = onClose;

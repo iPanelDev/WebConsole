@@ -25,7 +25,7 @@ export const useServiceStore = defineStore("service", {
         /**
          * 实例
          */
-        instances: new Map<string, Instance>(),
+        instances: {} as Record<string, Instance>,
 
         /**
          * 输出
