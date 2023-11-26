@@ -50,7 +50,7 @@ onBeforeUnmount(() => clearInterval(timer));
                 transparent
                 placeholder="通过名称或地址筛选实例..."
             />
-            <div class="grid lg:grid-cols-3 md:grid-cols-2">
+            <div class="grid lg:grid-cols-3 md:grid-cols-2 gap-3">
                 <RouterLink
                     v-for="item in instancesFiltered"
                     :key="item[0]"
@@ -77,6 +77,14 @@ onBeforeUnmount(() => clearInterval(timer));
                             <BaseIcon :path="mdiServer" />
                             服务器状态
                             <span class="ml-2">
+                                <span
+                                    :class="[
+                                        item[1]?.info?.server?.status
+                                            ? 'text-green-500'
+                                            : 'text-gray-500',
+                                    ]"
+                                    >●</span
+                                >
                                 {{
                                     item[1].info?.server?.status
                                         ? "运行中"
@@ -89,12 +97,12 @@ onBeforeUnmount(() => clearInterval(timer));
                         >
                             <BaseIcon :path="mdiFile" />
                             启动文件
-                            <span class="ml-2">
+                            <code class="ml-2 inline">
                                 {{
                                     item[1].info?.server?.filename ??
                                     EmptyStringPlaceholder
                                 }}
-                            </span>
+                            </code>
                         </div>
                         <div
                             class="flex mb-1 text-gray-700 dark:text-gray-300 truncate"

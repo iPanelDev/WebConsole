@@ -36,11 +36,11 @@ const submit = () => {
         @submit.prevent="submit"
         class="w-11/12 md:w-7/12 lg:w-6/12 xl:w-4/12 shadow-2xl"
     >
-        <div class="text-2xl font-semibold mb-3">连接你的iPanel Host</div>
+        <div class="text-2xl font-semibold mb-3">连接你的iPanel</div>
 
         <FormField
             label="用户名"
-            help="你可以可在iPanel Host控制台通过命令'user create'创建"
+            help="你可以可在iPanel后端控制台通过命令'user create'创建"
         >
             <FormControl
                 v-model="form.userName"

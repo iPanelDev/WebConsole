@@ -157,8 +157,8 @@ onMounted(update);
                         class="mr-1 text-gray-500 break-keep"
                     >
                         [进程名称:
-                        <pre class="inline">{{ info?.server?.filename }}</pre>
-                        ]
+                        <code class="inline">{{ info?.server?.filename }}</code
+                        >]
                     </span>
                     <span
                         v-if="info?.server?.status && info?.server?.runTime"
@@ -182,13 +182,13 @@ onMounted(update);
                             "
                         >
                             在线:
-                            <pre class="inline">{{
+                            <code class="inline">{{
                                 info?.server?.onlinePlayers
-                            }}</pre>
+                            }}</code>
                             /
-                            <pre class="inline">{{
+                            <code class="inline">{{
                                 info?.server?.capacity
-                            }}</pre>
+                            }}</code>
                         </div>
 
                         <span
@@ -206,9 +206,9 @@ onMounted(update);
 
                         <div v-if="info?.server?.version">
                             版本:
-                            <pre class="inline">{{
+                            <code class="inline">{{
                                 info?.server?.version
-                            }}</pre>
+                            }}</code>
                         </div>
                     </div>
                 </CardBox>
