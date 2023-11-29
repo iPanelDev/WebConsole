@@ -6,12 +6,12 @@ import FormCheckRadio from "@/components/FormCheckRadio.vue";
 import FormControl from "@/components/FormControl.vue";
 import FormField from "@/components/FormField.vue";
 import NotificationBar from "@/components/NotificationBar.vue";
+import { defaultIcons } from "@/notification";
 import { jumpToOverview, prepareToLogin } from "@/service";
 import { useConnectionStore, useServiceStore } from "@/service/store";
 import { State } from "@/service/types";
 import { mdiAccount, mdiAsterisk } from "@mdi/js";
 import { reactive } from "vue";
-import { defaultIcons } from "@/notification";
 
 const serviceStore = useServiceStore();
 const connectionStore = useConnectionStore();
@@ -106,16 +106,6 @@ const submit = () => {
                         </span>
                     </div>
                 </BaseButtons>
-
-                <div class="text-sm ml-4">
-                    <a
-                        href="https://ipanel.serein.cc/docs/guide/webConsole/intro"
-                        target="_blank"
-                        class="hover:text-blue-600 hover:dark:text-blue-400"
-                    >
-                        登录时出现问题？
-                    </a>
-                </div>
             </div>
             <NotificationBar
                 :icon="defaultIcons[connectionStore.noticeType] || ''"

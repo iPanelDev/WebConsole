@@ -1,5 +1,6 @@
 import {
     mdiAccount,
+    mdiBook,
     mdiCogOutline,
     mdiGithub,
     mdiLogout,
@@ -46,6 +47,13 @@ export default [
         label: "GitHub",
         isDesktopNoLabel: true,
         href: "https://github.com/iPanelDev/WebConsole",
+        target: "_blank",
+    },
+    {
+        icon: mdiBook,
+        label: "文档",
+        isDesktopNoLabel: true,
+        href: "https://ipaneldev.github.io/",
         target: "_blank",
     },
 ];

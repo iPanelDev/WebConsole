@@ -13,7 +13,7 @@ axiosInstance.defaults.headers.post = appJsonHeader;
 axiosInstance.interceptors.response.use(undefined, (err) => {
     if (err instanceof AxiosError && err.response)
         throw `${err.response.status} ${err.response.statusText}: ${
-            (err.response.data as HttpPacket).data || "unknown"
+            (err.response.data as HttpPacket).errorMsg || "unknown"
         }`;
     throw err;
 });
@@ -29,7 +29,7 @@ export async function login() {
         status,
         data: { data },
     } = await axiosInstance.post<HttpPacket>(
-        "/user/@self/login",
+        "/users/@self/login",
         JSON.stringify({
             userName: serviceStore.userName,
             time,
@@ -41,7 +41,6 @@ export async function login() {
             headers: {
                 "Content-Type": "application/json",
             },
-            // validateStatus: () => true,
         }
     );
 
@@ -56,14 +55,14 @@ export async function login() {
  * 退出
  */
 export async function logout() {
-    await axiosInstance.get<HttpPacket>("/user/@self/logout");
+    await axiosInstance.get<HttpPacket>("/users/@self/logout");
 }
 
 /**
  * 获取登录态
  */
 export async function getStatus() {
-    return (await axiosInstance.get<HttpPacket>("/user/@self/status")).data
+    return (await axiosInstance.get<HttpPacket>("/users/@self/status")).data
         .data;
 }
 
@@ -71,13 +70,13 @@ export async function getStatus() {
  * 获取当前用户信息
  */
 export async function getUserInfo() {
-    return (await axiosInstance.get<HttpPacket>("/user/@self")).data
+    return (await axiosInstance.get<HttpPacket>("/users/@self")).data
         .data as User;
 }
 
 export async function editSelfPwd(pwd: string) {
     return await axiosInstance.put<HttpPacket>(
-        "/user/@self",
+        "/users/@self",
         JSON.stringify({ password: pwd }),
         {
             headers: {
@@ -91,7 +90,7 @@ export async function editSelfPwd(pwd: string) {
  * 获取所有用户信息
  */
 export async function listUsers() {
-    return (await axiosInstance.get<HttpPacket>("/user")).data.data as Record<
+    return (await axiosInstance.get<HttpPacket>("/users")).data.data as Record<
         string,
         User
     >;
@@ -103,7 +102,7 @@ export async function listUsers() {
 export async function createUser(userName: string, newUser: User) {
     const user = { ...newUser };
     return await axiosInstance.post<HttpPacket>(
-        `/user/${encodeURIComponent(userName)}`,
+        `/users/${encodeURIComponent(userName)}`,
         JSON.stringify(user),
         {
             headers: {
@@ -120,7 +119,7 @@ export async function editUser(userName: string, newUser: User) {
     const user = { ...newUser };
     user.password = user.password || null;
     return await axiosInstance.put<HttpPacket>(
-        `/user/${encodeURIComponent(userName)}`,
+        `/users/${encodeURIComponent(userName)}`,
         JSON.stringify(user),
         {
             headers: {
@@ -135,7 +134,7 @@ export async function editUser(userName: string, newUser: User) {
  */
 export async function removeUser(userName: string) {
     return await axiosInstance.delete<HttpPacket>(
-        `/user/${encodeURIComponent(userName)}`
+        `/users/${encodeURIComponent(userName)}`
     );
 }
 
@@ -143,7 +142,7 @@ export async function removeUser(userName: string) {
  * 获取实例
  */
 export async function listInstances() {
-    return (await axiosInstance.get<HttpPacket>("/instance")).data
+    return (await axiosInstance.get<HttpPacket>("/instances")).data
         .data as Instance[];
 }
 
@@ -153,7 +152,7 @@ export async function listInstances() {
 export async function getInstanceInfo(instanceId: string) {
     return (
         await axiosInstance.get<HttpPacket>(
-            `/instance/${encodeURIComponent(instanceId)}`
+            `/instances/${encodeURIComponent(instanceId)}`
         )
     ).data.data;
 }
@@ -164,7 +163,7 @@ export async function getInstanceInfo(instanceId: string) {
  */
 export async function subscribeInstance(instanceId: string) {
     await axiosInstance.get<HttpPacket>(
-        `/instance/${encodeURIComponent(instanceId)}/subscribe?connectionId=${
+        `/instances/${encodeURIComponent(instanceId)}/subscribe?connectionId=${
             useConnectionStore().wsConnectionId
         }`
     );
@@ -176,7 +175,7 @@ export async function subscribeInstance(instanceId: string) {
  */
 export async function callInstanceStart(instanceId: string) {
     await axiosInstance.get<HttpPacket>(
-        `/instance/${encodeURIComponent(instanceId)}/start`
+        `/instances/${encodeURIComponent(instanceId)}/start`
     );
 }
 
@@ -186,7 +185,7 @@ export async function callInstanceStart(instanceId: string) {
  */
 export async function callInstanceStop(instanceId: string) {
     await axiosInstance.get<HttpPacket>(
-        `/instance/${encodeURIComponent(instanceId)}/stop`
+        `/instances/${encodeURIComponent(instanceId)}/stop`
     );
 }
 
@@ -196,7 +195,7 @@ export async function callInstanceStop(instanceId: string) {
  */
 export async function callInstanceKill(instanceId: string) {
     await axiosInstance.get<HttpPacket>(
-        `/instance/${encodeURIComponent(instanceId)}/kill`
+        `/instances/${encodeURIComponent(instanceId)}/kill`
     );
 }
 
@@ -207,7 +206,7 @@ export async function callInstanceKill(instanceId: string) {
  */
 export async function callInstanceInput(instanceId: string, inputs: string[]) {
     await axiosInstance.post<HttpPacket>(
-        `/instance/${encodeURIComponent(instanceId)}/input`,
+        `/instances/${encodeURIComponent(instanceId)}/input`,
         JSON.stringify(inputs),
         {
             headers: {
@@ -222,7 +221,7 @@ export async function callInstanceInput(instanceId: string, inputs: string[]) {
  * @returns 版本号
  */
 export async function getVersion() {
-    return (await axiosInstance.get<HttpPacket>("/meta/version")).data
+    return (await axiosInstance.get<HttpPacket>("/version")).data
         .data as string;
 }
 

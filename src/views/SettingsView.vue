@@ -10,7 +10,7 @@ import SectionTitleLineWithButton from "@/components/SectionTitleLineWithButton.
 import LayoutAuthenticated from "@/layouts/LayoutAuthenticated.vue";
 import { clearOutputsMap } from "@/service/serverControler";
 import { getSettings, saveSettings } from "@/utils/settingsManager";
-import { mdiCog, mdiGithub, mdiTrashCan } from "@mdi/js";
+import { mdiBook, mdiCog, mdiGithub, mdiTrashCan } from "@mdi/js";
 import { reactive, watch } from "vue";
 
 const size = localStorage["ipanel.outputs"]
@@ -106,16 +106,25 @@ watch(
                             href="https://github.com/iPanelDev/WebConsole"
                             target="_blank"
                             :icon="mdiGithub"
-                            label="网页控制台"
+                            label="前端·网页控制台"
                             color="contrast"
                             rounded-full
                             small
                         />
                         <BaseButton
-                            href="https://github.com/iPanelDev/iPanel-Host"
+                            href="https://github.com/iPanelDev/iPanel"
                             target="_blank"
                             :icon="mdiGithub"
-                            label="后端"
+                            label="后端·命令行控制台"
+                            color="contrast"
+                            rounded-full
+                            small
+                        />
+                        <BaseButton
+                            href="https://ipaneldev.github.io/"
+                            target="_blank"
+                            :icon="mdiBook"
+                            label="文档"
                             color="contrast"
                             rounded-full
                             small

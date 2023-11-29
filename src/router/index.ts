@@ -95,26 +95,6 @@ const routes: RouteRecordRaw[] = [
 
     {
         meta: {
-            title: "系统终端",
-        },
-        path: "/instance/:instanceId/terminal",
-        name: "terminal",
-        // @ts-expect-error
-        component: () => import("@/views/instances/TerminalView.vue"),
-    },
-
-    {
-        meta: {
-            title: "文件管理",
-        },
-        path: "/instance/:instanceId/filesManager",
-        name: "files",
-        // @ts-expect-error
-        component: () => import("@/views/instances/FilesManagerView.vue"),
-    },
-
-    {
-        meta: {
             title: "404",
         },
         path: "/:path(.*)*",
@@ -127,7 +107,7 @@ const routes: RouteRecordRaw[] = [
     },
 ];
 
-const routerHistory = (function () {
+const routerHistory = (() => {
     const config = getWebGlobalConfig();
 
     switch (config.routerHistoryType) {

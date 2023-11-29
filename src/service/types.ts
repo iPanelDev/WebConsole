@@ -14,6 +14,7 @@ export declare interface Packet {
 export declare interface HttpPacket {
     data?: any;
     code: number;
+    errorMsg?: string;
 }
 
 /**

@@ -122,7 +122,7 @@ onMounted(update);
                     </span>
 
                     <span
-                        v-if="meta?.version"
+                        v-if="meta?.environment"
                         title="环境"
                         class="mr-1 text-gray-500 break-keep"
                     >
