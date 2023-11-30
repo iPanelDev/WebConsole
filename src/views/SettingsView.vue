@@ -147,3 +147,11 @@ watch(
         </SectionMain>
     </LayoutAuthenticated>
 </template>
+
+<style scoped>
+:deep(input)::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+</style>

@@ -68,7 +68,7 @@ window.addEventListener("keydown", (e) => {
                 />
             </CardBoxComponentTitle>
 
-            <div class="overflow-y-auto max-h-modal space-y-3 p-1">
+            <div class="overflow-y-auto max-h-modal space-y-3 p-1" id="slot">
                 <slot />
             </div>
 
@@ -91,3 +91,39 @@ window.addEventListener("keydown", (e) => {
         </CardBox>
     </OverlayLayer>
 </template>
+
+<style scoped>
+div#slot::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+div#slot::-webkit-scrollbar-track {
+    @apply bg-gray-50;
+}
+
+div#slot::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 rounded;
+}
+
+div#slot::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500;
+}
+
+.dark div#slot::-webkit-scrollbar-track {
+    @apply bg-slate-900/70;
+}
+
+.dark div#slot::-webkit-scrollbar-thumb {
+    @apply bg-slate-600;
+}
+
+.dark div#slot::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-500;
+}
+
+.dark div#slot {
+    color-scheme: dark;
+    scrollbar-color: rgb(71, 85, 105) rgb(30, 41, 59);
+}
+</style>

@@ -20,7 +20,7 @@ export const useServiceStore = defineStore("service", {
         /**
          * 自动连接
          */
-        autoReconnect: localStorage["ipanel.autoReconnect"] === "1",
+        autoLogin: localStorage["ipanel.autoLogin"] === "1",
 
         /**
          * 实例
@@ -60,7 +60,7 @@ export const useServiceStore = defineStore("service", {
             }
 
             this.rememberPassword = payload.rememberPassword;
-            this.autoReconnect = payload.autoReconnect;
+            this.autoLogin = payload.autoLogin;
         },
 
         save() {
@@ -70,7 +70,7 @@ export const useServiceStore = defineStore("service", {
             localStorage["ipanel.rememberPassword"] = Number(
                 this.rememberPassword
             );
-            localStorage["ipanel.autoReconnect"] = Number(this.autoReconnect);
+            localStorage["ipanel.autoLogin"] = Number(this.autoLogin);
         },
     },
 });

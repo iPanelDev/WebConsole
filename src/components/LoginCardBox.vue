@@ -11,7 +11,7 @@ import { jumpToOverview, prepareToLogin } from "@/service";
 import { useConnectionStore, useServiceStore } from "@/service/store";
 import { State } from "@/service/types";
 import { mdiAccount, mdiAsterisk } from "@mdi/js";
-import { reactive } from "vue";
+import { reactive, watch } from "vue";
 
 const serviceStore = useServiceStore();
 const connectionStore = useConnectionStore();
@@ -20,20 +20,21 @@ const form = reactive({
     userName: serviceStore.userName,
     password: serviceStore.password,
     rememberPassword: serviceStore.rememberPassword,
-    autoReconnect: serviceStore.autoReconnect,
+    autoLogin: serviceStore.autoLogin,
 });
 
-const submit = () => {
+watch(form, () => {
+    if (form.autoLogin) form.rememberPassword = true;
+
     serviceStore.update(form);
     serviceStore.save();
-    prepareToLogin();
-};
+});
 </script>
 
 <template>
     <CardBox
         is-form
-        @submit.prevent="submit"
+        @submit.prevent="prepareToLogin"
         class="w-11/12 md:w-7/12 lg:w-6/12 xl:w-4/12 shadow-2xl"
     >
         <div class="text-2xl font-semibold mb-3">连接你的iPanel</div>
@@ -69,9 +70,9 @@ const submit = () => {
         />
 
         <FormCheckRadio
-            v-model="form.autoReconnect"
-            name="autoReconnect"
-            label="自动重连"
+            v-model="form.autoLogin"
+            name="autoLogin"
+            label="自动登录"
             :input-value="true"
         />
 

@@ -87,22 +87,21 @@ export async function updateUserInfo() {
 /**
  * 首次尝试重连
  */
-async function firstReconnect() {
+async function reconnect() {
     const serviceStore = useServiceStore();
-    if (
-        !serviceStore.autoReconnect ||
-        !serviceStore.userName ||
-        !serviceStore.password ||
-        router.currentRoute.value.path === "/login"
-    ) {
-        return;
-    }
 
     const status = await getStatus();
     if (status.logined) {
         createNotify({ type: "success", title: "重连成功" });
         onLogined(status.user);
-    }
+    } else if (
+        serviceStore.autoLogin &&
+        serviceStore.userName &&
+        serviceStore.password
+    )
+        if (router.currentRoute.value.path === "/login")
+            setTimeout(prepareToLogin, 1000);
+        else prepareToLogin();
 }
 
 /**
@@ -322,6 +321,6 @@ async function compareVersion() {
     }
 }
 
-setTimeout(firstReconnect, 200);
+setTimeout(reconnect, 200);
 setInterval(checkStatus, 5000);
 connect();

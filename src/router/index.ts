@@ -95,6 +95,16 @@ const routes: RouteRecordRaw[] = [
 
     {
         meta: {
+            title: "调试",
+        },
+        path: "/debug",
+        name: "debug",
+        // @ts-expect-error
+        component: () => import("@/views/DebugView.vue"),
+    },
+
+    {
+        meta: {
             title: "404",
         },
         path: "/:path(.*)*",
