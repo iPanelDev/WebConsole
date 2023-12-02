@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import BaseIcon from "@/components/BaseIcon.vue";
-import CardBox from "@/components/CardBox.vue";
-import CardBoxComponentEmpty from "@/components/CardBoxComponentEmpty.vue";
-import FormControl from "@/components/FormControl.vue";
-import SectionMain from "@/components/SectionMain.vue";
-import SectionTitleLineWithButton from "@/components/SectionTitleLineWithButton.vue";
-import { EmptyStringPlaceholder } from "@/constant";
-import LayoutAuthenticated from "@/layouts/LayoutAuthenticated.vue";
-import { callWhenLogined, updateInstancesInfo } from "@/service";
-import { useServiceStore } from "@/service/store";
-import { Instance } from "@/service/types";
-import { mdiClock, mdiFile, mdiFilter, mdiHome, mdiServer } from "@mdi/js";
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import BaseIcon from '@/components/BaseIcon.vue';
+import CardBox from '@/components/CardBox.vue';
+import CardBoxComponentEmpty from '@/components/CardBoxComponentEmpty.vue';
+import FormControl from '@/components/FormControl.vue';
+import SectionMain from '@/components/SectionMain.vue';
+import SectionTitleLineWithButton from '@/components/SectionTitleLineWithButton.vue';
+import { EmptyStringPlaceholder } from '@/constant';
+import LayoutAuthenticated from '@/layouts/LayoutAuthenticated.vue';
+import { callWhenLogined, updateInstancesInfo } from '@/service';
+import { useServiceStore } from '@/service/store';
+import { Instance } from '@/service/types';
+import { mdiClock, mdiFile, mdiFilter, mdiHome, mdiServer } from '@mdi/js';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 const serviceStore = useServiceStore();
 
-const filter = ref("");
+const filter = ref('');
 
 const instancesFiltered = computed(() =>
     Array.from(
@@ -63,7 +63,7 @@ onBeforeUnmount(() => clearInterval(timer));
                     >
                         <div class="flex mb-5 truncate">
                             <span class="mr-2 text-xl">
-                                {{ item[1].customName ?? "未知名称" }}
+                                {{ item[1].customName ?? '未知名称' }}
                             </span>
                             <span
                                 class="text-lg text-gray-600 dark:text-gray-400"
@@ -80,15 +80,15 @@ onBeforeUnmount(() => clearInterval(timer));
                                 <span
                                     :class="[
                                         item[1]?.info?.server?.status
-                                            ? 'text-green-500'
+                                            ? 'text-teal-500'
                                             : 'text-gray-500',
                                     ]"
                                     >●</span
                                 >
                                 {{
                                     item[1].info?.server?.status
-                                        ? "运行中"
-                                        : "未启动"
+                                        ? '运行中'
+                                        : '未启动'
                                 }}
                             </span>
                         </div>

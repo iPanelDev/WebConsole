@@ -4,8 +4,8 @@ import {
     mdiCogOutline,
     mdiGithub,
     mdiLogout,
-    mdiThemeLightDark
-} from "@mdi/js";
+    mdiThemeLightDark,
+} from '@mdi/js';
 
 export default [
     {
@@ -13,47 +13,47 @@ export default [
         menu: [
             {
                 icon: mdiAccount,
-                label: "个人资料",
-                to: "/profile",
+                label: '个人资料',
+                to: '/profile',
             },
             {
-                to: "/settings",
+                to: '/settings',
                 icon: mdiCogOutline,
-                label: "设置",
+                label: '设置',
             },
             {
                 isDivider: true,
             },
             {
                 icon: mdiLogout,
-                label: "退出",
+                label: '退出',
                 isLogout: true,
-                to: "/login",
+                to: '/login',
             },
         ],
     },
     {
-        label: "未连接",
+        label: '未连接',
         isLatency: true,
     },
     {
         icon: mdiThemeLightDark,
-        label: "主题",
+        label: '主题',
         isDesktopNoLabel: true,
         isToggleLightDark: true,
     },
     {
         icon: mdiGithub,
-        label: "GitHub",
+        label: 'GitHub',
         isDesktopNoLabel: true,
-        href: "https://github.com/iPanelDev/WebConsole",
-        target: "_blank",
+        href: 'https://github.com/iPanelDev/WebConsole',
+        target: '_blank',
     },
     {
         icon: mdiBook,
-        label: "文档",
+        label: '文档',
         isDesktopNoLabel: true,
-        href: "https://ipaneldev.github.io/",
-        target: "_blank",
+        href: 'https://ipaneldev.github.io/',
+        target: '_blank',
     },
 ];

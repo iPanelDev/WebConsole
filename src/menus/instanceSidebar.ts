@@ -1,14 +1,14 @@
-import { mdiConsole, mdiConsoleLine, mdiMonitorDashboard } from "@mdi/js";
+import { mdiConsole, mdiMonitorDashboard } from '@mdi/js';
 
 export default [
     {
-        to: "./dashboard",
+        to: './dashboard',
         icon: mdiMonitorDashboard,
-        label: "仪表盘",
+        label: '仪表盘',
     },
     {
-        to: "./console",
+        to: './console',
         icon: mdiConsole,
-        label: "控制台",
+        label: '控制台',
     },
 ];

@@ -1,24 +1,19 @@
-import {
-    mdiAccountCircle,
-    mdiCog,
-    mdiCone,
-    mdiHome
-} from "@mdi/js";
+import { mdiAccountCircle, mdiCog, mdiHome } from '@mdi/js';
 
 export default [
     {
-        to: "/overview",
+        to: '/overview',
         icon: mdiHome,
-        label: "总览",
+        label: '总览',
     },
     {
-        to: "/profile",
-        label: "个人资料",
+        to: '/profile',
+        label: '个人资料',
         icon: mdiAccountCircle,
     },
     {
-        to: "/settings",
-        label: "设置",
+        to: '/settings',
+        label: '设置',
         icon: mdiCog,
     },
 ];

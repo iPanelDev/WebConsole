@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import BaseButton from "@/components/BaseButton.vue";
-import CardBox from "@/components/CardBox.vue";
-import CardBoxModal from "@/components/CardBoxModal.vue";
-import Console from "@/components/Console.vue";
-import FormControl from "@/components/FormControl.vue";
-import SectionMain from "@/components/SectionMain.vue";
-import SectionTitleLineWithButton from "@/components/SectionTitleLineWithButton.vue";
-import LayoutOfInstance from "@/layouts/LayoutOfInstance.vue";
+import BaseButton from '@/components/BaseButton.vue';
+import CardBox from '@/components/CardBox.vue';
+import CardBoxModal from '@/components/CardBoxModal.vue';
+import Console from '@/components/Console.vue';
+import FormControl from '@/components/FormControl.vue';
+import SectionMain from '@/components/SectionMain.vue';
+import SectionTitleLineWithButton from '@/components/SectionTitleLineWithButton.vue';
+import LayoutOfInstance from '@/layouts/LayoutOfInstance.vue';
 import {
     clearInputHistory,
     clearOutputsMap,
@@ -16,8 +16,8 @@ import {
     kill,
     start,
     stop,
-} from "@/service/serverControler";
-import { useServiceStore } from "@/service/store";
+} from '@/service/serverControler';
+import { useServiceStore } from '@/service/store';
 import {
     mdiArrowUp,
     mdiConsole,
@@ -27,11 +27,11 @@ import {
     mdiPlay,
     mdiStop,
     mdiTrashCan,
-} from "@mdi/js";
-import { computed, ref } from "vue";
-import { useRoute } from "vue-router";
+} from '@mdi/js';
+import { computed, ref } from 'vue';
+import { useRoute } from 'vue-router';
 
-const instanceId = useRoute().params["instanceId"] as string;
+const instanceId = useRoute().params['instanceId'] as string;
 
 const serviceStore = useServiceStore();
 
@@ -43,7 +43,7 @@ const status = computed(
     () => serviceStore.instances[instanceId]?.info?.server.status
 );
 
-const inputRef = ref("");
+const inputRef = ref('');
 const isModalActive = ref(false);
 const sectionElRef = ref<{ el: HTMLElement }>();
 const inputElRef = ref<{ inputEl: HTMLElement }>();
@@ -73,10 +73,11 @@ const index = ref(-1);
 function updateIndex(change: number = 1) {
     index.value += change;
 
-    if (index.value > inputHistory.length) index.value = inputHistory.length;
+    if (index.value >= inputHistory.length)
+        index.value = inputHistory.length - 1;
     else if (index.value <= -1) index.value = -1;
 
-    inputRef.value = inputHistory[index.value] || "";
+    inputRef.value = inputHistory[index.value] || '';
 }
 
 /**
@@ -87,7 +88,7 @@ function send() {
 
     index.value = 0;
     input(instanceId, inputRef.value);
-    inputRef.value = "";
+    inputRef.value = '';
     inputElRef.value.inputEl.focus();
 }
 </script>
@@ -140,11 +141,11 @@ function send() {
                     v-model="inputRef"
                     inputmode="text"
                     autocomplete="none"
-                    placeholder="在此输入命令..."
+                    placeholder="在此输入命令... (你可以使用键盘上下键切换历史输入)"
                     title="你可以使用上下键切换历史输入"
                     @keyup.enter.stop="send"
-                    @keyup.up="updateIndex(1)"
-                    @keyup.down="updateIndex(-1)"
+                    @keyup.up.stop="updateIndex(1)"
+                    @keyup.down.stop="updateIndex(-1)"
                 />
                 <BaseButton
                     :icon="mdiArrowUp"

@@ -83,7 +83,7 @@ export declare type DirBase = {
 };
 
 export declare type DirItem = {
-    type: "file" | "dir";
+    type: 'file' | 'dir';
     path: string;
     name: string;
     size?: number;

@@ -1,19 +1,19 @@
-import { useConnectionStore, useServiceStore } from "@/service/store";
-import { HttpPacket, Instance, User } from "@/service/types";
-import axios, { AxiosError } from "axios";
-import md5 from "blueimp-md5";
+import { useConnectionStore, useServiceStore } from '@/service/store';
+import { HttpPacket, Instance, User } from '@/service/types';
+import axios, { AxiosError } from 'axios';
+import md5 from 'blueimp-md5';
 
 const appJsonHeader = {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
 };
-const axiosInstance = axios.create({ baseURL: "/api" });
+const axiosInstance = axios.create({ baseURL: '/api' });
 axiosInstance.defaults.headers.delete = appJsonHeader;
 axiosInstance.defaults.headers.put = appJsonHeader;
 axiosInstance.defaults.headers.post = appJsonHeader;
 axiosInstance.interceptors.response.use(undefined, (err) => {
     if (err instanceof AxiosError && err.response)
         throw `${err.response.status} ${err.response.statusText}: ${
-            (err.response.data as HttpPacket).errorMsg || "unknown"
+            (err.response.data as HttpPacket).errorMsg || 'unknown'
         }`;
     throw err;
 });
@@ -29,7 +29,7 @@ export async function login() {
         status,
         data: { data },
     } = await axiosInstance.post<HttpPacket>(
-        "/users/@self/login",
+        '/users/@self/login',
         JSON.stringify({
             userName: serviceStore.userName,
             time,
@@ -39,7 +39,7 @@ export async function login() {
         }),
         {
             headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
             },
         }
     );
@@ -55,14 +55,14 @@ export async function login() {
  * 退出
  */
 export async function logout() {
-    await axiosInstance.get<HttpPacket>("/users/@self/logout");
+    await axiosInstance.get<HttpPacket>('/users/@self/logout');
 }
 
 /**
  * 获取登录态
  */
 export async function getStatus() {
-    return (await axiosInstance.get<HttpPacket>("/users/@self/status")).data
+    return (await axiosInstance.get<HttpPacket>('/users/@self/status')).data
         .data;
 }
 
@@ -70,17 +70,17 @@ export async function getStatus() {
  * 获取当前用户信息
  */
 export async function getUserInfo() {
-    return (await axiosInstance.get<HttpPacket>("/users/@self")).data
+    return (await axiosInstance.get<HttpPacket>('/users/@self')).data
         .data as User;
 }
 
 export async function editSelfPwd(pwd: string) {
     return await axiosInstance.put<HttpPacket>(
-        "/users/@self",
+        '/users/@self',
         JSON.stringify({ password: pwd }),
         {
             headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
             },
         }
     );
@@ -90,7 +90,7 @@ export async function editSelfPwd(pwd: string) {
  * 获取所有用户信息
  */
 export async function listUsers() {
-    return (await axiosInstance.get<HttpPacket>("/users")).data.data as Record<
+    return (await axiosInstance.get<HttpPacket>('/users')).data.data as Record<
         string,
         User
     >;
@@ -106,7 +106,7 @@ export async function createUser(userName: string, newUser: User) {
         JSON.stringify(user),
         {
             headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
             },
         }
     );
@@ -123,7 +123,7 @@ export async function editUser(userName: string, newUser: User) {
         JSON.stringify(user),
         {
             headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
             },
         }
     );
@@ -142,7 +142,7 @@ export async function removeUser(userName: string) {
  * 获取实例
  */
 export async function listInstances() {
-    return (await axiosInstance.get<HttpPacket>("/instances")).data
+    return (await axiosInstance.get<HttpPacket>('/instances')).data
         .data as Instance[];
 }
 
@@ -210,7 +210,7 @@ export async function callInstanceInput(instanceId: string, inputs: string[]) {
         JSON.stringify(inputs),
         {
             headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
             },
         }
     );
@@ -221,7 +221,7 @@ export async function callInstanceInput(instanceId: string, inputs: string[]) {
  * @returns 版本号
  */
 export async function getVersion() {
-    return (await axiosInstance.get<HttpPacket>("/version")).data
+    return (await axiosInstance.get<HttpPacket>('/version')).data
         .data as string;
 }
 

@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import BaseIcon from "@/components/BaseIcon.vue";
-import CardBox from "@/components/CardBox.vue";
-import LineChart from "@/components/Charts/LineChart.vue";
-import SectionMain from "@/components/SectionMain.vue";
-import SectionTitleLineWithButton from "@/components/SectionTitleLineWithButton.vue";
-import LayoutOfInstance from "@/layouts/LayoutOfInstance.vue";
-import { useServiceStore } from "@/service/store";
-import { InstanceInfo } from "@/service/types";
+import BaseIcon from '@/components/BaseIcon.vue';
+import CardBox from '@/components/CardBox.vue';
+import LineChart from '@/components/Charts/LineChart.vue';
+import SectionMain from '@/components/SectionMain.vue';
+import SectionTitleLineWithButton from '@/components/SectionTitleLineWithButton.vue';
+import LayoutOfInstance from '@/layouts/LayoutOfInstance.vue';
+import { useServiceStore } from '@/service/store';
+import { InstanceInfo } from '@/service/types';
 import {
     mdiApplication,
     mdiCpu64Bit,
@@ -15,13 +15,13 @@ import {
     mdiMemory,
     mdiMonitorDashboard,
     mdiServer,
-} from "@mdi/js";
-import { computed, onMounted, ref, watch } from "vue";
-import { useRoute } from "vue-router";
+} from '@mdi/js';
+import { computed, onMounted, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 
 const isNullOrUndefined = (v: any) => v === undefined || v === null;
 const serviceStore = useServiceStore();
-const instanceId = useRoute().params["instanceId"] as string;
+const instanceId = useRoute().params['instanceId'] as string;
 
 const info = computed(() => serviceStore.instances[instanceId]?.info);
 const meta = computed(() => serviceStore.instances[instanceId]?.metadata);
@@ -45,24 +45,24 @@ function update() {
         labels: infos.map((i) => new Date(i.updateTime).toLocaleTimeString()),
         datasets: [
             {
-                label: "总CPU使用率",
-                axis: "x",
+                label: '总CPU使用率',
+                axis: 'x',
                 data: infos.map((i) => i.system.cpuUsage),
                 fill: true,
-                cubicInterpolationMode: "default",
-                borderColor: "#36A2EB",
-                backgroundColor: "#9BD0F5",
+                cubicInterpolationMode: 'default',
+                borderColor: '#36A2EB',
+                backgroundColor: '#9BD0F5',
             },
             {
-                label: "服务器进程使用率",
-                axis: "x",
+                label: '服务器进程使用率',
+                axis: 'x',
                 data: infos.map(
                     (i) => (i.server.status && i.server.usage) || 0
                 ),
                 fill: true,
-                cubicInterpolationMode: "default",
-                borderColor: "#64be9f",
-                backgroundColor: "#47b382",
+                cubicInterpolationMode: 'default',
+                borderColor: '#64be9f',
+                backgroundColor: '#47b382',
             },
         ],
     };
@@ -71,22 +71,22 @@ function update() {
         labels: infos.map((i) => new Date(i.updateTime).toLocaleTimeString()),
         datasets: [
             {
-                label: "空闲内存（GB）",
-                axis: "x",
+                label: '空闲内存（GB）',
+                axis: 'x',
                 data: infos.map((i) => i.system.freeRam / 1024 / 1024),
                 fill: true,
-                borderColor: "#53bb27",
-                backgroundColor: "#8cf648",
+                borderColor: '#53bb27',
+                backgroundColor: '#8cf648',
             },
             {
-                label: "已用内存（GB）",
-                axis: "x",
+                label: '已用内存（GB）',
+                axis: 'x',
                 data: infos.map(
                     (i) => (i.system.totalRam - i.system.freeRam) / 1024 / 1024
                 ),
                 fill: true,
-                borderColor: "#0e7490",
-                backgroundColor: "#06b6d4",
+                borderColor: '#0e7490',
+                backgroundColor: '#06b6d4',
             },
         ],
     };
@@ -111,7 +111,7 @@ onMounted(update);
                         <BaseIcon :path="mdiApplication" size="17" />
                         实例
                     </div>
-                    {{ meta?.name || "未知名称" }}
+                    {{ meta?.name || '未知名称' }}
 
                     <span
                         v-if="meta?.version"
@@ -135,7 +135,7 @@ onMounted(update);
                         <BaseIcon :path="mdiHexagonOutline" size="17" />
                         系统
                     </div>
-                    {{ info?.system?.os || "未知" }}
+                    {{ info?.system?.os || '未知' }}
                 </CardBox>
 
                 <CardBox class="pd-6 mb-3 lg:truncate">
@@ -146,12 +146,12 @@ onMounted(update);
                     <span
                         :class="[
                             info?.server.status
-                                ? 'text-green-500'
+                                ? 'text-teal-500'
                                 : 'text-gray-500',
                         ]"
                         >●</span
                     >
-                    {{ info?.server.status ? "运行中" : "未启动" }}
+                    {{ info?.server.status ? '运行中' : '未启动' }}
                     <span
                         v-if="info?.server?.status && info?.server?.filename"
                         class="mr-1 text-gray-500 break-keep"

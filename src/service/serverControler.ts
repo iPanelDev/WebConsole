@@ -1,28 +1,28 @@
-import { createNotify } from "@/notification";
+import { createNotify } from '@/notification';
 import {
     callInstanceInput,
     callInstanceKill,
     callInstanceStart,
     callInstanceStop,
-} from "@/service/requests";
-import { useServiceStore } from "@/service/store";
-import { getSettings } from "@/utils/settingsManager";
-import { AxiosError } from "axios";
-import { ref } from "vue";
+} from '@/service/requests';
+import { useServiceStore } from '@/service/store';
+import { getSettings } from '@/utils/settingsManager';
+import { AxiosError } from 'axios';
+import { ref } from 'vue';
 
 export const inputHistory = Array.from(
-    (JSON.parse(localStorage.getItem("ipanel.inputHistory")) as string[]) || []
+    (JSON.parse(localStorage.getItem('ipanel.inputHistory')) as string[]) || []
 ).filter((l) => Boolean(l?.trim()));
 
 export const inputHistoryRef = ref(inputHistory);
 
 function failureHandler(error: any) {
     if (error instanceof AxiosError) {
-        if (error.status == "403")
+        if (error.status == '403')
             createNotify({
-                title: "权限不足",
-                type: "warning",
-                message: "可能是用户等级权限不足或没有使用此实例的权限",
+                title: '权限不足',
+                type: 'warning',
+                message: '可能是用户等级权限不足或没有使用此实例的权限',
             });
     }
 }
@@ -62,7 +62,7 @@ export function input(instanceId: string, line: string) {
             inputHistory.splice(inputHistory.indexOf(line), 1);
         inputHistory.unshift(line);
     }
-    localStorage.setItem("ipanel.inputHistory", JSON.stringify(inputHistory));
+    localStorage.setItem('ipanel.inputHistory', JSON.stringify(inputHistory));
 
     inputHistoryRef.value = [...inputHistory];
 }
@@ -89,7 +89,7 @@ export function clearOutputsMap(instanceId?: string) {
 
 export function clearInputHistory() {
     inputHistory.length = 0;
-    localStorage.setItem("ipanel.inputHistory", JSON.stringify(inputHistory));
+    localStorage.setItem('ipanel.inputHistory', JSON.stringify(inputHistory));
     inputHistoryRef.value = [...inputHistory];
 }
 
@@ -112,8 +112,8 @@ export function clearInvalidOutputHistory() {
 function updateAndSave() {
     if (getSettings().saveOutput)
         localStorage.setItem(
-            "ipanel.outputs",
+            'ipanel.outputs',
             JSON.stringify(Array.from(useServiceStore().outputs.entries()))
         );
-    else localStorage.setItem("ipanel.outputs", "[]");
+    else localStorage.setItem('ipanel.outputs', '[]');
 }

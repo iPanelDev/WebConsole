@@ -12,11 +12,11 @@ declare type Settings = {
 
 function loadSettings() {
     try {
-        const text = localStorage["ipanel.setttings"];
-        if (!text) throw new TypeError("设置为空");
+        const text = localStorage['ipanel.setttings'];
+        if (!text) throw new TypeError('设置为空');
         return JSON.parse(text) as Settings;
     } catch (error) {
-        console.error("加载设置失败", error);
+        console.error('加载设置失败', error);
         saveSettings();
     }
 }
@@ -27,7 +27,7 @@ export const getSettings = () => settings;
 
 export function saveSettings(newSettings?: Settings) {
     settings = newSettings;
-    localStorage["ipanel.setttings"] = JSON.stringify(
+    localStorage['ipanel.setttings'] = JSON.stringify(
         newSettings ?? defaultSettings
     );
 }

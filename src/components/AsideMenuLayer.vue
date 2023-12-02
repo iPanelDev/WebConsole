@@ -54,7 +54,7 @@ const asideLgCloseClick = (event) => {
                             height: 27px;
                         "
                     />
-                    <b class="font-black break-keep">iPanel 网页控制台</b>
+                    <b class="font-black break-keep select-none">iPanel 网页控制台</b>
                 </div>
                 <button
                     class="hidden lg:inline-block xl:hidden p-3"

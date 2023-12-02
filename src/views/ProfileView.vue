@@ -1,27 +1,27 @@
 <script setup lang="ts">
-import BaseButton from "@/components/BaseButton.vue";
-import BaseButtons from "@/components/BaseButtons.vue";
-import CardBox from "@/components/CardBox.vue";
-import FormControl from "@/components/FormControl.vue";
-import FormField from "@/components/FormField.vue";
-import SectionMain from "@/components/SectionMain.vue";
-import SectionTitleLineWithButton from "@/components/SectionTitleLineWithButton.vue";
-import UserCard from "@/components/UserCard.vue";
-import LayoutAuthenticated from "@/layouts/LayoutAuthenticated.vue";
-import { EmptyStringPlaceholder } from "@/constant";
-import { callWhenLogined, updateUserInfo } from "@/service";
-import { useServiceStore } from "@/service/store";
-import { editSelfPwd } from "@/service/requests";
-import { mdiAccount, mdiFormTextboxPassword } from "@mdi/js";
-import { reactive } from "vue";
-import { validatePwd } from "@/service/user";
-import { createNotify } from "@/notification";
+import BaseButton from '@/components/BaseButton.vue';
+import BaseButtons from '@/components/BaseButtons.vue';
+import CardBox from '@/components/CardBox.vue';
+import FormControl from '@/components/FormControl.vue';
+import FormField from '@/components/FormField.vue';
+import SectionMain from '@/components/SectionMain.vue';
+import SectionTitleLineWithButton from '@/components/SectionTitleLineWithButton.vue';
+import UserCard from '@/components/UserCard.vue';
+import LayoutAuthenticated from '@/layouts/LayoutAuthenticated.vue';
+import { EmptyStringPlaceholder } from '@/constant';
+import { callWhenLogined, updateUserInfo } from '@/service';
+import { useServiceStore } from '@/service/store';
+import { editSelfPwd } from '@/service/requests';
+import { mdiAccount, mdiFormTextboxPassword } from '@mdi/js';
+import { reactive } from 'vue';
+import { validatePwd } from '@/service/user';
+import { createNotify } from '@/notification';
 
 const serviceStore = useServiceStore();
 
 const passwordForm = reactive({
-    password: "",
-    passwordForConfirmation: "",
+    password: '',
+    passwordForConfirmation: '',
 });
 
 callWhenLogined(updateUserInfo);
@@ -31,21 +31,21 @@ async function edit() {
         validatePwd(passwordForm.password);
 
         if (passwordForm.password !== passwordForm.passwordForConfirmation)
-            throw "两次输入的密码不一致";
+            throw '两次输入的密码不一致';
 
         await editSelfPwd(passwordForm.password);
 
         createNotify({
-            type: "success",
-            title: "修改密码成功",
+            type: 'success',
+            title: '修改密码成功',
         });
-        passwordForm.password = "";
-        passwordForm.passwordForConfirmation = "";
+        passwordForm.password = '';
+        passwordForm.passwordForConfirmation = '';
     } catch (error) {
         createNotify({
-            title: "修改密码失败",
+            title: '修改密码失败',
             message: String(error),
-            type: "danger",
+            type: 'danger',
         });
     }
 }
@@ -75,7 +75,7 @@ async function edit() {
                     <div class="mb-5">
                         <h2 class="font-bold">权限等级</h2>
                         {{
-                            ["游客", "只读", "助手", "管理员"][
+                            ['游客', '只读', '助手', '管理员'][
                                 serviceStore.currentUser?.level
                             ] || EmptyStringPlaceholder
                         }}

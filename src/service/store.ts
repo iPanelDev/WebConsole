@@ -1,11 +1,11 @@
-import { Instance, InstanceInfo, State, User } from "@/service/types";
-import { defineStore } from "pinia";
+import { Instance, InstanceInfo, State, User } from '@/service/types';
+import { defineStore } from 'pinia';
 
-export const useServiceStore = defineStore("service", {
+export const useServiceStore = defineStore('service', {
     state: () => ({
-        userName: localStorage["ipanel.userName"],
+        userName: localStorage['ipanel.userName'],
 
-        password: localStorage["ipanel.password"],
+        password: localStorage['ipanel.password'],
 
         /**
          * 上次登录时间
@@ -15,12 +15,12 @@ export const useServiceStore = defineStore("service", {
         /**
          * 记住密码
          */
-        rememberPassword: localStorage["ipanel.rememberPassword"] === "1",
+        rememberPassword: localStorage['ipanel.rememberPassword'] === '1',
 
         /**
          * 自动连接
          */
-        autoLogin: localStorage["ipanel.autoLogin"] === "1",
+        autoLogin: localStorage['ipanel.autoLogin'] === '1',
 
         /**
          * 实例
@@ -31,7 +31,7 @@ export const useServiceStore = defineStore("service", {
          * 输出
          */
         outputs: new Map<string, string[]>(
-            JSON.parse(localStorage["ipanel.outputs"] || "[]")
+            JSON.parse(localStorage['ipanel.outputs'] || '[]')
         ),
 
         /**
@@ -64,18 +64,18 @@ export const useServiceStore = defineStore("service", {
         },
 
         save() {
-            localStorage["ipanel.userName"] = this.userName ?? "";
-            localStorage["ipanel.password"] =
-                (this.rememberPassword && this.password) || "";
-            localStorage["ipanel.rememberPassword"] = Number(
+            localStorage['ipanel.userName'] = this.userName ?? '';
+            localStorage['ipanel.password'] =
+                (this.rememberPassword && this.password) || '';
+            localStorage['ipanel.rememberPassword'] = Number(
                 this.rememberPassword
             );
-            localStorage["ipanel.autoLogin"] = Number(this.autoLogin);
+            localStorage['ipanel.autoLogin'] = Number(this.autoLogin);
         },
     },
 });
 
-export const useConnectionStore = defineStore("connection", {
+export const useConnectionStore = defineStore('connection', {
     state: () => ({
         /**
          * WebSocket对象
@@ -130,7 +130,7 @@ export const useConnectionStore = defineStore("connection", {
         /**
          * 提示消息类型
          */
-        noticeType: "warning",
+        noticeType: 'warning',
 
         /**
          * 延迟

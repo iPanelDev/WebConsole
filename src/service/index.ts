@@ -1,6 +1,6 @@
-import { VERSION } from "@/constant";
-import { createNotify, NotificationType } from "@/notification";
-import router from "@/router";
+import { VERSION } from '@/constant';
+import { createNotify, NotificationType } from '@/notification';
+import router from '@/router';
 import {
     logout as _logout,
     getInstanceInfo,
@@ -10,17 +10,17 @@ import {
     listInstances,
     login,
     subscribeInstance,
-} from "@/service/requests";
-import { useConnectionStore, useServiceStore } from "@/service/store";
-import { State, User } from "@/service/types";
-import { connect } from "@/service/webSocket";
+} from '@/service/requests';
+import { useConnectionStore, useServiceStore } from '@/service/store';
+import { State, User } from '@/service/types';
+import { connect } from '@/service/webSocket';
 
 const requestMinInterval = 200;
 
 const funcQueue: Function[] = [];
 
 export function callWhenLogined(func: Function) {
-    if (typeof func !== "function") return;
+    if (typeof func !== 'function') return;
     const connectionStore = useConnectionStore();
 
     if (connectionStore.state == State.logined) {
@@ -29,7 +29,7 @@ export function callWhenLogined(func: Function) {
         funcQueue.splice(0, funcQueue.length);
     } else funcQueue.push(func);
 }
-export const permissionLevel = ["游客", "只读", "助手", "管理员"];
+export const permissionLevel = ['游客', '只读', '助手', '管理员'];
 
 /**
  * 准备登录
@@ -48,7 +48,7 @@ export async function prepareToLogin() {
         console.warn(error);
         connectionStore.state = State.failure;
         connectionStore.notice = String(error.message || error);
-        connectionStore.noticeType = "info" as NotificationType;
+        connectionStore.noticeType = 'info' as NotificationType;
         return;
     }
 
@@ -57,12 +57,12 @@ export async function prepareToLogin() {
         const { user } = await login();
 
         onLogined(user);
-        createNotify({ type: "success", title: "登录成功" });
+        createNotify({ type: 'success', title: '登录成功' });
     } catch (error) {
         console.error(error);
         connectionStore.state = State.failure;
         connectionStore.notice = String(error.message || error);
-        connectionStore.noticeType = "danger" as NotificationType;
+        connectionStore.noticeType = 'danger' as NotificationType;
     }
 }
 
@@ -70,9 +70,9 @@ export async function prepareToLogin() {
  * 检查输入值
  */
 function validateValues(userName: string, password: string) {
-    if (typeof userName != "string" || !userName) throw new Error("帐号为空");
-    else if (typeof password != "string" || !password)
-        throw new Error("密码为空");
+    if (typeof userName != 'string' || !userName) throw new Error('帐号为空');
+    else if (typeof password != 'string' || !password)
+        throw new Error('密码为空');
 
     return true;
 }
@@ -92,14 +92,14 @@ async function reconnect() {
 
     const status = await getStatus();
     if (status.logined) {
-        createNotify({ type: "success", title: "重连成功" });
+        createNotify({ type: 'success', title: '重连成功' });
         onLogined(status.user);
     } else if (
         serviceStore.autoLogin &&
         serviceStore.userName &&
         serviceStore.password
     )
-        if (router.currentRoute.value.path === "/login")
+        if (router.currentRoute.value.path === '/login')
             setTimeout(prepareToLogin, 1000);
         else prepareToLogin();
 }
@@ -128,8 +128,8 @@ function onLogined(user: User) {
  * 跳转到总览页面
  */
 export function jumpToOverview() {
-    if (router.currentRoute.value.path === "/login") {
-        router.push("/overview");
+    if (router.currentRoute.value.path === '/login') {
+        router.push('/overview');
     }
 }
 
@@ -142,9 +142,9 @@ export async function logout() {
     } catch (error) {
         console.error(error);
         createNotify({
-            type: "warning",
-            title: "退出时异常",
-            message: "更多信息请查看网页开发控制台 (F12)",
+            type: 'warning',
+            title: '退出时异常',
+            message: '更多信息请查看网页开发控制台 (F12)',
         });
     }
 
@@ -152,7 +152,7 @@ export async function logout() {
     const serviceStore = useServiceStore();
     connectionStore.$reset();
     serviceStore.$reset();
-    router.push("/login");
+    router.push('/login');
 }
 
 /**
@@ -169,7 +169,7 @@ export async function updateInstancesInfo(
         requestMinInterval
     ) {
         console.warn(
-            "更新实例信息已跳过，间隔",
+            '更新实例信息已跳过，间隔',
             Date.now() - connectionStore.lastRequestInstanceTime
         );
         return;
@@ -204,7 +204,7 @@ export async function updateInstancesInfo(
         connectionStore.lastRequestInstanceTime = Date.now();
         return true;
     } catch (error) {
-        console.warn("实例信息更新失败", error);
+        console.warn('实例信息更新失败', error);
         return false;
     }
 }
@@ -219,7 +219,7 @@ async function checkStatus() {
         requestMinInterval
     ) {
         console.warn(
-            "检查状态已跳过，间隔",
+            '检查状态已跳过，间隔',
             Date.now() - connectionStore.lastRequestStatusTime
         );
         return;
@@ -233,9 +233,9 @@ async function checkStatus() {
 
             if (!state.logined) {
                 createNotify({
-                    title: "登录状态异常",
-                    message: "你被强制下线了",
-                    type: "warning",
+                    title: '登录状态异常',
+                    message: '你被强制下线了',
+                    type: 'warning',
                     duration: -1,
                 });
                 connectionStore.state = State.none;
@@ -244,9 +244,9 @@ async function checkStatus() {
             connectionStore.state = State.none;
             console.error(error);
             createNotify({
-                title: "连接已断开",
+                title: '连接已断开',
                 message: String(error),
-                type: "danger",
+                type: 'danger',
                 duration: -1,
             });
         }
@@ -276,8 +276,8 @@ enum VersionResult {
  */
 async function compareVersion() {
     const hostVer = await getVersion();
-    const hostVers = hostVer.split(".");
-    const consoleVer = VERSION.split(".");
+    const hostVers = hostVer.split('.');
+    const consoleVer = VERSION.split('.');
 
     const minLength = Math.min(hostVers.length, consoleVer.length, 3);
 
@@ -295,16 +295,16 @@ async function compareVersion() {
 
     if (result !== VersionResult.same) {
         createNotify({
-            type: "warning",
-            title: "与后端的版本不匹配",
-            message: "更多信息详见开发控制台 (F12)",
+            type: 'warning',
+            title: '与后端的版本不匹配',
+            message: '更多信息详见开发控制台 (F12)',
             duration: -1,
         });
 
         switch (result) {
             case VersionResult.newer:
                 console.warn(
-                    "与后端的版本不匹配，这可能导致部分功能不可用\n",
+                    '与后端的版本不匹配，这可能导致部分功能不可用\n',
                     `网页控制台版本：${VERSION}（较新）\n`,
                     `后端版本：${hostVer}`
                 );
@@ -312,7 +312,7 @@ async function compareVersion() {
 
             case VersionResult.older:
                 console.warn(
-                    "与后端的版本不匹配，这可能导致部分功能不可用\n",
+                    '与后端的版本不匹配，这可能导致部分功能不可用\n',
                     `网页控制台版本：${VERSION}\n`,
                     `后端版本：${hostVer}（较新）`
                 );
