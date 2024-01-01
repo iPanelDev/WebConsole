@@ -10,7 +10,7 @@
   "dependencies": {
     "@mdi/js": "^7.3.67",
     "@rushstack/eslint-patch": "^1.1.4",
-    "axios": "^0.27.2",
+    "axios": "^1.6.3",
     "blueimp-md5": "^2.19.0",
     "chart.js": "^4.4.0",
     "html-entities": "^2.4.0",
