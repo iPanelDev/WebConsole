@@ -13,7 +13,7 @@ axiosInstance.defaults.headers.post = appJsonHeader;
 axiosInstance.interceptors.response.use(undefined, (err) => {
     if (err instanceof AxiosError && err.response)
         throw `${err.response.status} ${err.response.statusText}: ${
-            (err.response.data as HttpPacket).errorMsg || 'unknown'
+            (err.response.data as HttpPacket)?.errorMsg || 'unknown'
         }`;
     throw err;
 });
