@@ -1,27 +1,27 @@
 <script setup lang="ts">
-import BaseButton from "@/components/BaseButton.vue";
-import BaseButtons from "@/components/BaseButtons.vue";
-import CardBoxModal from "@/components/CardBoxModal.vue";
-import FormControl from "@/components/FormControl.vue";
-import FormField from "@/components/FormField.vue";
-import InstanceSelector from "@/components/InstanceSelector.vue";
-import NotificationBar from "@/components/NotificationBar.vue";
-import SectionMain from "@/components/SectionMain.vue";
-import SectionTitleLineWithButton from "@/components/SectionTitleLineWithButton.vue";
-import UsersTable from "@/components/UsersTable.vue";
-import LayoutAuthenticated from "@/layouts/LayoutAuthenticated.vue";
-import { createNotify } from "@/notification";
-import { callWhenLogined, permissionLevel } from "@/service";
+import BaseButton from '@/components/BaseButton.vue';
+import BaseButtons from '@/components/BaseButtons.vue';
+import CardBoxModal from '@/components/CardBoxModal.vue';
+import FormControl from '@/components/FormControl.vue';
+import FormField from '@/components/FormField.vue';
+import InstanceSelector from '@/components/InstanceSelector.vue';
+import NotificationBar from '@/components/NotificationBar.vue';
+import SectionMain from '@/components/SectionMain.vue';
+import SectionTitleLineWithButton from '@/components/SectionTitleLineWithButton.vue';
+import UsersTable from '@/components/UsersTable.vue';
+import LayoutAuthenticated from '@/layouts/LayoutAuthenticated.vue';
+import { createNotify } from '@/notification';
+import { callWhenLogined, permissionLevel } from '@/service';
 import {
     createUser,
     editUser,
     listInstances,
     listUsers,
     removeUser,
-} from "@/service/requests";
-import { useServiceStore } from "@/service/store";
-import { User } from "@/service/types";
-import { validatePwd, validateUsername } from "@/service/user";
+} from '@/service/requests';
+import { useServiceStore } from '@/service/store';
+import { User } from '@/service/types';
+import { validatePwd, validateUsername } from '@/service/user';
 import {
     mdiAccountCard,
     mdiAccountMultiple,
@@ -31,8 +31,8 @@ import {
     mdiFormTextboxPassword,
     mdiPencil,
     mdiRefresh,
-} from "@mdi/js";
-import { ref } from "vue";
+} from '@mdi/js';
+import { ref } from 'vue';
 
 const serviceStore = useServiceStore();
 
@@ -55,7 +55,7 @@ const permissionLevelDict = permissionLevel.map((v, i) => ({
 }));
 
 const instances = ref({} as Record<string, [boolean, string?]>);
-const userName = ref("");
+const userName = ref('');
 const isRemoveFormActive = ref(false);
 const isEditFormActive = ref(false);
 const isCreateFormActive = ref(false);
@@ -93,7 +93,7 @@ async function showEditForm(name: string) {
 }
 
 async function showCreateForm() {
-    userName.value = "";
+    userName.value = '';
     isCreateFormActive.value = true;
     user.value = { level: 0, instances: [] } as any;
     user.value._level = permissionLevelDict[user.value.level];
@@ -104,13 +104,13 @@ async function _removeUser() {
     try {
         await removeUser(userName.value);
         createNotify({
-            type: "success",
-            title: "删除用户成功",
+            type: 'success',
+            title: '删除用户成功',
         });
     } catch (error) {
         createNotify({
-            type: "danger",
-            title: "删除用户失败",
+            type: 'danger',
+            title: '删除用户失败',
             message: String(error),
         });
     }
@@ -129,15 +129,15 @@ async function _editUser() {
 
         await editUser(userName.value, user.value);
         createNotify({
-            type: "success",
-            title: "修改用户成功",
+            type: 'success',
+            title: '修改用户成功',
         });
     } catch (error) {
         isEditFormActive.value = true;
         user.value._level = permissionLevelDict[user.value.level];
         createNotify({
-            type: "danger",
-            title: "修改用户失败",
+            type: 'danger',
+            title: '修改用户失败',
             message: String(error),
         });
     }
@@ -148,19 +148,23 @@ async function _createUser() {
     try {
         await validateUsername(userName.value);
         validatePwd(user.value.password);
+
         user.value.instances = Object.entries(instances.value)
             .filter((i) => i[1][0])
             .map((i) => i[0]);
+        user.value.level = user.value._level.id;
+        user.value._level = undefined;
+
         await createUser(userName.value, user.value);
         createNotify({
-            type: "success",
-            title: "创建用户成功",
+            type: 'success',
+            title: '创建用户成功',
         });
     } catch (error) {
         isCreateFormActive.value = true;
         createNotify({
-            type: "danger",
-            title: "创建用户失败",
+            type: 'danger',
+            title: '创建用户失败',
             message: String(error),
         });
     }
